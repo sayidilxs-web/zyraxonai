@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -20,17 +21,12 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  useEffect(() => {
+    window.location.replace("/zyraxon.html");
+  }, []);
   return (
-    <iframe
-      src="/zyraxon.html"
-      title="ZYRAXON AI"
-      style={{
-        position: "fixed",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        border: 0,
-      }}
-    />
+    <div style={{ minHeight: "100vh", background: "#0a0a0f", color: "#fff", display: "grid", placeItems: "center", fontFamily: "system-ui" }}>
+      <p>Loading ZYRAXON-AI…</p>
+    </div>
   );
 }
