@@ -5,26 +5,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ZYRAXON AI — All in One. Anything. Nothing is Impossible.</title>
 <meta name="description" content="ZYRAXON-AI: the most powerful free & open-source desktop AI coding agent. 50+ tools, Beast Mode, Screen Vision, Unlimited Memory. Windows, macOS, Linux." />
-<meta name="author" content="OneL Pawar" />
+<meta name="author" content="Sayid Ilxs" />
 <meta property="og:title" content="ZYRAXON AI — Free Desktop AI Coding Agent" />
 <meta property="og:description" content="50+ tools, Beast Mode, Screen Vision, Unlimited Memory. 100% free & open source." />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://github.com/onelpawarai/ZYRAXON-AI" />
+<meta property="og:url" content="https://github.com/sayidilxs-web/zyraxonai" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2300f5ff'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23g)'/%3E%3Cpath d='M50 20 L70 50 L50 80 L30 50 Z' fill='%23000' opacity='0.8'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0a0a0f;
-  --bg-2:#0d0d16;
-  --card:#111827;
-  --card-hover:#151f36;
-  --border:#1f2937;
+  --bg-2:#0d0d18;
+  --bg-3:#12121f;
+  --card:#13131f;
+  --card-hover:#1a1a2e;
+  --card-border:#1e1e32;
+  --border:#2a2a45;
   --cyan:#00f5ff;
-  --purple:#7c3aed;
+  --cyan-dim:#00c4cc;
+  --purple:#8b5cf6;
+  --purple-dim:#7c3aed;
   --text:#ffffff;
-  --muted:#9ca3af;
-  --grad:linear-gradient(135deg,#00f5ff 0%,#7c3aed 100%);
+  --text-secondary:#a0a0b8;
+  --muted:#6b6b80;
+  --grad:linear-gradient(135deg,#00f5ff 0%,#8b5cf6 100%);
+  --grad-hover:linear-gradient(135deg,#00c4cc 0%,#7c3aed 100%);
+  --shadow-cyan:0 0 40px rgba(0,245,255,.25);
+  --shadow-purple:0 0 40px rgba(139,92,246,.25);
 }
 html{scroll-behavior:smooth}
 body{
@@ -34,211 +45,512 @@ body{
   line-height:1.6;
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
 }
 body::before{
   content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:
-    radial-gradient(ellipse 80% 50% at 50% -20%,rgba(0,245,255,.15),transparent),
-    radial-gradient(ellipse 60% 50% at 80% 50%,rgba(124,58,237,.1),transparent);
+    radial-gradient(ellipse 100% 60% at 50% -10%,rgba(0,245,255,.12),transparent),
+    radial-gradient(ellipse 80% 50% at 90% 60%,rgba(139,92,246,.08),transparent),
+    radial-gradient(ellipse 60% 40% at 10% 80%,rgba(0,245,255,.05),transparent);
 }
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
-.container{max-width:1200px;margin:0 auto;padding:0 24px}
+.container{max-width:1280px;margin:0 auto;padding:0 24px}
 
 /* NAV */
 .nav{
-  position:fixed;top:0;left:0;right:0;z-index:50;
-  backdrop-filter:blur(12px);
-  background:rgba(10,10,15,.7);
-  border-bottom:1px solid var(--border);
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  backdrop-filter:blur(20px) saturate(180%);
+  background:rgba(10,10,15,.8);
+  border-bottom:1px solid rgba(255,255,255,.05);
+  transition:all .3s;
 }
-.nav-inner{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;max-width:1200px;margin:0 auto}
-.logo{font-weight:800;font-size:20px;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
-.logo-mark{width:28px;height:28px;border-radius:8px;background:var(--grad);display:grid;place-items:center;font-size:16px}
-.nav-links{display:flex;gap:28px;align-items:center}
-.nav-links a{color:var(--muted);font-size:14px;font-weight:500;transition:color .2s}
-.nav-links a:hover{color:var(--cyan)}
-.nav-cta{padding:8px 16px;border-radius:8px;background:var(--grad);color:#000!important;font-weight:600;font-size:14px}
-@media(max-width:768px){.nav-links a:not(.nav-cta){display:none}}
-
-/* HERO */
-.hero{padding:160px 0 100px;text-align:center;position:relative}
-.badge{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:6px 14px;border-radius:999px;
-  background:rgba(0,245,255,.08);
-  border:1px solid rgba(0,245,255,.25);
-  color:var(--cyan);font-size:13px;font-weight:500;margin-bottom:24px;
-}
-.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.hero h1{
-  font-size:clamp(40px,7vw,84px);
-  font-weight:900;letter-spacing:-.03em;line-height:1;
+.nav-inner{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;max-width:1280px;margin:0 auto}
+.logo{
+  font-weight:800;font-size:22px;letter-spacing:.5px;
+  display:flex;align-items:center;gap:10px;
   background:var(--grad);
   -webkit-background-clip:text;background-clip:text;color:transparent;
-  margin-bottom:20px;
 }
-.hero .tag{font-size:clamp(18px,2.2vw,22px);color:var(--muted);max-width:720px;margin:0 auto 40px;font-weight:400}
-.hero-cta{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:60px}
+.logo-mark{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--grad);
+  display:grid;place-items:center;
+  box-shadow:var(--shadow-cyan);
+}
+.logo-mark svg{width:18px;height:18px}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{color:var(--text-secondary);font-size:14px;font-weight:500;transition:all .2s;position:relative}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;
+  background:var(--grad);transition:width .3s;
+}
+.nav-links a:hover{color:var(--text)}
+.nav-links a:hover::after{width:100%}
+.nav-cta{
+  padding:10px 20px;border-radius:10px;
+  background:var(--grad);color:#000!important;font-weight:600;font-size:14px;
+  box-shadow:var(--shadow-cyan);
+  transition:all .2s;
+}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 0 50px rgba(0,245,255,.4)}
+@media(max-width:768px){
+  .nav-links a:not(.nav-cta){display:none}
+  .nav-cta{padding:8px 16px}
+}
+
+/* HERO */
+.hero{
+  padding:180px 0 120px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-50%;left:50%;transform:translateX(-50%);
+  width:800px;height:800px;
+  background:radial-gradient(circle,rgba(0,245,255,.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.badge{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:8px 18px;border-radius:999px;
+  background:rgba(0,245,255,.06);
+  border:1px solid rgba(0,245,255,.2);
+  color:var(--cyan);font-size:13px;font-weight:500;margin-bottom:28px;
+  backdrop-filter:blur(10px);
+}
+.badge-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--cyan);
+  box-shadow:0 0 12px var(--cyan);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.9)}}
+.hero h1{
+  font-size:clamp(44px,8vw,88px);
+  font-weight:900;letter-spacing:-.04em;line-height:1;
+  background:var(--grad);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  margin-bottom:24px;
+  text-shadow:0 0 80px rgba(0,245,255,.3);
+}
+.hero .tag{
+  font-size:clamp(16px,2.5vw,20px);
+  color:var(--text-secondary);
+  max-width:780px;margin:0 auto 48px;
+  font-weight:400;line-height:1.7;
+}
+.hero-cta{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:80px}
 .btn{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:14px 28px;border-radius:12px;
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 32px;border-radius:14px;
   font-weight:600;font-size:15px;
-  transition:all .2s;cursor:pointer;border:none;
+  transition:all .3s;cursor:pointer;border:none;
 }
-.btn-primary{background:var(--grad);color:#000;box-shadow:0 0 40px rgba(0,245,255,.35)}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 60px rgba(0,245,255,.55)}
-.btn-outline{background:transparent;color:#fff;border:1px solid var(--border)}
-.btn-outline:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn svg{width:20px;height:20px}
+.btn-primary{
+  background:var(--grad);color:#000;
+  box-shadow:var(--shadow-cyan);
+}
+.btn-primary:hover{
+  transform:translateY(-3px);
+  box-shadow:0 0 60px rgba(0,245,255,.45);
+  background:var(--grad-hover);
+}
+.btn-outline{
+  background:rgba(255,255,255,.03);
+  color:#fff;
+  border:1px solid var(--border);
+  backdrop-filter:blur(10px);
+}
+.btn-outline:hover{
+  border-color:var(--cyan);
+  color:var(--cyan);
+  background:rgba(0,245,255,.05);
+}
 
 /* Terminal */
 .terminal{
-  max-width:720px;margin:0 auto;
-  background:#050510;border:1px solid var(--border);border-radius:14px;
-  overflow:hidden;text-align:left;
-  box-shadow:0 30px 80px -20px rgba(0,245,255,.2);
+  max-width:800px;margin:0 auto;
+  background:#060610;
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  text-align:left;
+  box-shadow:0 40px 100px -30px rgba(0,245,255,.2);
+  position:relative;
 }
-.terminal-bar{display:flex;gap:6px;padding:12px 16px;background:#0a0a15;border-bottom:1px solid var(--border)}
-.term-dot{width:12px;height:12px;border-radius:50%}
-.d1{background:#ff5f56}.d2{background:#ffbd2e}.d3{background:#27c93f}
-.terminal-body{padding:20px;font-family:'JetBrains Mono','Courier New',monospace;font-size:14px;min-height:180px}
-.term-line{margin-bottom:8px}
-.term-prompt{color:var(--cyan)}
-.term-user{color:#a5b4fc}
-.term-out{color:var(--muted)}
-.cursor{display:inline-block;width:8px;height:16px;background:var(--cyan);margin-left:2px;animation:blink 1s infinite;vertical-align:middle}
+.terminal::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,245,255,.02) 0%,transparent 50%);
+  pointer-events:none;
+}
+.terminal-bar{
+  display:flex;gap:8px;padding:14px 18px;
+  background:linear-gradient(180deg,#0f0f1a,#0a0a14);
+  border-bottom:1px solid var(--border);
+}
+.term-dot{width:14px;height:14px;border-radius:50%}
+.d1{background:linear-gradient(135deg,#ff5f56,#ff8a80)}.d2{background:linear-gradient(135deg,#ffbd2e,#ffd54f)}.d3{background:linear-gradient(135deg,#27c93f,#69f0ae)}
+.terminal-body{
+  padding:24px;font-family:'JetBrains Mono','Courier New',monospace;font-size:15px;
+  min-height:200px;line-height:1.8;
+}
+.term-line{margin-bottom:10px;display:flex;align-items:flex-start;gap:8px}
+.term-prompt{color:var(--cyan);font-weight:600}
+.term-user{color:#a78bfa}
+.term-out{color:#8888a0}
+.term-success{color:#4ade80}
+.term-warning{color:#fbbf24}
+.term-ai{color:#c084fc}
+.cursor{
+  display:inline-block;width:10px;height:20px;
+  background:var(--cyan);margin-left:4px;
+  animation:blink 1s infinite;vertical-align:middle;
+  border-radius:2px;
+}
 @keyframes blink{50%{opacity:0}}
 
 /* SECTIONS */
-section{padding:100px 0}
-.section-head{text-align:center;margin-bottom:60px}
-.section-head h2{font-size:clamp(32px,5vw,52px);font-weight:800;letter-spacing:-.02em;margin-bottom:16px}
-.section-head p{color:var(--muted);font-size:18px;max-width:640px;margin:0 auto}
-.gradient-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+section{padding:120px 0}
+.section-head{text-align:center;margin-bottom:64px}
+.section-head h2{
+  font-size:clamp(32px,5vw,56px);
+  font-weight:800;letter-spacing:-.02em;margin-bottom:16px;
+}
+.section-head p{
+  color:var(--text-secondary);font-size:18px;
+  max-width:680px;margin:0 auto;
+}
+.gradient-text{
+  background:var(--grad);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
 
 /* CARDS */
 .grid{display:grid;gap:24px}
-.grid-3{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-.grid-2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.grid-4{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
 .card{
   background:var(--card);
-  border:1px solid var(--border);
-  border-radius:16px;padding:28px;
-  transition:all .3s;
+  border:1px solid var(--card-border);
+  border-radius:20px;padding:32px;
+  transition:all .4s cubic-bezier(.4,0,.2,1);
   position:relative;overflow:hidden;
 }
-.card:hover{transform:translateY(-4px);border-color:rgba(0,245,255,.3);box-shadow:0 20px 40px -20px rgba(0,245,255,.25)}
-.card-icon{
-  width:48px;height:48px;border-radius:12px;
-  background:linear-gradient(135deg,rgba(0,245,255,.15),rgba(124,58,237,.15));
-  border:1px solid rgba(0,245,255,.2);
-  display:grid;place-items:center;margin-bottom:20px;
-  color:var(--cyan);
+.card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(0,245,255,.03),rgba(139,92,246,.02));
+  opacity:0;transition:opacity .3s;
 }
-.card h3{font-size:20px;font-weight:700;margin-bottom:10px}
-.card p{color:var(--muted);font-size:15px}
+.card:hover{
+  transform:translateY(-8px);
+  border-color:rgba(0,245,255,.3);
+  box-shadow:0 25px 60px -20px rgba(0,245,255,.2);
+}
+.card:hover::before{opacity:1}
+.card-icon{
+  width:56px;height:56px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(0,245,255,.12),rgba(139,92,246,.12));
+  border:1px solid rgba(0,245,255,.15);
+  display:grid;place-items:center;margin-bottom:24px;
+  color:var(--cyan);
+  position:relative;z-index:1;
+}
+.card h3{font-size:22px;font-weight:700;margin-bottom:12px;position:relative;z-index:1}
+.card p{color:var(--text-secondary);font-size:15px;line-height:1.7;position:relative;z-index:1}
+
+/* MODELS SECTION */
+.models-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.model-card{
+  background:var(--card);border:1px solid var(--card-border);border-radius:16px;
+  padding:28px 24px;transition:all .3s;
+  display:flex;align-items:center;gap:16px;
+}
+.model-card:hover{border-color:var(--cyan);transform:translateY(-4px)}
+.model-icon{
+  width:48px;height:48px;border-radius:12px;
+  background:linear-gradient(135deg,rgba(0,245,255,.1),rgba(139,92,246,.1));
+  display:grid;place-items:center;
+  flex-shrink:0;
+}
+.model-info h4{font-size:16px;font-weight:600;margin-bottom:4px}
+.model-info p{font-size:13px;color:var(--muted)}
 
 /* COMPARISON */
-.table-wrap{overflow-x:auto;border-radius:16px;border:1px solid var(--border);background:var(--card)}
-table{width:100%;border-collapse:collapse;min-width:600px}
-th,td{padding:16px 20px;text-align:center;border-bottom:1px solid var(--border)}
-th{background:#0a1220;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.table-wrap{
+  overflow-x:auto;border-radius:20px;
+  border:1px solid var(--card-border);
+  background:var(--card);
+  box-shadow:0 20px 60px -20px rgba(0,0,0,.3);
+}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th,td{padding:20px 24px;text-align:center;border-bottom:1px solid var(--card-border)}
+th{
+  background:linear-gradient(180deg,var(--bg-3),var(--bg-2));
+  font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary);
+}
 th:first-child,td:first-child{text-align:left;font-weight:600}
-.zyra-col{color:var(--cyan);background:rgba(0,245,255,.05)}
-td.check{color:#22c55e;font-size:20px}
-td.cross{color:#ef4444;font-size:20px}
+.zyra-col{color:var(--cyan);background:rgba(0,245,255,.04);font-weight:600}
+.other-col{color:var(--text-secondary)}
+td.check{color:#4ade80;font-size:22px}
+td.cross{color:#f87171;font-size:22px}
 tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.02)}
 
 /* DOWNLOAD */
-.dl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.dl-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px;
+}
 .dl-card{
-  background:var(--card);border:1px solid var(--border);border-radius:20px;
-  padding:36px 28px;text-align:center;transition:all .3s;
+  background:var(--card);
+  border:1px solid var(--card-border);
+  border-radius:24px;
+  padding:40px 32px;
+  text-align:center;
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+  position:relative;
+  overflow:hidden;
 }
-.dl-card:hover{border-color:var(--cyan);transform:translateY(-4px)}
-.dl-icon{font-size:56px;margin-bottom:20px;line-height:1}
-.dl-card h3{font-size:24px;margin-bottom:6px}
-.dl-card .sub{color:var(--muted);font-size:14px;margin-bottom:24px}
-.dl-buttons{display:flex;flex-direction:column;gap:10px}
+.dl-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--grad);opacity:0;
+  transition:opacity .3s;
+}
+.dl-card:hover{
+  border-color:rgba(0,245,255,.3);
+  transform:translateY(-6px);
+  box-shadow:0 30px 80px -20px rgba(0,245,255,.2);
+}
+.dl-card:hover::before{opacity:1}
+.dl-icon{
+  width:80px;height:80px;border-radius:20px;
+  background:linear-gradient(135deg,rgba(0,245,255,.1),rgba(139,92,246,.1));
+  border:1px solid rgba(0,245,255,.15);
+  display:grid;place-items:center;
+  margin:0 auto 24px;
+}
+.dl-icon svg{width:40px;height:40px}
+.dl-card h3{font-size:26px;font-weight:700;margin-bottom:8px}
+.dl-card .sub{color:var(--text-secondary);font-size:14px;margin-bottom:28px}
+.dl-buttons{display:flex;flex-direction:column;gap:12px}
 .dl-btn{
-  padding:12px 20px;border-radius:10px;font-weight:600;font-size:14px;
-  background:var(--grad);color:#000;transition:all .2s;display:block;
+  padding:14px 24px;border-radius:12px;
+  font-weight:600;font-size:15px;
+  background:var(--grad);color:#000;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;
 }
-.dl-btn:hover{transform:scale(1.03);box-shadow:0 0 30px rgba(0,245,255,.4)}
-.dl-btn.alt{background:transparent;border:1px solid var(--border);color:#fff}
-.dl-btn.alt:hover{border-color:var(--cyan);color:var(--cyan)}
-.file-info{font-size:12px;color:var(--muted);margin-top:12px;font-family:monospace}
+.dl-btn:hover{
+  transform:scale(1.03);
+  box-shadow:var(--shadow-cyan);
+}
+.dl-btn.alt{
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  color:#fff;
+}
+.dl-btn.alt:hover{
+  border-color:var(--cyan);
+  color:var(--cyan);
+  background:rgba(0,245,255,.05);
+}
+.dl-btn svg{width:18px;height:18px}
+.file-info{
+  font-size:12px;color:var(--muted);margin-top:16px;
+  font-family:'JetBrains Mono',monospace;
+  padding:8px 12px;
+  background:rgba(255,255,255,.02);
+  border-radius:8px;
+  border:1px solid var(--card-border);
+}
+.dl-viewall{
+  text-align:center;margin-top:48px;
+}
+.dl-viewall a{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 28px;border-radius:12px;
+  border:1px solid var(--border);color:#fff;
+  font-weight:500;transition:all .2s;
+}
+.dl-viewall a:hover{border-color:var(--cyan);color:var(--cyan)}
 
 /* SCREENSHOTS */
-.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
-.shot{
-  aspect-ratio:16/10;border-radius:14px;overflow:hidden;
-  border:1px solid var(--border);position:relative;
-  background:linear-gradient(135deg,#0f172a,#1e1b4b);
-  display:grid;place-items:center;color:var(--muted);font-family:monospace;font-size:14px;
-  transition:transform .3s;
+.shots{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;
 }
-.shot:hover{transform:scale(1.02);border-color:var(--cyan)}
-.shot::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(0,245,255,.15),transparent 60%)}
-.shot span{position:relative;z-index:1}
+.shot{
+  aspect-ratio:16/10;border-radius:20px;overflow:hidden;
+  border:1px solid var(--card-border);position:relative;
+  background:linear-gradient(135deg,#0f172a,#1e1b4b);
+  display:grid;place-items:center;
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+  cursor:pointer;
+}
+.shot:hover{
+  transform:scale(1.03) translateY(-4px);
+  border-color:var(--cyan);
+  box-shadow:var(--shadow-cyan);
+}
+.shot::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(0,245,255,.1),rgba(139,92,246,.1));
+}
+.shot-inner{
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.shot-inner svg{width:32px;height:32px;color:var(--cyan)}
+.shot-inner span{
+  font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--text-secondary);
+}
 
 /* TECH */
-.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px}
-.tech{
-  background:var(--card);border:1px solid var(--border);border-radius:12px;
-  padding:24px 16px;text-align:center;transition:all .2s;
+.tech-section{background:var(--bg-2)}
+.tech-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px;
 }
-.tech:hover{border-color:var(--cyan);color:var(--cyan)}
-.tech-emoji{font-size:36px;margin-bottom:8px}
-.tech-name{font-weight:600;font-size:14px}
+.tech{
+  background:var(--card);border:1px solid var(--card-border);border-radius:16px;
+  padding:32px 20px;text-align:center;transition:all .3s;
+}
+.tech:hover{
+  border-color:var(--cyan);
+  transform:translateY(-4px);
+  box-shadow:var(--shadow-cyan);
+}
+.tech-icon{
+  width:56px;height:56px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(0,245,255,.1),rgba(139,92,246,.1));
+  display:grid;place-items:center;
+  margin:0 auto 16px;
+}
+.tech-icon svg{width:28px;height:28px}
+.tech-name{font-weight:700;font-size:15px}
 
 /* OSS */
-.oss{text-align:center;padding:60px 40px;border-radius:24px;background:linear-gradient(135deg,rgba(0,245,255,.08),rgba(124,58,237,.08));border:1px solid var(--border)}
-.oss h2{font-size:clamp(28px,4vw,44px);margin-bottom:12px}
-.oss p{color:var(--muted);margin-bottom:28px;font-size:17px}
-.oss-badges{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:28px}
-.oss-badges img{height:28px}
+.oss{
+  text-align:center;
+  padding:80px 48px;
+  border-radius:28px;
+  background:linear-gradient(135deg,rgba(0,245,255,.06),rgba(139,92,246,.06));
+  border:1px solid var(--card-border);
+  position:relative;overflow:hidden;
+}
+.oss::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 0%,rgba(0,245,255,.1),transparent 60%);
+}
+.oss h2{font-size:clamp(28px,4vw,48px);margin-bottom:16px;position:relative}
+.oss p{color:var(--text-secondary);margin-bottom:36px;font-size:18px;position:relative}
+.oss-badges{
+  display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:36px;
+}
+.oss-badges img{height:32px;border-radius:6px}
+.oss .btn{position:relative}
 
 /* COMMUNITY */
-.community-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
-.com-card{padding:32px 24px;text-align:center;background:var(--card);border:1px solid var(--border);border-radius:16px;transition:all .3s}
-.com-card:hover{border-color:var(--cyan);transform:translateY(-4px)}
-.com-card .card-icon{margin:0 auto 20px}
+.community-section{background:var(--bg-2)}
+.community-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;
+}
+.com-card{
+  padding:36px 28px;text-align:center;
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:20px;transition:all .3s;
+}
+.com-card:hover{
+  border-color:var(--cyan);
+  transform:translateY(-6px);
+  box-shadow:0 20px 50px -20px rgba(0,245,255,.2);
+}
+.com-card .card-icon{margin:0 auto 24px}
 
 /* FOOTER */
-footer{padding:60px 0 40px;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:14px}
-.footer-links{display:flex;justify-content:center;gap:24px;margin-bottom:20px;flex-wrap:wrap}
-.footer-links a:hover{color:var(--cyan)}
+footer{
+  padding:80px 0 40px;
+  border-top:1px solid var(--card-border);
+  text-align:center;
+}
+.footer-main{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:48px;
+  margin-bottom:60px;
+  text-align:left;
+}
+.footer-brand .logo{font-size:24px;margin-bottom:16px;display:flex}
+.footer-brand p{color:var(--text-secondary);font-size:14px;line-height:1.7}
+.footer-col h4{font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:20px}
+.footer-col a{
+  display:block;color:var(--text-secondary);font-size:14px;
+  margin-bottom:12px;transition:color .2s;
+}
+.footer-col a:hover{color:var(--cyan)}
+.footer-bottom{
+  padding-top:40px;border-top:1px solid var(--card-border);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;
+}
+.footer-bottom p{color:var(--muted);font-size:14px}
+.footer-socials{display:flex;gap:16px}
+.footer-socials a{
+  width:40px;height:40px;border-radius:10px;
+  background:var(--card);border:1px solid var(--card-border);
+  display:grid;place-items:center;
+  color:var(--text-secondary);transition:all .2s;
+}
+.footer-socials a:hover{border-color:var(--cyan);color:var(--cyan)}
 
 /* BACK TO TOP */
 .to-top{
-  position:fixed;bottom:24px;right:24px;z-index:40;
-  width:44px;height:44px;border-radius:50%;
+  position:fixed;bottom:32px;right:32px;z-index:999;
+  width:52px;height:52px;border-radius:50%;
   background:var(--grad);color:#000;border:none;cursor:pointer;
   display:none;align-items:center;justify-content:center;
-  box-shadow:0 10px 30px rgba(0,245,255,.4);
-  transition:transform .2s;
+  box-shadow:var(--shadow-cyan);
+  transition:all .3s;
 }
-.to-top:hover{transform:translateY(-3px)}
+.to-top:hover{transform:translateY(-4px);box-shadow:0 0 60px rgba(0,245,255,.5)}
 .to-top.show{display:flex}
 
 /* SCROLL FADE */
-.reveal{opacity:0;transform:translateY(30px);transition:all .7s ease}
+.reveal{opacity:0;transform:translateY(40px);transition:all .8s cubic-bezier(.4,0,.2,1)}
 .reveal.in{opacity:1;transform:none}
+
+/* MOBILE RESPONSIVE */
+@media(max-width:640px){
+  .hero-cta{flex-direction:column;align-items:center}
+  .hero-cta .btn{width:100%;max-width:320px;justify-content:center}
+  .footer-main{grid-template-columns:1fr;text-align:center}
+  .footer-brand .logo{justify-content:center}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .oss{padding:48px 24px}
+  section{padding:80px 0}
+}
 </style>
 </head>
 <body>
 
+<!-- NAVIGATION -->
 <nav class="nav">
   <div class="nav-inner">
-    <a href="#" class="logo"><span class="logo-mark">⚡</span> ZYRAXON<span style="color:var(--cyan)">-AI</span></a>
+    <a href="#" class="logo">
+      <span class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+      </span>
+      ZYRAXON-AI
+    </a>
     <div class="nav-links">
       <a href="#features">Features</a>
       <a href="#modes">Modes</a>
+      <a href="#models">Models</a>
       <a href="#compare">Compare</a>
       <a href="#download">Download</a>
-      <a class="nav-cta" href="#download">Get Started</a>
+      <a class="nav-cta" href="https://github.com/sayidilxs-web/zyraxonai" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
     </div>
   </div>
 </nav>
@@ -246,22 +558,30 @@ footer{padding:60px 0 40px;border-top:1px solid var(--border);text-align:center;
 <!-- HERO -->
 <header class="hero">
   <div class="container">
-    <div class="badge"><span class="badge-dot"></span> v0.4.0 — Now Available</div>
+    <div class="badge">
+      <span class="badge-dot"></span>
+      v0.4.0 — Now Available with Beast Mode
+    </div>
     <h1>ZYRAXON AI</h1>
-    <p class="tag">All in One. Anything. Nothing is Impossible.<br/>The most powerful <strong style="color:#fff">free AI coding agent</strong> — with 50+ tools, Beast Mode, Screen Vision, and Unlimited Memory.</p>
+    <p class="tag">All in One. Anything. Nothing is Impossible.<br/>
+    The most powerful <strong style="color:#fff;font-weight:600">free AI coding agent</strong> — with 50+ tools, Beast Mode, Screen Vision, and Unlimited Memory.</p>
     <div class="hero-cta">
-      <a class="btn btn-primary" href="https://github.com/onelpawarai/ZYRAXON-AI/releases/download/v0.4.0/ZYRAXON.Dev-win-installer.exe">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0M10.949 1.949L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.851"/></svg>
-        Download for Windows
+      <a class="btn btn-primary" href="https://github.com/sayidilxs-web/zyraxonai/releases" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0M10.949 1.949L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.851"/></svg>
+        Download Now
       </a>
-      <a class="btn btn-outline" href="https://github.com/onelpawarai/ZYRAXON-AI">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-        View on GitHub
+      <a class="btn btn-outline" href="https://github.com/sayidilxs-web/zyraxonai" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        Star on GitHub
       </a>
     </div>
 
     <div class="terminal reveal">
-      <div class="terminal-bar"><span class="term-dot d1"></span><span class="term-dot d2"></span><span class="term-dot d3"></span></div>
+      <div class="terminal-bar">
+        <span class="term-dot d1"></span>
+        <span class="term-dot d2"></span>
+        <span class="term-dot d3"></span>
+      </div>
       <div class="terminal-body" id="term"></div>
     </div>
   </div>
@@ -276,87 +596,300 @@ footer{padding:60px 0 40px;border-top:1px solid var(--border);text-align:center;
     </div>
     <div class="grid grid-3">
       <div class="card reveal">
-        <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        <div class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+        </div>
         <h3>Beast Mode</h3>
         <p>Maximum power. 5 real powers — Mission Control, Self-Evolution, Persistent Memory, Autonomous Completion, Subagent Army.</p>
       </div>
       <div class="card reveal">
-        <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+          </svg>
+        </div>
         <h3>50+ Tools</h3>
         <p>Shell, Read, Write, Edit, Glob, Grep, Memory, Screen Vision, API Tester, Code Analyzer, System Info, and 40+ more.</p>
       </div>
       <div class="card reveal">
-        <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
         <h3>Screen Vision</h3>
         <p>Real-time screen capture and analysis. See what's on your screen and act on it — instantly.</p>
       </div>
       <div class="card reveal">
-        <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+        <div class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+          </svg>
+        </div>
         <h3>Unlimited Memory</h3>
         <p>Remembers everything from all conversations. SQLite-backed permanent memory that survives restarts.</p>
       </div>
       <div class="card reveal">
-        <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg></div>
+        <div class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M3 9h18"/>
+            <path d="M9 3v18"/>
+          </svg>
+        </div>
         <h3>Multi-Model Support</h3>
-        <p>GPT-4o, Claude, Gemini, DeepSeek, Llama, and 20+ free models. No API key required for the free tier.</p>
+        <p>Use any AI model you want. OpenAI, Anthropic, Ollama, Groq, and more coming soon.</p>
       </div>
       <div class="card reveal">
-        <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg></div>
-        <h3>Voice Input</h3>
-        <p>Click the mic, speak naturally. Powered by OpenAI Whisper. Supports all languages.</p>
+        <div class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+            <line x1="12" y1="22.08" x2="12" y2="12"/>
+          </svg>
+        </div>
+        <h3>Cross-Platform</h3>
+        <p>Windows, macOS, and Linux support. One codebase, every platform, zero compromises.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- MODES -->
-<section id="modes" style="background:var(--bg-2)">
+<section id="modes" class="tech-section">
   <div class="container">
     <div class="section-head reveal">
-      <h2>Three <span class="gradient-text">Agent Modes</span></h2>
-      <p>Pick the right mode for the job — from strategic planning to unlimited autonomous execution.</p>
+      <h2>5 <span class="gradient-text">Beast Mode</span> Powers</h2>
+      <p>Unlock unprecedented AI capabilities with ZYRAXON's exclusive power suite.</p>
     </div>
     <div class="grid grid-3">
       <div class="card reveal">
-        <div class="card-icon" style="background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(0,245,255,.15));color:#22c55e">🛠</div>
-        <h3>Build Mode <span style="font-size:11px;color:var(--muted);font-weight:500">DEFAULT</span></h3>
-        <p>The reliable workhorse. Full file system access, persistent memory, web browsing, code generation.</p>
+        <div class="card-icon" style="color:#f59e0b">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <h3>Mission Control</h3>
+        <p>Centralized dashboard to manage all AI agents, tasks, and workflows in one unified interface.</p>
       </div>
       <div class="card reveal">
-        <div class="card-icon" style="background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(124,58,237,.15));color:#60a5fa">🧭</div>
-        <h3>Plan Mode</h3>
-        <p>Strategic read-only analysis. Plans the perfect approach before any action is taken.</p>
+        <div class="card-icon" style="color:#8b5cf6">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <h3>Self-Evolution</h3>
+        <p>AI that learns from its mistakes and continuously improves its own code and strategies.</p>
       </div>
       <div class="card reveal">
-        <div class="card-icon" style="background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(124,58,237,.15));color:#f87171">🔥</div>
-        <h3>Beast Mode</h3>
-        <p>Maximum power. Zero limits. Never stops. 3-level deep subagent army. Self-evolving tools.</p>
+        <div class="card-icon" style="color:#06b6d4">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          </svg>
+        </div>
+        <h3>Persistent Memory</h3>
+        <p>Unlimited context window with SQLite-powered memory that never forgets anything.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon" style="color:#10b981">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <h3>Autonomous Completion</h3>
+        <p>Set it and forget it. ZYRAXON completes entire projects autonomously from a single prompt.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon" style="color:#ec4899">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <h3>Subagent Army</h3>
+        <p>Deploy multiple AI agents simultaneously to tackle complex tasks in parallel.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODELS -->
+<section id="models">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>Multi-Model <span class="gradient-text">Support</span></h2>
+      <p>Connect to your favorite AI providers or run models locally.</p>
+    </div>
+    <div class="models-grid reveal">
+      <div class="model-card">
+        <div class="model-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+          </svg>
+        </div>
+        <div class="model-info">
+          <h4>GPT-4o</h4>
+          <p>OpenAI's flagship model</p>
+        </div>
+      </div>
+      <div class="model-card">
+        <div class="model-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+          </svg>
+        </div>
+        <div class="model-info">
+          <h4>Claude 3.5</h4>
+          <p>Anthropic's most capable model</p>
+        </div>
+      </div>
+      <div class="model-card">
+        <div class="model-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+            <path d="M12 2a10 10 0 1 0 10 10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+        </div>
+        <div class="model-info">
+          <h4>Groq</h4>
+          <p>Lightning-fast inference</p>
+        </div>
+      </div>
+      <div class="model-card">
+        <div class="model-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8"/>
+            <path d="M12 17v4"/>
+          </svg>
+        </div>
+        <div class="model-info">
+          <h4>Ollama</h4>
+          <p>Run LLMs locally</p>
+        </div>
+      </div>
+      <div class="model-card">
+        <div class="model-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          </svg>
+        </div>
+        <div class="model-info">
+          <h4>Gemini Pro</h4>
+          <p>Google's multimodal AI</p>
+        </div>
+      </div>
+      <div class="model-card">
+        <div class="model-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v6m0 6v10"/>
+            <path d="M4.22 4.22l4.24 4.24m7.08 7.08l4.24 4.24"/>
+            <path d="M1 12h6m6 0h10"/>
+            <path d="M4.22 19.78l4.24-4.24m7.08-7.08l4.24-4.24"/>
+          </svg>
+        </div>
+        <div class="model-info">
+          <h4>Deepseek</h4>
+          <p>Advanced reasoning model</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- COMPARE -->
-<section id="compare">
+<section id="compare" class="tech-section">
   <div class="container">
     <div class="section-head reveal">
-      <h2>ZYRAXON vs <span class="gradient-text">Everyone Else</span></h2>
-      <p>See what makes ZYRAXON different from ChatGPT, Cursor, and the rest.</p>
+      <h2>Why <span class="gradient-text">ZYRAXON</span>?</h2>
+      <p>See how we compare to other AI coding assistants.</p>
     </div>
     <div class="table-wrap reveal">
       <table>
         <thead>
-          <tr><th>Feature</th><th>ChatGPT</th><th>Cursor</th><th class="zyra-col">ZYRAXON</th></tr>
+          <tr>
+            <th>Feature</th>
+            <th class="zyra-col">ZYRAXON</th>
+            <th class="other-col">Cursor</th>
+            <th class="other-col">Copilot</th>
+            <th class="other-col">Aider</th>
+          </tr>
         </thead>
         <tbody>
-          <tr><td>Desktop App</td><td class="cross">❌</td><td class="check">✅</td><td class="check zyra-col">✅</td></tr>
-          <tr><td>Beast Mode</td><td class="cross">❌</td><td class="cross">❌</td><td class="check zyra-col">✅</td></tr>
-          <tr><td>Persistent Memory</td><td class="cross">❌</td><td class="cross">❌</td><td class="check zyra-col">✅</td></tr>
-          <tr><td>Screen Vision</td><td class="cross">❌</td><td class="cross">❌</td><td class="check zyra-col">✅</td></tr>
-          <tr><td>Voice Input</td><td class="cross">❌</td><td class="cross">❌</td><td class="check zyra-col">✅</td></tr>
-          <tr><td>50+ Tools</td><td class="cross">❌</td><td class="cross">❌</td><td class="check zyra-col">✅</td></tr>
-          <tr><td>Free & Open Source</td><td class="cross">❌</td><td class="cross">❌</td><td class="check zyra-col">✅</td></tr>
-          <tr><td>Self-Evolving</td><td class="cross">❌</td><td class="cross">❌</td><td class="check zyra-col">✅</td></tr>
+          <tr>
+            <td>100% Free & Open Source</td>
+            <td class="zyra-col check">✓</td>
+            <td class="other-col cross">✗</td>
+            <td class="other-col cross">✗</td>
+            <td class="other-col check">✓</td>
+          </tr>
+          <tr>
+            <td>Beast Mode (5 Powers)</td>
+            <td class="zyra-col check">✓</td>
+            <td class="other-col cross">✗</td>
+            <td class="other-col cross">✗</td>
+            <td class="other-col cross">✗</td>
+          </tr>
+          <tr>
+            <td>Screen Vision</td>
+            <td class="zyra-col check">✓</td>
+            <td class="other-col check">✓</td>
+            <td class="other-col cross">✗</td>
+            <td class="other-col cross">✗</td>
+          </tr>
+          <tr>
+            <td>Unlimited Memory</td>
+            <td class="zyra-col check">✓</td>
+            <td class="other-col cross">✗</td>
+            <td class="other-col cross">✗</td>
+            <td class="other-col cross">✗</td>
+          </tr>
+          <tr>
+            <td>Desktop App</td>
+            <td class="zyra-col check">✓</td>
+            <td class="other-col check">✓</td>
+            <td class="other-col cross">✗</td>
+            <td class="other-col cross">✗</td>
+          </tr>
+          <tr>
+            <td>50+ Built-in Tools</td>
+            <td class="zyra-col check">✓</td>
+            <td class="other-col check">✓</td>
+            <td class="other-col cross">✗</td>
+            <td class="other-col cross">✗</td>
+          </tr>
+          <tr>
+            <td>Multi-Model Support</td>
+            <td class="zyra-col check">✓</td>
+            <td class="other-col cross">✗</td>
+            <td class="other-col cross">✗</td>
+            <td class="other-col check">✓</td>
+          </tr>
+          <tr>
+            <td>Cross-Platform (Win/Mac/Linux)</td>
+            <td class="zyra-col check">✓</td>
+            <td class="other-col check">✓</td>
+            <td class="other-col cross">✗</td>
+            <td class="other-col check">✓</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -364,120 +897,261 @@ footer{padding:60px 0 40px;border-top:1px solid var(--border);text-align:center;
 </section>
 
 <!-- DOWNLOAD -->
-<section id="download" style="background:var(--bg-2)">
+<section id="download">
   <div class="container">
     <div class="section-head reveal">
       <h2>Download <span class="gradient-text">ZYRAXON</span></h2>
-      <p>Available for Windows, macOS, and Linux. Free forever.</p>
+      <p>Get started in minutes. Choose your platform.</p>
     </div>
     <div class="dl-grid">
+      <!-- WINDOWS -->
       <div class="dl-card reveal">
-        <div class="dl-icon">🪟</div>
+        <div class="dl-icon">
+          <svg viewBox="0 0 24 24" fill="#00f5ff">
+            <path d="M0 3.449L9.75 2.1v9.451H0M10.949 1.949L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.851"/>
+          </svg>
+        </div>
         <h3>Windows</h3>
-        <div class="sub">Windows 10 / 11 (x64)</div>
+        <div class="sub">Windows 10/11 (64-bit)</div>
         <div class="dl-buttons">
-          <a class="dl-btn" href="https://github.com/onelpawarai/ZYRAXON-AI/releases/download/v0.4.0/ZYRAXON.Dev-win-installer.exe">Download Installer</a>
+          <a class="dl-btn" target="_blank" rel="noopener" href="https://github.com/sayidilxs-web/zyraxonai/releases">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0M10.949 1.949L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.851"/></svg>
+            Download .exe
+          </a>
+          <a class="dl-btn alt" target="_blank" rel="noopener" href="https://github.com/sayidilxs-web/zyraxonai">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            View on GitHub
+          </a>
         </div>
-        <div class="file-info">ZYRAXON Dev-win-installer.exe · 121.9 MB</div>
-      </div>
-      <div class="dl-card reveal">
-        <div class="dl-icon">🍎</div>
-        <h3>macOS</h3>
-        <div class="sub">macOS 12+ · Build from source</div>
-        <div class="dl-buttons">
-          <a class="dl-btn" target="_blank" rel="noopener" href="https://github.com/onelpawarai/ZYRAXON-AI/archive/refs/tags/v0.4.0.zip">Source (.zip)</a>
-          <a class="dl-btn alt" target="_blank" rel="noopener" href="https://github.com/onelpawarai/ZYRAXON-AI#-installation">Build guide</a>
-        </div>
-        <div class="file-info">Native .dmg coming soon</div>
-      </div>
-      <div class="dl-card reveal">
-        <div class="dl-icon">🐧</div>
-        <h3>Linux</h3>
-        <div class="sub">Ubuntu / Debian / Fedora · Build from source</div>
-        <div class="dl-buttons">
-          <a class="dl-btn" target="_blank" rel="noopener" href="https://github.com/onelpawarai/ZYRAXON-AI/archive/refs/tags/v0.4.0.tar.gz">Source (.tar.gz)</a>
-          <a class="dl-btn alt" target="_blank" rel="noopener" href="https://github.com/onelpawarai/ZYRAXON-AI#-installation">Build guide</a>
-        </div>
-        <div class="file-info">Native .AppImage coming soon</div>
+        <div class="file-info">v0.4.0 · ~180MB</div>
       </div>
 
+      <!-- MAC -->
+      <div class="dl-card reveal">
+        <div class="dl-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="1.5">
+            <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/>
+            <path d="M12 8.5v7"/>
+            <path d="M9 12.5h6"/>
+            <path d="M9 12.5l3 3 3-3"/>
+          </svg>
+        </div>
+        <h3>macOS</h3>
+        <div class="sub">macOS 11+ (Intel & Apple Silicon)</div>
+        <div class="dl-buttons">
+          <a class="dl-btn" target="_blank" rel="noopener" href="https://github.com/sayidilxs-web/zyraxonai/releases">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            Download .dmg
+          </a>
+          <a class="dl-btn alt" target="_blank" rel="noopener" href="https://github.com/sayidilxs-web/zyraxonai">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            View on GitHub
+          </a>
+        </div>
+        <div class="file-info">Coming Soon · Native .dmg</div>
+      </div>
+
+      <!-- LINUX -->
+      <div class="dl-card reveal">
+        <div class="dl-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="1.5">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+            <path d="M9 9h6v6H9z"/>
+            <path d="M12 2v2"/>
+            <path d="M12 20v2"/>
+            <path d="M2 12h2"/>
+            <path d="M20 12h2"/>
+          </svg>
+        </div>
+        <h3>Linux</h3>
+        <div class="sub">Ubuntu / Debian / Fedora / Arch</div>
+        <div class="dl-buttons">
+          <a class="dl-btn" target="_blank" rel="noopener" href="https://github.com/sayidilxs-web/zyraxonai/releases">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 10H6v-2h8v2zm4-4H6v-2h12v2z"/></svg>
+            Download .AppImage
+          </a>
+          <a class="dl-btn alt" target="_blank" rel="noopener" href="https://github.com/sayidilxs-web/zyraxonai">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            View on GitHub
+          </a>
+        </div>
+        <div class="file-info">Coming Soon · .AppImage / .deb</div>
+      </div>
     </div>
-    <div style="text-align:center;margin-top:32px">
-      <a class="btn btn-outline" href="https://github.com/onelpawarai/ZYRAXON-AI/releases">View All Releases →</a>
+    <div class="dl-viewall reveal">
+      <a href="https://github.com/sayidilxs-web/zyraxonai/releases" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        View All Releases
+      </a>
     </div>
   </div>
 </section>
 
 <!-- SCREENSHOTS -->
-<section>
+<section class="tech-section">
   <div class="container">
     <div class="section-head reveal">
       <h2>See it in <span class="gradient-text">action</span></h2>
       <p>A glimpse of ZYRAXON's desktop interface in real workflows.</p>
     </div>
-    <div class="shots">
-      <div class="shot reveal"><span>▲ output 1.png</span></div>
-      <div class="shot reveal"><span>▲ output 2.png</span></div>
-      <div class="shot reveal"><span>▲ output 3.png</span></div>
-      <div class="shot reveal"><span>▲ output 4.png</span></div>
+    <div class="shots reveal">
+      <div class="shot">
+        <div class="shot-inner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          <span>output 1.png</span>
+        </div>
+      </div>
+      <div class="shot">
+        <div class="shot-inner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          <span>output 2.png</span>
+        </div>
+      </div>
+      <div class="shot">
+        <div class="shot-inner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          <span>output 3.png</span>
+        </div>
+      </div>
+      <div class="shot">
+        <div class="shot-inner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          <span>output 4.png</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- TECH -->
-<section style="background:var(--bg-2)">
+<!-- TECH STACK -->
+<section>
   <div class="container">
     <div class="section-head reveal">
       <h2>Powered by a <span class="gradient-text">modern stack</span></h2>
       <p>Fast, lean, and built for the desktop era.</p>
     </div>
-    <div class="tech-grid">
-      <div class="tech reveal"><div class="tech-emoji">🥟</div><div class="tech-name">Bun</div></div>
-      <div class="tech reveal"><div class="tech-emoji">⚛️</div><div class="tech-name">Electron</div></div>
-      <div class="tech reveal"><div class="tech-emoji">🧩</div><div class="tech-name">SolidJS</div></div>
-      <div class="tech reveal"><div class="tech-emoji">📘</div><div class="tech-name">TypeScript</div></div>
-      <div class="tech reveal"><div class="tech-emoji">🗃️</div><div class="tech-name">SQLite</div></div>
-      <div class="tech reveal"><div class="tech-emoji">🚀</div><div class="tech-name">Turbo</div></div>
+    <div class="tech-grid reveal">
+      <div class="tech">
+        <div class="tech-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 12s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+          </svg>
+        </div>
+        <div class="tech-name">Bun</div>
+      </div>
+      <div class="tech">
+        <div class="tech-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="1.5">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
+            <path d="M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83"/>
+            <path d="M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
+          </svg>
+        </div>
+        <div class="tech-name">Electron</div>
+      </div>
+      <div class="tech">
+        <div class="tech-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="1.5">
+            <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/>
+            <line x1="12" y1="22" x2="12" y2="15.5"/>
+            <polyline points="22 8.5 12 15.5 2 8.5"/>
+          </svg>
+        </div>
+        <div class="tech-name">SolidJS</div>
+      </div>
+      <div class="tech">
+        <div class="tech-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="1.5">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+            <path d="M8 8h8v8H8z"/>
+          </svg>
+        </div>
+        <div class="tech-name">TypeScript</div>
+      </div>
+      <div class="tech">
+        <div class="tech-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="1.5">
+            <ellipse cx="12" cy="8" rx="8" ry="3"/>
+            <path d="M4 8v8c0 1.66 3.58 3 8 3s8-1.34 8-3V8"/>
+            <path d="M4 12v4c0 1.66 3.58 3 8 3s8-1.34 8-3v-4"/>
+          </svg>
+        </div>
+        <div class="tech-name">SQLite</div>
+      </div>
+      <div class="tech">
+        <div class="tech-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="1.5">
+            <path d="M4 4h16v16H4z"/>
+            <path d="M4 12h16"/>
+            <path d="M12 4v16"/>
+          </svg>
+        </div>
+        <div class="tech-name">Turborepo</div>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- OSS -->
-<section>
+<section class="tech-section">
   <div class="container">
     <div class="oss reveal">
       <h2>100% Free & <span class="gradient-text">Open Source</span></h2>
       <p>MIT License — use it, modify it, distribute it. No strings attached.</p>
       <div class="oss-badges">
-        <img alt="stars" src="https://img.shields.io/github/stars/onelpawarai/ZYRAXON-AI?style=for-the-badge&color=00f5ff&labelColor=0a0a0f"/>
-        <img alt="license" src="https://img.shields.io/github/license/onelpawarai/ZYRAXON-AI?style=for-the-badge&color=7c3aed&labelColor=0a0a0f"/>
-        <img alt="release" src="https://img.shields.io/github/v/release/onelpawarai/ZYRAXON-AI?style=for-the-badge&color=00f5ff&labelColor=0a0a0f"/>
+        <img alt="stars" src="https://img.shields.io/github/stars/sayidilxs-web/zyraxonai?style=for-the-badge&color=00f5ff&labelColor=0a0a0f"/>
+        <img alt="license" src="https://img.shields.io/github/license/sayidilxs-web/zyraxonai?style=for-the-badge&color=8b5cf6&labelColor=0a0a0f"/>
+        <img alt="release" src="https://img.shields.io/github/v/release/sayidilxs-web/zyraxonai?style=for-the-badge&color=00f5ff&labelColor=0a0a0f"/>
       </div>
-      <a class="btn btn-primary" href="https://github.com/onelpawarai/ZYRAXON-AI">⭐ Star us on GitHub</a>
+      <a class="btn btn-primary" href="https://github.com/sayidilxs-web/zyraxonai" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        Star us on GitHub
+      </a>
     </div>
   </div>
 </section>
 
 <!-- COMMUNITY -->
-<section id="community" style="background:var(--bg-2)">
+<section id="community">
   <div class="container">
     <div class="section-head reveal">
-      <h2>Join the <span class="gradient-text">community</span></h2>
+      <h2>Join the <span class="gradient-text">Community</span></h2>
       <p>Get help, share ideas, and follow the latest updates.</p>
     </div>
     <div class="community-grid">
-      <a class="com-card reveal" href="https://github.com/onelpawarai/ZYRAXON-AI/issues">
-        <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <a class="com-card reveal" href="https://github.com/sayidilxs-web/zyraxonai/issues" target="_blank" rel="noopener">
+        <div class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
         <h3>GitHub Issues</h3>
         <p>Report bugs, request features, and get support from the community.</p>
       </a>
-      <a class="com-card reveal" href="https://youtube.com/@zyraxon-aix">
-        <div class="card-icon" style="color:#ff0000"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></div>
-        <h3>YouTube</h3>
-        <p>Watch tutorials, demos, and behind-the-scenes development videos.</p>
+      <a class="com-card reveal" href="https://github.com/sayidilxs-web/zyraxonai" target="_blank" rel="noopener">
+        <div class="card-icon" style="color:#00f5ff">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+        </div>
+        <h3>GitHub Repository</h3>
+        <p>Explore the code, contribute, and stay updated with our progress.</p>
       </a>
-      <a class="com-card reveal" href="https://github.com/onelpawarai/ZYRAXON-AI/blob/main/CONTRIBUTING.md">
-        <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <a class="com-card reveal" href="https://github.com/sayidilxs-web/zyraxonai/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">
+        <div class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
         <h3>Contributing</h3>
         <p>Help build the future of AI coding. PRs welcome — check the guide.</p>
       </a>
@@ -485,56 +1159,101 @@ footer{padding:60px 0 40px;border-top:1px solid var(--border);text-align:center;
   </div>
 </section>
 
+<!-- FOOTER -->
 <footer>
   <div class="container">
-    <div class="logo" style="justify-content:center;margin-bottom:20px"><span class="logo-mark">⚡</span> ZYRAXON<span style="color:var(--cyan)">-AI</span></div>
-    <div class="footer-links">
-      <a href="https://github.com/onelpawarai/ZYRAXON-AI">GitHub</a>
-      <a href="https://youtube.com/@zyraxon-aix">YouTube</a>
-      <a href="https://github.com/onelpawarai/ZYRAXON-AI/releases">Releases</a>
-      <a href="https://github.com/onelpawarai/ZYRAXON-AI/blob/main/LICENSE">License</a>
+    <div class="footer-main">
+      <div class="footer-brand">
+        <a href="#" class="logo" style="margin-bottom:16px">
+          <span class="logo-mark" style="width:36px;height:36px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </span>
+          ZYRAXON-AI
+        </a>
+        <p>The most powerful free & open-source desktop AI coding agent. 50+ tools, Beast Mode, Screen Vision, Unlimited Memory.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="https://github.com/sayidilxs-web/zyraxonai" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/sayidilxs-web/zyraxonai/releases" target="_blank" rel="noopener">Releases</a>
+        <a href="https://github.com/sayidilxs-web/zyraxonai/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
+        <a href="https://github.com/sayidilxs-web/zyraxonai/issues" target="_blank" rel="noopener">Issues</a>
+      </div>
+      <div class="footer-col">
+        <h4>Compare</h4>
+        <a href="#compare">vs Cursor</a>
+        <a href="#compare">vs Copilot</a>
+        <a href="#compare">vs Aider</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="https://github.com/sayidilxs-web/zyraxonai/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+        <a href="#">Privacy Policy</a>
+      </div>
     </div>
-    <p>© 2026 ZYRAXON-AI. Built by <a href="https://github.com/onelpawarai" style="color:var(--cyan)">OneL Pawar</a>.</p>
-    <p style="margin-top:8px">Made with ❤️ and AI</p>
+    <div class="footer-bottom">
+      <p>© 2026 ZYRAXON-AI. Built with passion and AI.</p>
+      <div class="footer-socials">
+        <a href="https://github.com/sayidilxs-web/zyraxonai" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
   </div>
 </footer>
 
+<!-- BACK TO TOP -->
 <button class="to-top" id="toTop" aria-label="Back to top">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
 </button>
 
 <script>
 // Terminal typing animation
 const lines = [
   {t:'zyraxon> ',cls:'term-prompt',after:'build a react dashboard with auth',afterCls:'term-user'},
-  {t:'⚡ Beast Mode activated. Spawning 3 subagents...',cls:'term-out'},
-  {t:'✓ Auth flow generated  ✓ Dashboard scaffolded  ✓ Tests passing',cls:'term-out'},
+  {t:'Activating Beast Mode... Spawning 3 subagents',cls:'term-ai'},
+  {t:'✓ Auth flow generated ✓ Dashboard scaffolded ✓ Tests passing',cls:'term-success'},
   {t:'zyraxon> ',cls:'term-prompt',after:'analyze my screen and fix the bug',afterCls:'term-user'},
-  {t:'👁 Screen Vision engaged. Detected type error at line 42.',cls:'term-out'},
+  {t:'Screen Vision engaged. Detected type error at line 42',cls:'term-ai'},
+  {t:'✓ Memory updated ✓ Context preserved',cls:'term-success'},
 ];
 const term=document.getElementById('term');
 let li=0,ci=0,cur=null;
 function type(){
-  if(li>=lines.length){setTimeout(()=>{term.innerHTML='';li=0;ci=0;type()},2500);return}
+  if(li>=lines.length){setTimeout(()=>{term.innerHTML='';li=0;ci=0;type()},3000);return}
   const L=lines[li];
   if(!cur){cur=document.createElement('div');cur.className='term-line';const s=document.createElement('span');s.className=L.cls;cur.appendChild(s);if(L.after){const s2=document.createElement('span');s2.className=L.afterCls;cur.appendChild(s2)}term.appendChild(cur)}
   const full=L.t+(L.after||'');
   if(ci<=L.t.length){cur.children[0].textContent=L.t.slice(0,ci)}
   else if(L.after){cur.children[1].textContent=L.after.slice(0,ci-L.t.length)}
   ci++;
-  if(ci<=full.length){setTimeout(type,30+Math.random()*40)}
-  else{li++;ci=0;cur=null;setTimeout(type,600)}
+  if(ci<=full.length){setTimeout(type,25+Math.random()*35)}
+  else{li++;ci=0;cur=null;setTimeout(type,800)}
 }
 type();
 
 // Reveal on scroll
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.1});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 
 // Back to top
 const top=document.getElementById('toTop');
 window.addEventListener('scroll',()=>{top.classList.toggle('show',window.scrollY>600)});
 top.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+// Nav background on scroll
+const nav=document.querySelector('.nav');
+window.addEventListener('scroll',()=>{
+  if(window.scrollY>50){
+    nav.style.background='rgba(10,10,15,.95)';
+    nav.style.boxShadow='0 4px 30px rgba(0,0,0,.3)';
+  }else{
+    nav.style.background='rgba(10,10,15,.8)';
+    nav.style.boxShadow='none';
+  }
+});
 </script>
 </body>
 </html>
