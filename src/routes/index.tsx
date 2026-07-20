@@ -10,10 +10,10 @@ export const Route = createFileRoute("/")({
         content:
           "The most powerful free & open-source desktop AI coding agent. 50+ tools, Beast Mode, Screen Vision, Unlimited Memory.",
       },
-      { property: "og:title", content: "ZYRAXON AI — Free Desktop AI Coding Agent" },
+      { property: "og:title", content: "ZYRAXON AI — All in One. Anything. Nothing is Impossible." },
       {
         property: "og:description",
-        content: "50+ tools, Beast Mode, Screen Vision, Unlimited Memory. 100% free & open source.",
+        content: "The most powerful free & open-source desktop AI coding agent. 50+ tools, Beast Mode, Screen Vision, Unlimited Memory.",
       },
     ],
   }),
