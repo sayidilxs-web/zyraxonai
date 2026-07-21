@@ -76,6 +76,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
+      { name: "google-site-verification", content: "6Jtjtw5XD-55BulMN295zZTRKlS3H9DEePsIaJ2N-6c" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "ZYRAXON AI — All in One. Anything. Nothing is Impossible." },
       { name: "description", content: "The most powerful free & open-source desktop AI coding agent. 50+ tools, Beast Mode, Screen Vision, Unlimited Memory." },
