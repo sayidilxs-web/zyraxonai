@@ -132,21 +132,24 @@
   const errEl = document.getElementById('err');
 
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    errEl.textContent = 'This browser does not support the Web Speech API. Use Chromium/Chrome/Edge.';
-    startBtn.disabled = true;
-    return;
-  }
 
   const params = new URLSearchParams(location.search);
   const initLang = params.get('lang');
   const continuous = params.get('continuous') !== '0';
   const interimOn = params.get('interim') !== '0';
   const autostart = params.get('autostart') === '1';
+  // Force backend mode with ?backend=1; auto-fallback otherwise.
+  const forceBackend = params.get('backend') === '1';
+  const backendEndpoint = params.get('endpoint') || '/api/public/stt';
+  const chunkMs = Math.max(1500, parseInt(params.get('chunk')||'4000',10) || 4000);
+
+  if (!SR && !forceBackend) {
+    // No webkit SR → automatically switch to backend fallback below.
+  }
+
   if (initLang) {
     langSel.value = initLang;
     if (langSel.value !== initLang) {
-      // add custom option if not present
       const opt = document.createElement('option');
       opt.value = initLang; opt.textContent = initLang + ' (custom)';
       langSel.appendChild(opt); langSel.value = initLang;
@@ -158,6 +161,10 @@
   let finalText = '';
   let interimText = '';
   let manualStop = false;
+  let usingBackend = forceBackend || !SR;
+  let mediaStream = null;
+  let mediaRec = null;
+  let backendTimer = null;
 
   function setStatus(state, text) {
     statusEl.className = 'status ' + (state || '');
@@ -217,6 +224,15 @@
       emit('error', msg);
       if (msg === 'not-allowed' || msg === 'service-not-allowed') {
         manualStop = true; // don't auto-restart on permission failure
+        return;
+      }
+      // network / audio-capture / no-speech / language-not-supported → fall back
+      if (['network','audio-capture','language-not-supported','bad-grammar','aborted'].indexOf(msg) !== -1) {
+        errEl.textContent = 'Web Speech failed ('+msg+'). Falling back to server STT…';
+        manualStop = true;
+        try { rec.stop(); } catch(_){}
+        usingBackend = true;
+        setTimeout(startBackend, 200);
       }
     };
 
@@ -225,7 +241,6 @@
       startBtn.disabled = false;
       stopBtn.disabled = true;
       emit('status', 'ended');
-      // Auto-restart while in continuous mode unless user stopped manually
       if (continuous && !manualStop) {
         setStatus('listening', 'restarting…');
         try { rec.start(); } catch (_) { setStatus('', 'idle'); }
@@ -235,19 +250,107 @@
     };
   }
 
+  /* ---------- Backend STT fallback (MediaRecorder → /api/public/stt) ---------- */
+  async function startBackend() {
+    if (listening) return;
+    try {
+      if (!mediaStream) {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      }
+      const mimeCandidates = [
+        'audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus',''
+      ];
+      let mime = '';
+      for (const m of mimeCandidates) {
+        if (!m || (window.MediaRecorder && MediaRecorder.isTypeSupported(m))) { mime = m; break; }
+      }
+      mediaRec = new MediaRecorder(mediaStream, mime ? { mimeType: mime } : undefined);
+      let chunks = [];
+      mediaRec.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
+      mediaRec.onstop = async () => {
+        if (!chunks.length) return;
+        const blob = new Blob(chunks, { type: mediaRec.mimeType || 'audio/webm' });
+        chunks = [];
+        await sendBackendChunk(blob);
+        // Continue capturing next chunk if still listening
+        if (listening && !manualStop) {
+          try { mediaRec.start(); } catch(_) {}
+          backendTimer = setTimeout(() => { try { mediaRec.state==='recording' && mediaRec.stop(); } catch(_){} }, chunkMs);
+        } else {
+          setStatus('', 'idle');
+          startBtn.disabled = false; stopBtn.disabled = true;
+          emit('status', 'ended');
+        }
+      };
+      listening = true; manualStop = false;
+      startBtn.disabled = true; stopBtn.disabled = false;
+      setStatus('listening', 'listening (server)…');
+      errEl.textContent = '';
+      emit('status', 'listening-backend');
+      mediaRec.start();
+      backendTimer = setTimeout(() => { try { mediaRec.state==='recording' && mediaRec.stop(); } catch(_){} }, chunkMs);
+    } catch (err) {
+      errEl.textContent = 'Backend STT failed: ' + (err && err.message ? err.message : err);
+      setStatus('error', 'mic error');
+      emit('error', String(err && err.message || err));
+    }
+  }
+
+  async function sendBackendChunk(blob) {
+    try {
+      const fd = new FormData();
+      fd.append('file', blob, 'chunk.' + (blob.type.includes('mp4')?'mp4':blob.type.includes('ogg')?'ogg':'webm'));
+      if (langSel.value) fd.append('language', langSel.value.split('-')[0]);
+      const r = await fetch(backendEndpoint, { method: 'POST', body: fd });
+      const data = await r.json().catch(()=>({success:false,error:'bad json'}));
+      if (data && data.success && data.text) {
+        const txt = String(data.text).trim();
+        if (txt) {
+          finalText += (finalText && !finalText.endsWith(' ') ? ' ' : '') + txt;
+          finalBox.textContent = finalText;
+          emit('final', txt);
+        }
+      } else if (data && data.error) {
+        errEl.textContent = 'Server: ' + data.error;
+        emit('error', data.error);
+      }
+    } catch (err) {
+      errEl.textContent = 'Network error: ' + (err && err.message ? err.message : err);
+      emit('error', String(err && err.message || err));
+    }
+  }
+
+  function stopBackend() {
+    manualStop = true;
+    listening = false;
+    if (backendTimer) { clearTimeout(backendTimer); backendTimer = null; }
+    try { mediaRec && mediaRec.state === 'recording' && mediaRec.stop(); } catch(_) {}
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(t=>{ try{t.stop();}catch(_){} });
+      mediaStream = null;
+    }
+    startBtn.disabled = false; stopBtn.disabled = true;
+    setStatus('', 'idle');
+  }
+
   function start() {
     if (listening) return;
+    if (usingBackend || !SR) { startBackend(); return; }
     if (!rec) build();
     if (langSel.value) rec.lang = langSel.value;
     try {
       rec.start();
     } catch (err) {
       errEl.textContent = 'Start failed: ' + (err && err.message ? err.message : err);
+      // Try backend as fallback
+      usingBackend = true;
+      startBackend();
     }
   }
 
   function stop() {
     manualStop = true;
+    if (usingBackend) { stopBackend(); return; }
     if (rec && listening) {
       try { rec.stop(); } catch (_) {}
     }

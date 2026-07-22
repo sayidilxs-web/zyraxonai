@@ -265,8 +265,7 @@ export class AudioCaptureService {
       this.processor = this.audioContext.createScriptProcessor(
         4096,
         1,
-        1,
-        true
+        1
       );
 
       source.connect(this.processor);
@@ -275,7 +274,7 @@ export class AudioCaptureService {
       this.processor.onaudioprocess = (event) => {
         const audioData = event.inputBuffer.getChannelData(0);
         const pcmData = this.downsampleAudio(audioData);
-        this.onAudioChunk?.(pcmData.buffer);
+        this.onAudioChunk?.(pcmData.buffer as ArrayBuffer);
       };
 
       this.isRecording = true;
