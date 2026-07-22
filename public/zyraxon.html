@@ -588,6 +588,108 @@ document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 const top=document.getElementById('toTop');
 window.addEventListener('scroll',()=>{top.classList.toggle('show',window.scrollY>600)});
 top.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+/* ---------- Dynamic GitHub release detection ---------- */
+(async function(){
+  const REPO='onelpawarai/ZYRAXON-AI';
+  const RELEASES='https://github.com/'+REPO+'/releases';
+  const badgeText=document.getElementById('heroBadgeText');
+  const heroDl=document.getElementById('heroDownload');
+  const heroDlText=document.getElementById('heroDownloadText');
+
+  // Detect user OS
+  const ua=(navigator.userAgent||'').toLowerCase();
+  const plat=(navigator.platform||'').toLowerCase();
+  let userOS='win';
+  if(/mac|iphone|ipad|ipod/.test(ua+plat)) userOS='mac';
+  else if(/linux|x11|cros/.test(ua+plat)) userOS='linux';
+
+  // Match asset by filename patterns
+  const patterns={
+    'win-primary': [/win.*installer.*\.exe$/i, /setup.*\.exe$/i, /\.exe$/i, /win.*\.msi$/i],
+    'mac-arm':     [/mac.*arm64.*\.dmg$/i, /mac.*aarch64.*\.dmg$/i, /darwin.*arm64.*\.dmg$/i, /-arm64\.dmg$/i],
+    'mac-intel':   [/mac.*x64.*\.dmg$/i, /mac.*intel.*\.dmg$/i, /darwin.*x64.*\.dmg$/i, /-x64\.dmg$/i, /\.dmg$/i],
+    'linux-primary':[/\.AppImage$/i, /linux.*x64.*\.tar\.gz$/i, /\.deb$/i, /\.rpm$/i],
+  };
+
+  function pick(assets,pats){
+    for(const p of pats){
+      const a=assets.find(x=>p.test(x.name));
+      if(a) return a;
+    }
+    return null;
+  }
+
+  function applyBtn(sel,asset,fallbackLabel){
+    const btn=document.querySelector('[data-plat="'+sel+'"]');
+    if(!btn) return;
+    const lbl=btn.querySelector('[data-label]');
+    if(asset){
+      btn.href=asset.browser_download_url;
+      if(lbl && fallbackLabel) lbl.textContent=fallbackLabel;
+    }else{
+      btn.href=RELEASES;
+      btn.classList.add('alt');
+      if(lbl) lbl.textContent='Not yet available';
+      btn.title='This platform build is not published yet — check releases page';
+    }
+  }
+
+  function setFile(cardId,text){
+    const el=document.querySelector('#'+cardId+' [data-file]');
+    if(el) el.textContent=text;
+  }
+
+  try{
+    const r=await fetch('https://api.github.com/repos/'+REPO+'/releases/latest',{headers:{'Accept':'application/vnd.github+json'}});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const rel=await r.json();
+    const tag=rel.tag_name||'latest';
+    const name=rel.name||tag;
+    const assets=rel.assets||[];
+
+    // Hero badge
+    badgeText.textContent=tag+' — '+(name.replace(/^ZYRAXON\s*v?[\d.]+\s*[-–—:]\s*/i,'')||'Latest release');
+
+    // Pick per platform
+    const win=pick(assets,patterns['win-primary']);
+    const macArm=pick(assets,patterns['mac-arm']);
+    const macX64=pick(assets,patterns['mac-intel']);
+    const linux=pick(assets,patterns['linux-primary']);
+
+    applyBtn('win-primary',win,win?('Download '+win.name.replace(/^.*\./,'.').toLowerCase()):null);
+    if(win){
+      const el=document.querySelector('[data-plat="win-primary"] [data-label]');
+      if(el) el.textContent='Download '+ (win.name.match(/\.[a-z0-9]+$/i)?win.name.match(/\.[a-z0-9]+$/i)[0]:'installer');
+    }
+    applyBtn('mac-arm',macArm,'Apple Silicon');
+    applyBtn('mac-intel',macX64,'Intel');
+    applyBtn('linux-primary',linux,linux?('Download '+(linux.name.match(/\.(AppImage|deb|rpm|tar\.gz)$/i)?linux.name.match(/\.(AppImage|deb|rpm|tar\.gz)$/i)[0]:'')):'Not yet available');
+
+    setFile('dlWin', win? ('Latest '+win.name):'Not yet available for '+tag);
+    setFile('dlMac', (macArm||macX64)? ('Latest .dmg — '+tag) : 'Not yet available for '+tag);
+    setFile('dlLinux', linux? ('Latest '+linux.name):'Not yet available for '+tag);
+
+    // Hero primary → user's OS asset if available
+    const chosen = userOS==='mac' ? (macArm||macX64) : userOS==='linux' ? linux : win;
+    if(chosen){
+      heroDl.href=chosen.browser_download_url;
+      heroDl.target='_blank'; heroDl.rel='noopener';
+      const os=userOS==='mac'?'macOS':userOS==='linux'?'Linux':'Windows';
+      heroDlText.textContent='Download for '+os+' — '+tag;
+    }else{
+      heroDl.href='#download';
+      heroDlText.textContent='View downloads — '+tag;
+    }
+  }catch(err){
+    console.warn('[release-detect]',err);
+    badgeText.textContent='Latest release on GitHub';
+    heroDl.href=RELEASES; heroDl.target='_blank'; heroDl.rel='noopener';
+    heroDlText.textContent='View latest release';
+    document.querySelectorAll('[data-plat]').forEach(b=>{b.href=RELEASES;const l=b.querySelector('[data-label]');if(l&&l.textContent==='Detecting…')l.textContent='View releases';});
+    document.querySelectorAll('[data-file]').forEach(el=>{if(el.textContent==='Detecting…')el.textContent='See GitHub releases';});
+  }
+})();
 </script>
 </body>
 </html>
