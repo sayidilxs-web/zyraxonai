@@ -132,21 +132,24 @@
   const errEl = document.getElementById('err');
 
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    errEl.textContent = 'This browser does not support the Web Speech API. Use Chromium/Chrome/Edge.';
-    startBtn.disabled = true;
-    return;
-  }
 
   const params = new URLSearchParams(location.search);
   const initLang = params.get('lang');
   const continuous = params.get('continuous') !== '0';
   const interimOn = params.get('interim') !== '0';
   const autostart = params.get('autostart') === '1';
+  // Force backend mode with ?backend=1; auto-fallback otherwise.
+  const forceBackend = params.get('backend') === '1';
+  const backendEndpoint = params.get('endpoint') || '/api/public/stt';
+  const chunkMs = Math.max(1500, parseInt(params.get('chunk')||'4000',10) || 4000);
+
+  if (!SR && !forceBackend) {
+    // No webkit SR → automatically switch to backend fallback below.
+  }
+
   if (initLang) {
     langSel.value = initLang;
     if (langSel.value !== initLang) {
-      // add custom option if not present
       const opt = document.createElement('option');
       opt.value = initLang; opt.textContent = initLang + ' (custom)';
       langSel.appendChild(opt); langSel.value = initLang;
@@ -158,6 +161,10 @@
   let finalText = '';
   let interimText = '';
   let manualStop = false;
+  let usingBackend = forceBackend || !SR;
+  let mediaStream = null;
+  let mediaRec = null;
+  let backendTimer = null;
 
   function setStatus(state, text) {
     statusEl.className = 'status ' + (state || '');
