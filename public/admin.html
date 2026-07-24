@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ZYRAXON AI — Notification Admin</title>
+<meta name="robots" content="noindex,nofollow"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#06060e;--glass:rgba(255,255,255,.04);--glass-border:rgba(255,255,255,.08);
+--border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.1);
+--cyan:#00f5ff;--purple:#7c3aed;--pink:#ec4899;--green:#10b981;--red:#ef4444;--amber:#f59e0b;
+--text:#f0f0f5;--muted:#7a7a95;--dim:#4a4a65;
+--grad:linear-gradient(135deg,#00f5ff,#7c3aed);--grad2:linear-gradient(135deg,#00f5ff 0%,#a855f7 50%,#ec4899 100%)}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+
+/* BG */
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(120px);opacity:.08}
+.orb-1{width:500px;height:500px;background:var(--cyan);top:-150px;right:-50px}
+.orb-2{width:400px;height:400px;background:var(--purple);bottom:-100px;left:-50px}
+
+/* LAYOUT */
+.admin{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:40px 20px}
+.header{text-align:center;margin-bottom:40px}
+.header h1{font-size:28px;font-weight:900;letter-spacing:-.03em;margin-bottom:8px;
+  background:var(--grad2);-webkit-background-clip:text;background-clip:text;color:transparent}
+.header p{color:var(--muted);font-size:14px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;
+  background:rgba(0,245,255,.06);border:1px solid rgba(0,245,255,.15);color:var(--cyan);
+  font-size:11px;font-weight:600;margin-top:12px}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+/* CARD */
+.card{background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;
+  padding:32px;margin-bottom:24px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(135deg,rgba(0,245,255,.03),transparent 50%,rgba(124,58,237,.03));
+  pointer-events:none}
+.card h2{font-size:18px;font-weight:800;margin-bottom:20px;position:relative}
+.card h2 svg{width:20px;height:20px;vertical-align:-3px;margin-right:8px;color:var(--cyan)}
+
+/* FORM */
+.form-group{margin-bottom:18px;position:relative}
+.form-group label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--muted);margin-bottom:8px}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:14px 16px;
+  border-radius:12px;border:1px solid var(--border2);background:rgba(255,255,255,.03);
+  color:var(--text);font-family:inherit;font-size:14px;transition:all .3s;outline:none}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--cyan);
+  box-shadow:0 0 20px rgba(0,245,255,.1);background:rgba(0,245,255,.02)}
+.form-group textarea{resize:vertical;min-height:100px;line-height:1.7}
+.form-group input::placeholder,.form-group textarea::placeholder{color:var(--dim)}
+
+/* PREVIEW */
+.preview{padding:16px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid var(--border);
+  margin-bottom:20px}
+.preview-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.preview-body{font-size:13px;color:var(--muted);line-height:1.5}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;
+  border-radius:14px;border:none;font-weight:700;font-size:15px;cursor:pointer;transition:all .3s;
+  position:relative;overflow:hidden}
+.btn svg{width:20px;height:20px}
+.btn-primary{background:var(--grad);color:#000;box-shadow:0 4px 20px rgba(0,245,255,.2)}
+.btn-primary:hover{box-shadow:0 0 40px rgba(0,245,255,.35);transform:translateY(-2px)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-danger{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.btn-danger:hover{background:rgba(239,68,68,.15)}
+.btn-success{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+
+/* SCHEDULE */
+.schedule-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.schedule-card{padding:16px;border-radius:12px;background:rgba(0,245,255,.03);border:1px solid rgba(0,245,255,.1);
+  text-align:center;transition:all .3s}
+.schedule-card.active{border-color:var(--green);background:rgba(16,185,129,.05)}
+.schedule-card .time{font-size:24px;font-weight:900;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.schedule-card .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+.schedule-card .status{font-size:11px;color:var(--green);margin-top:6px;font-weight:600}
+
+/* LOG */
+.log{max-height:200px;overflow-y:auto;padding:16px;border-radius:12px;background:rgba(0,0,0,.3);
+  border:1px solid var(--border);font-family:'Courier New',monospace;font-size:12px;line-height:1.8}
+.log-entry{color:var(--muted)}
+.log-entry .time{color:var(--cyan)}
+.log-entry .ok{color:var(--green)}
+.log-entry .err{color:var(--red)}
+
+/* SUBSCRIBERS */
+.sub-count{font-size:36px;font-weight:900;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub-label{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* TOAST */
+.toast{position:fixed;top:20px;right:20px;z-index:9999;padding:14px 20px;border-radius:12px;
+  font-size:13px;font-weight:600;transform:translateX(120%);transition:transform .4s cubic-bezier(.4,0,.2,1);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.toast.show{transform:translateX(0)}
+.toast.success{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:var(--green)}
+.toast.error{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+.toast.info{background:rgba(0,245,255,.1);border:1px solid rgba(0,245,255,.2);color:var(--cyan)}
+
+@media(max-width:640px){
+  .schedule-grid{grid-template-columns:1fr}
+  .admin{padding:20px 16px}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<div class="admin">
+  <div class="header">
+    <h1>ZYRAXON Notification Admin</h1>
+    <p>Compose and send push notifications to all subscribers</p>
+    <div class="badge"><span class="badge-dot"></span> System Active</div>
+  </div>
+
+  <!-- SUBSCRIBERS -->
+  <div class="card">
+    <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Subscribers</h2>
+    <div style="text-align:center">
+      <div class="sub-count" id="subCount">--</div>
+      <div class="sub-label">Total subscribers</div>
+    </div>
+  </div>
+
+  <!-- COMPOSE -->
+  <div class="card">
+    <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Compose Notification</h2>
+
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" id="notifTitle" placeholder="ZYRAXON AI Update" maxlength="60"/>
+    </div>
+
+    <div class="form-group">
+      <label>Message</label>
+      <textarea id="notifBody" placeholder="Write your notification message here..." maxlength="200"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>URL (optional)</label>
+      <input type="url" id="notifUrl" placeholder="https://sayidilxs-web.github.io/zyraxonai/"/>
+    </div>
+
+    <div class="form-group">
+      <label>Preview</label>
+      <div class="preview">
+        <div class="preview-title" id="previewTitle">ZYRAXON AI Update</div>
+        <div class="preview-body" id="previewBody">Your notification message will appear here...</div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="sendBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Send to All Subscribers
+    </button>
+  </div>
+
+  <!-- AUTO SCHEDULE -->
+  <div class="card">
+    <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Auto Schedule</h2>
+
+    <div class="schedule-grid">
+      <div class="schedule-card active">
+        <div class="time">10:00 AM</div>
+        <div class="label">Morning Update</div>
+        <div class="status">Active</div>
+      </div>
+      <div class="schedule-card active">
+        <div class="time">8:00 PM</div>
+        <div class="label">Evening Update</div>
+        <div class="status">Active</div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px">
+      <div class="form-group">
+        <label>Morning Message (10:00 AM)</label>
+        <input type="text" id="morningMsg" value="Good morning! Check out the latest ZYRAXON AI updates and features."/>
+      </div>
+      <div class="form-group">
+        <label>Evening Message (8:00 PM)</div>
+        <input type="text" id="eveningMsg" value="Evening update: New releases and improvements are live on ZYRAXON AI!"/>
+      </div>
+    </div>
+
+    <button class="btn btn-success" id="saveSchedule" style="margin-top:8px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Save Schedule
+    </button>
+  </div>
+
+  <!-- LOG -->
+  <div class="card">
+    <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Activity Log</h2>
+    <div class="log" id="log">
+      <div class="log-entry"><span class="time">[System]</span> Admin panel loaded</div>
+    </div>
+  </div>
+
+  <!-- QUICK ACTIONS -->
+  <div class="card">
+    <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Quick Actions</h2>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="sendMorning" style="flex:1;min-width:200px;font-size:13px;padding:12px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        Send Morning Now
+      </button>
+      <button class="btn btn-primary" id="sendEvening" style="flex:1;min-width:200px;font-size:13px;padding:12px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        Send Evening Now
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   ZYRAXON NOTIFICATION ADMIN
+   ═══════════════════════════════════════════════ */
+const firebaseConfig={
+  apiKey:"AIzaSyBtp5tzBPw7NzFZRdcmtOiWARWmNl-EnWw",
+  authDomain:"lx-pdf-library.firebaseapp.com",
+  projectId:"lx-pdf-library",
+  storageBucket:"lx-pdf-library.firebasestorage.app",
+  messagingSenderId:"313164641962",
+  appId:"1:313164641962:web:1ba5f10d17289f053502d3",
+  measurementId:"G-CYBQLBQ3HV"
+};
+
+firebase.initializeApp(firebaseConfig);
+const messaging=firebase.messaging();
+
+// Elements
+const titleInput=document.getElementById('notifTitle');
+const bodyInput=document.getElementById('notifBody');
+const urlInput=document.getElementById('notifUrl');
+const previewTitle=document.getElementById('previewTitle');
+const previewBody=document.getElementById('previewBody');
+const sendBtn=document.getElementById('sendBtn');
+const logEl=document.getElementById('log');
+const toastEl=document.getElementById('toast');
+const morningMsg=document.getElementById('morningMsg');
+const eveningMsg=document.getElementById('eveningMsg');
+
+// Live preview
+titleInput.addEventListener('input',()=>{previewTitle.textContent=titleInput.textContent||'ZYRAXON AI Update'});
+bodyInput.addEventListener('input',()=>{previewBody.textContent=bodyInput.value||'Your notification message will appear here...'});
+titleInput.addEventListener('input',()=>{previewTitle.textContent=titleInput.value||'ZYRAXON AI Update'});
+
+// Toast
+function showToast(msg,type='info'){
+  toastEl.textContent=msg;
+  toastEl.className='toast '+type;
+  setTimeout(()=>toastEl.classList.add('show'),10);
+  setTimeout(()=>toastEl.classList.remove('show'),3000);
+}
+
+// Log
+function addLog(msg,type='ok'){
+  const now=new Date().toLocaleTimeString();
+  const entry=document.createElement('div');
+  entry.className='log-entry';
+  entry.innerHTML='<span class="time">['+now+']</span> <span class="'+type+'">'+msg+'</span>';
+  logEl.appendChild(entry);
+  logEl.scrollTop=logEl.scrollHeight;
+}
+
+/* ─── CLOUD FUNCTION ENDPOINTS ─── */
+// After deploying Firebase Functions, update these URLs:
+const CLOUD_FUNCTION_BASE='https://us-central1-lx-pdf-library.cloudfunctions.net';
+
+async function sendNotification(title,body,url){
+  // Get subscriber count for display
+  const db=firebase.firestore();
+  const tokensSnap=await db.collection('notification_tokens').get();
+
+  if(tokensSnap.size===0){
+    showToast('No subscribers found','error');
+    addLog('No subscribers to send to','err');
+    return;
+  }
+
+  addLog('Sending to '+tokensSnap.size+' subscribers via Cloud Function...');
+
+  try{
+    const response=await fetch(CLOUD_FUNCTION_BASE+'/sendNotification',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({title,body,url:url||''})
+    });
+
+    const result=await response.json();
+
+    if(response.ok){
+      addLog('Sent: '+result.sent+' | Failed: '+result.failed,(result.failed||0)>0?'err':'ok');
+      showToast(result.sent+' notifications sent!','success');
+    }else{
+      addLog('Cloud Function error: '+(result.error||response.statusText),'err');
+      showToast('Send failed: '+(result.error||'Unknown error'),'error');
+    }
+  }catch(err){
+    addLog('Could not reach Cloud Function. Deploy functions first.','err');
+    showToast('Cloud Function not deployed yet','error');
+  }
+}
+
+/* ─── BUTTON HANDLERS ─── */
+sendBtn.addEventListener('click',async()=>{
+  const title=titleInput.value.trim();
+  const body=bodyInput.value.trim();
+  if(!title||!body){
+    showToast('Please fill in title and message','error');
+    return;
+  }
+  sendBtn.disabled=true;
+  sendBtn.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg> Sending...';
+  await sendNotification(title,body,urlInput.value.trim());
+  sendBtn.disabled=false;
+  sendBtn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send to All Subscribers';
+});
+
+document.getElementById('sendMorning').addEventListener('click',async()=>{
+  const msg=morningMsg.value.trim();
+  if(!msg){showToast('Enter a morning message','error');return}
+  await sendNotification('ZYRAXON AI - Good Morning',msg);
+});
+
+document.getElementById('sendEvening').addEventListener('click',async()=>{
+  const msg=eveningMsg.value.trim();
+  if(!msg){showToast('Enter an evening message','error');return}
+  await sendNotification('ZYRAXON AI - Evening Update',msg);
+});
+
+document.getElementById('saveSchedule').addEventListener('click',async()=>{
+  try{
+    const response=await fetch(CLOUD_FUNCTION_BASE+'/saveSchedule',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        morningMessage:morningMsg.value.trim(),
+        eveningMessage:eveningMsg.value.trim()
+      })
+    });
+
+    if(response.ok){
+      showToast('Schedule saved to Firestore!','success');
+      addLog('Schedule updated via Cloud Function: 10:00 AM & 8:00 PM');
+    }else{
+      showToast('Cloud Function not deployed yet — saved locally','error');
+      // Fallback to localStorage
+      localStorage.setItem('zyraxon_morning_msg',morningMsg.value);
+      localStorage.setItem('zyraxon_evening_msg',eveningMsg.value);
+    }
+  }catch(err){
+    // Fallback to localStorage when Cloud Function is not available
+    localStorage.setItem('zyraxon_morning_msg',morningMsg.value);
+    localStorage.setItem('zyraxon_evening_msg',eveningMsg.value);
+    showToast('Saved locally (deploy Cloud Function for Firestore sync)','info');
+    addLog('Schedule saved locally (Cloud Function not available)');
+  }
+});
+
+/* ─── LOAD SAVED SCHEDULE ─── */
+async function loadSchedule(){
+  try{
+    // Try Cloud Function first
+    const db=firebase.firestore();
+    const snap=await db.collection('settings').doc('schedule').get();
+    if(snap.exists){
+      const data=snap.data();
+      if(data.morningMessage) morningMsg.value=data.morningMessage;
+      if(data.eveningMessage) eveningMsg.value=data.eveningMessage;
+      addLog('Loaded schedule from Firestore');
+      return;
+    }
+  }catch(e){}
+  // Fallback to localStorage
+  const savedMorning=localStorage.getItem('zyraxon_morning_msg');
+  const savedEvening=localStorage.getItem('zyraxon_evening_msg');
+  if(savedMorning) morningMsg.value=savedMorning;
+  if(savedEvening) eveningMsg.value=savedEvening;
+  if(savedMorning||savedEvening) addLog('Loaded schedule from localStorage');
+}
+loadSchedule();
+
+/* ─── SUBSCRIBER COUNT ─── */
+async function updateSubscriberCount(){
+  try{
+    const db=firebase.firestore();
+    const snap=await db.collection('notification_tokens').get();
+    document.getElementById('subCount').textContent=snap.size;
+    addLog('Subscriber count: '+snap.size);
+  }catch(e){
+    document.getElementById('subCount').textContent='0';
+    addLog('Could not load subscriber count','err');
+  }
+}
+updateSubscriberCount();
+</script>
+</body>
+</html>
