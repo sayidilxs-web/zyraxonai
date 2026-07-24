@@ -140,7 +140,7 @@ section{padding:120px 0;position:relative;z-index:1}
   position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;inset:0;border-radius:inherit;
   background:linear-gradient(135deg,rgba(0,245,255,.05) 0%,transparent 50%,rgba(124,58,237,.05) 100%);
-  opacity:0;transition:opacity .4s}
+  opacity:0;transition:opacity .4s;pointer-events:none}
 .card:hover{transform:translateY(-6px);border-color:rgba(0,245,255,.2);
   box-shadow:0 30px 60px -15px rgba(0,245,255,.15),0 0 1px rgba(0,245,255,.3)}
 .card:hover::before{opacity:1}
@@ -188,7 +188,7 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   position:relative;overflow:hidden}
 .dl-card::before{content:'';position:absolute;inset:0;border-radius:inherit;
-  background:radial-gradient(circle at 50% 0%,rgba(0,245,255,.06),transparent 60%);opacity:0;transition:opacity .4s}
+  background:radial-gradient(circle at 50% 0%,rgba(0,245,255,.06),transparent 60%);opacity:0;transition:opacity .4s;pointer-events:none}
 .dl-card:hover{border-color:rgba(0,245,255,.25);transform:translateY(-8px);
   box-shadow:0 30px 60px -15px rgba(0,245,255,.18)}
 .dl-card:hover::before{opacity:1}
@@ -199,10 +199,10 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 .dl-icon svg{width:38px;height:38px}
 .dl-card h3{font-size:22px;font-weight:800;margin-bottom:6px;letter-spacing:-.01em}
 .dl-card .sub{color:var(--muted);font-size:13px;margin-bottom:24px}
-.dl-buttons{display:flex;flex-direction:column;gap:10px}
+.dl-buttons{display:flex;flex-direction:column;gap:10px;position:relative;z-index:2}
 .dl-btn{padding:13px 20px;border-radius:12px;font-weight:700;font-size:13px;
   background:var(--grad);color:#000;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:10px;
-  box-shadow:0 4px 15px rgba(0,245,255,.2)}
+  box-shadow:0 4px 15px rgba(0,245,255,.2);position:relative;z-index:2;cursor:pointer;text-decoration:none}
 .dl-btn:hover{transform:scale(1.03);box-shadow:0 0 30px rgba(0,245,255,.35)}
 .dl-btn.alt{background:var(--glass);border:1px solid var(--border2);color:var(--text);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:none}
@@ -272,7 +272,8 @@ footer{padding:72px 0 48px;border-top:1px solid var(--border);text-align:center;
 .to-top svg{width:22px;height:22px}
 
 /* ═══ REVEAL ANIMATION ═══ */
-.reveal{opacity:0;transform:translateY(30px);transition:all .7s cubic-bezier(.4,0,.2,1)}
+.reveal{opacity:1;transform:translateY(0);transition:all .7s cubic-bezier(.4,0,.2,1)}
+.reveal.pending{opacity:0;transform:translateY(30px)}
 .reveal.in{opacity:1;transform:translateY(0)}
 
 /* ═══ RESPONSIVE ═══ */
@@ -496,7 +497,7 @@ footer{padding:72px 0 48px;border-top:1px solid var(--border);text-align:center;
     <div class="dl-grid">
 
       <!-- WINDOWS -->
-      <div class="dl-card reveal" id="dlWin">
+      <div class="dl-card" id="dlWin">
         <div class="dl-icon">
           <svg viewBox="0 0 24 24" fill="#00f5ff"><path d="M0 3.449L9.75 2.1v9.451H0M10.949 1.949L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.851"/></svg>
         </div>
@@ -505,7 +506,7 @@ footer{padding:72px 0 48px;border-top:1px solid var(--border);text-align:center;
         <div class="dl-buttons">
           <a class="dl-btn" data-plat="win-primary" href="https://github.com/onelpawarai/ZYRAXON-AI/releases/latest" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0M10.949 1.949L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.851"/></svg>
-            <span data-label>Detecting...</span>
+            <span data-label>Download .exe</span>
           </a>
           <a class="dl-btn alt" href="https://github.com/onelpawarai/ZYRAXON-AI/releases" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
@@ -516,27 +517,27 @@ footer{padding:72px 0 48px;border-top:1px solid var(--border);text-align:center;
       </div>
 
       <!-- MAC -->
-      <div class="dl-card reveal" id="dlMac">
+      <div class="dl-card" id="dlMac">
         <div class="dl-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.5"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
         </div>
         <h3>macOS</h3>
         <div class="sub">macOS 12+ (Apple Silicon &amp; Intel)</div>
         <div class="dl-buttons">
-          <a class="dl-btn" data-plat="mac-arm" href="https://github.com/onelpawarai/ZYRAXON-AI/releases/latest" target="_blank" rel="noopener">
+          <a class="dl-btn" data-plat="mac-arm" href="https://github.com/onelpawarai/ZYRAXON-AI/releases" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
             <span data-label>Apple Silicon</span>
           </a>
-          <a class="dl-btn" data-plat="mac-intel" href="https://github.com/onelpawarai/ZYRAXON-AI/releases/latest" target="_blank" rel="noopener">
+          <a class="dl-btn" data-plat="mac-intel" href="https://github.com/onelpawarai/ZYRAXON-AI/releases" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
             <span data-label>Intel</span>
           </a>
         </div>
-        <div class="dl-file" data-file>Detecting...</div>
+        <div class="dl-file" data-file>Latest .dmg</div>
       </div>
 
       <!-- LINUX -->
-      <div class="dl-card reveal" id="dlLinux">
+      <div class="dl-card" id="dlLinux">
         <div class="dl-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M7 14s1.5 2 5 2 5-2 5-2"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/></svg>
         </div>
@@ -545,18 +546,18 @@ footer{padding:72px 0 48px;border-top:1px solid var(--border);text-align:center;
         <div class="dl-buttons">
           <a class="dl-btn" data-plat="linux-appimage" href="https://github.com/onelpawarai/ZYRAXON-AI/releases" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 10H6v-2h8v2zm4-4H6v-2h12v2z"/></svg>
-            <span data-label>Detecting...</span>
+            <span data-label>Download</span>
           </a>
           <a class="dl-btn alt" href="https://github.com/onelpawarai/ZYRAXON-AI/releases" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
             All releases
           </a>
         </div>
-        <div class="dl-file" data-file>Detecting...</div>
+        <div class="dl-file" data-file>Latest .AppImage</div>
       </div>
 
       <!-- ANDROID -->
-      <div class="dl-card reveal" id="dlAndroid">
+      <div class="dl-card" id="dlAndroid">
         <div class="dl-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5"><path d="M5 16V9a7 7 0 0 1 14 0v7"/><path d="M4 16h16"/><circle cx="8" cy="10" r="1" fill="#f59e0b"/><circle cx="16" cy="10" r="1" fill="#f59e0b"/><path d="M7 3l2 3M17 3l-2 3"/></svg>
         </div>
@@ -565,14 +566,14 @@ footer{padding:72px 0 48px;border-top:1px solid var(--border);text-align:center;
         <div class="dl-buttons">
           <a class="dl-btn" data-plat="android-apk" href="https://github.com/onelpawarai/ZYRAXON-AI/releases" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 16V9a7 7 0 0 1 14 0v7"/><path d="M4 16h16"/><circle cx="8" cy="10" r="1" fill="currentColor"/><circle cx="16" cy="10" r="1" fill="currentColor"/></svg>
-            <span data-label>Detecting...</span>
+            <span data-label>Download .apk</span>
           </a>
           <a class="dl-btn alt" href="https://github.com/onelpawarai/ZYRAXON-AI/releases" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
             All releases
           </a>
         </div>
-        <div class="dl-file" data-file>Detecting...</div>
+        <div class="dl-file" data-file>Latest .apk</div>
       </div>
     </div>
   </div>
@@ -733,8 +734,21 @@ function type(){
 type();
 
 /* ═══ REVEAL ON SCROLL ═══ */
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.08,rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+(function(){
+  const els=document.querySelectorAll('.reveal');
+  // Mark elements below the fold as pending
+  const vh=window.innerHeight;
+  els.forEach(el=>{
+    const rect=el.getBoundingClientRect();
+    if(rect.top>vh*0.92) el.classList.add('pending');
+  });
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.remove('pending');e.target.classList.add('in');io.unobserve(e.target)}
+  }),{threshold:.05,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.reveal.pending').forEach(el=>io.observe(el));
+  // Fallback: force all reveals visible after 3 seconds
+  setTimeout(()=>{document.querySelectorAll('.reveal.pending').forEach(el=>{el.classList.remove('pending');el.classList.add('in')})},3000);
+})();
 
 /* ═══ NAV SCROLL ═══ */
 const nav=document.getElementById('mainNav');
@@ -797,11 +811,8 @@ topBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
       btn.href=asset.browser_download_url;
       btn.target='_blank'; btn.rel='noopener';
       if(lbl && fallbackLabel) lbl.textContent=fallbackLabel;
-    }else{
-      btn.href=RELEASES; btn.target='_blank'; btn.rel='noopener';
-      if(lbl) lbl.textContent='Coming soon';
-      btn.title='Not yet available — check releases page';
     }
+    // Always keep the fallback href if no asset found
   }
 
   function setFile(cardId,text){
@@ -831,7 +842,7 @@ topBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
       }
     }
 
-    // Apply buttons
+    // Apply buttons — upgrade href to direct download if asset found
     applyBtn('win-primary', found['win-primary']?.asset, 'Download .exe');
     applyBtn('mac-arm', found['mac-arm']?.asset, 'Apple Silicon');
     applyBtn('mac-intel', found['mac-intel']?.asset, 'Intel');
@@ -851,7 +862,7 @@ topBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
     setFile('dlAndroid', apkA? (apkA.name+' ('+formatSize(apkA.size)+')') : 'No Android build yet');
 
     // Hero primary button — auto-detect user OS
-    const osMap={win:'win-primary',mac:((found['mac-arm']?.asset)?'mac-arm':'mac-intel'),linux:'linux-appimage',android:'android-apk'};
+    const osMap={win:'win-primary',mac:(found['mac-arm']?.asset?'mac-arm':'mac-intel'),linux:'linux-appimage',android:'android-apk'};
     const chosenKey=osMap[userOS];
     const chosen=found[chosenKey]?.asset;
     if(chosen){
@@ -860,23 +871,17 @@ topBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
       const osNames={win:'Windows',mac:'macOS',linux:'Linux',android:'Android'};
       heroDlText.textContent='Download for '+osNames[userOS]+' — '+tag;
     }else{
-      heroDl.href='#download';
-      heroDl.target='_self';
-      heroDlText.textContent='View downloads — '+tag;
+      // Fallback: hero button goes to releases page
+      heroDl.href=RELEASES;
+      heroDl.target='_blank'; heroDl.rel='noopener';
+      heroDlText.textContent='Download — '+tag;
     }
   }catch(err){
     console.warn('[release-detect]',err);
+    // Fallback: all buttons already point to releases page via HTML href
     badgeText.textContent='Latest release on GitHub';
     heroDl.href=RELEASES; heroDl.target='_blank'; heroDl.rel='noopener';
     heroDlText.textContent='View latest release';
-    document.querySelectorAll('[data-plat]').forEach(b=>{
-      b.href=RELEASES; b.target='_blank'; b.rel='noopener';
-      const l=b.querySelector('[data-label]');
-      if(l&&(l.textContent==='Detecting...'))l.textContent='View releases';
-    });
-    document.querySelectorAll('[data-file]').forEach(el=>{
-      if(el.textContent==='Detecting...')el.textContent='See GitHub releases';
-    });
   }
 })();
 </script>
