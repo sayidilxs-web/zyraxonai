@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ═══ NOTIFICATION TOKENS ═══
+    // Anyone can write (subscribe), but only server/admin can read
+    match /notification_tokens/{token} {
+      allow read: if request.auth != null; // Admin reads
+      allow create: if true;               // Anyone can subscribe
+      allow delete: if true;               // Allow cleanup of invalid tokens
+      allow update: if false;              // No updates needed
+    }
+
+    // ═══ SETTINGS ═══
+    // Only authenticated users can modify schedule settings
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ═══ NOTIFICATION LOGS ═══
+    // Only server can write, authenticated users can read
+    match /notification_logs/{logId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Only Cloud Functions write here
+    }
+  }
+}
