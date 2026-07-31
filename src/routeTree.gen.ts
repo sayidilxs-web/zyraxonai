@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShareIdRouteImport } from './routes/share/$id'
 import { Route as ApiSharesIndexRouteImport } from './routes/api/shares/index'
 import { Route as ApiPublicSttRouteImport } from './routes/api/public/stt'
 import { Route as ApiSharesIdIndexRouteImport } from './routes/api/shares/$id/index'
@@ -23,6 +24,11 @@ import { Route as ApiPublicSharesIdDataRouteImport } from './routes/api/public/s
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShareIdRoute = ShareIdRouteImport.update({
+  id: '/share/$id',
+  path: '/share/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSharesIndexRoute = ApiSharesIndexRouteImport.update({
@@ -73,6 +79,7 @@ const ApiPublicSharesIdDataRoute = ApiPublicSharesIdDataRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/share/$id': typeof ShareIdRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/shares/': typeof ApiSharesIndexRoute
   '/api/shares/$id/data': typeof ApiSharesIdDataRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/share/$id': typeof ShareIdRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/shares': typeof ApiSharesIndexRoute
   '/api/shares/$id/data': typeof ApiSharesIdDataRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/share/$id': typeof ShareIdRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/shares/': typeof ApiSharesIndexRoute
   '/api/shares/$id/data': typeof ApiSharesIdDataRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/share/$id'
     | '/api/public/stt'
     | '/api/shares/'
     | '/api/shares/$id/data'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/share/$id'
     | '/api/public/stt'
     | '/api/shares'
     | '/api/shares/$id/data'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/share/$id'
     | '/api/public/stt'
     | '/api/shares/'
     | '/api/shares/$id/data'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ShareIdRoute: typeof ShareIdRoute
   ApiPublicSttRoute: typeof ApiPublicSttRoute
   ApiSharesIndexRoute: typeof ApiSharesIndexRoute
   ApiSharesIdDataRoute: typeof ApiSharesIdDataRoute
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/share/$id': {
+      id: '/share/$id'
+      path: '/share/$id'
+      fullPath: '/share/$id'
+      preLoaderRoute: typeof ShareIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/shares/': {
@@ -237,6 +257,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ShareIdRoute: ShareIdRoute,
   ApiPublicSttRoute: ApiPublicSttRoute,
   ApiSharesIndexRoute: ApiSharesIndexRoute,
   ApiSharesIdDataRoute: ApiSharesIdDataRoute,
@@ -250,3 +271,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
