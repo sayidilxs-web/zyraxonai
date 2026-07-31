@@ -10,8 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiSharesIndexRouteImport } from './routes/api/shares/index'
 import { Route as ApiPublicSttRouteImport } from './routes/api/public/stt'
+import { Route as ApiSharesIdIndexRouteImport } from './routes/api/shares/$id/index'
 import { Route as ApiPublicSharesIndexRouteImport } from './routes/api/public/shares/index'
+import { Route as ApiSharesIdSyncRouteImport } from './routes/api/shares/$id/sync'
+import { Route as ApiSharesIdDataRouteImport } from './routes/api/shares/$id/data'
 import { Route as ApiPublicSharesIdIndexRouteImport } from './routes/api/public/shares/$id/index'
 import { Route as ApiPublicSharesIdSyncRouteImport } from './routes/api/public/shares/$id/sync'
 import { Route as ApiPublicSharesIdDataRouteImport } from './routes/api/public/shares/$id/data'
@@ -21,14 +25,34 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSharesIndexRoute = ApiSharesIndexRouteImport.update({
+  id: '/api/shares/',
+  path: '/api/shares/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSttRoute = ApiPublicSttRouteImport.update({
   id: '/api/public/stt',
   path: '/api/public/stt',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSharesIdIndexRoute = ApiSharesIdIndexRouteImport.update({
+  id: '/api/shares/$id/',
+  path: '/api/shares/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSharesIndexRoute = ApiPublicSharesIndexRouteImport.update({
   id: '/api/public/shares/',
   path: '/api/public/shares/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSharesIdSyncRoute = ApiSharesIdSyncRouteImport.update({
+  id: '/api/shares/$id/sync',
+  path: '/api/shares/$id/sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSharesIdDataRoute = ApiSharesIdDataRouteImport.update({
+  id: '/api/shares/$id/data',
+  path: '/api/shares/$id/data',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicSharesIdIndexRoute = ApiPublicSharesIdIndexRouteImport.update({
@@ -50,7 +74,11 @@ const ApiPublicSharesIdDataRoute = ApiPublicSharesIdDataRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/public/stt': typeof ApiPublicSttRoute
+  '/api/shares/': typeof ApiSharesIndexRoute
+  '/api/shares/$id/data': typeof ApiSharesIdDataRoute
+  '/api/shares/$id/sync': typeof ApiSharesIdSyncRoute
   '/api/public/shares/': typeof ApiPublicSharesIndexRoute
+  '/api/shares/$id/': typeof ApiSharesIdIndexRoute
   '/api/public/shares/$id/data': typeof ApiPublicSharesIdDataRoute
   '/api/public/shares/$id/sync': typeof ApiPublicSharesIdSyncRoute
   '/api/public/shares/$id/': typeof ApiPublicSharesIdIndexRoute
@@ -58,7 +86,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/public/stt': typeof ApiPublicSttRoute
+  '/api/shares': typeof ApiSharesIndexRoute
+  '/api/shares/$id/data': typeof ApiSharesIdDataRoute
+  '/api/shares/$id/sync': typeof ApiSharesIdSyncRoute
   '/api/public/shares': typeof ApiPublicSharesIndexRoute
+  '/api/shares/$id': typeof ApiSharesIdIndexRoute
   '/api/public/shares/$id/data': typeof ApiPublicSharesIdDataRoute
   '/api/public/shares/$id/sync': typeof ApiPublicSharesIdSyncRoute
   '/api/public/shares/$id': typeof ApiPublicSharesIdIndexRoute
@@ -67,7 +99,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/public/stt': typeof ApiPublicSttRoute
+  '/api/shares/': typeof ApiSharesIndexRoute
+  '/api/shares/$id/data': typeof ApiSharesIdDataRoute
+  '/api/shares/$id/sync': typeof ApiSharesIdSyncRoute
   '/api/public/shares/': typeof ApiPublicSharesIndexRoute
+  '/api/shares/$id/': typeof ApiSharesIdIndexRoute
   '/api/public/shares/$id/data': typeof ApiPublicSharesIdDataRoute
   '/api/public/shares/$id/sync': typeof ApiPublicSharesIdSyncRoute
   '/api/public/shares/$id/': typeof ApiPublicSharesIdIndexRoute
@@ -77,7 +113,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/api/public/stt'
+    | '/api/shares/'
+    | '/api/shares/$id/data'
+    | '/api/shares/$id/sync'
     | '/api/public/shares/'
+    | '/api/shares/$id/'
     | '/api/public/shares/$id/data'
     | '/api/public/shares/$id/sync'
     | '/api/public/shares/$id/'
@@ -85,7 +125,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/api/public/stt'
+    | '/api/shares'
+    | '/api/shares/$id/data'
+    | '/api/shares/$id/sync'
     | '/api/public/shares'
+    | '/api/shares/$id'
     | '/api/public/shares/$id/data'
     | '/api/public/shares/$id/sync'
     | '/api/public/shares/$id'
@@ -93,7 +137,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/api/public/stt'
+    | '/api/shares/'
+    | '/api/shares/$id/data'
+    | '/api/shares/$id/sync'
     | '/api/public/shares/'
+    | '/api/shares/$id/'
     | '/api/public/shares/$id/data'
     | '/api/public/shares/$id/sync'
     | '/api/public/shares/$id/'
@@ -102,7 +150,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiPublicSttRoute: typeof ApiPublicSttRoute
+  ApiSharesIndexRoute: typeof ApiSharesIndexRoute
+  ApiSharesIdDataRoute: typeof ApiSharesIdDataRoute
+  ApiSharesIdSyncRoute: typeof ApiSharesIdSyncRoute
   ApiPublicSharesIndexRoute: typeof ApiPublicSharesIndexRoute
+  ApiSharesIdIndexRoute: typeof ApiSharesIdIndexRoute
   ApiPublicSharesIdDataRoute: typeof ApiPublicSharesIdDataRoute
   ApiPublicSharesIdSyncRoute: typeof ApiPublicSharesIdSyncRoute
   ApiPublicSharesIdIndexRoute: typeof ApiPublicSharesIdIndexRoute
@@ -117,6 +169,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/shares/': {
+      id: '/api/shares/'
+      path: '/api/shares'
+      fullPath: '/api/shares/'
+      preLoaderRoute: typeof ApiSharesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/stt': {
       id: '/api/public/stt'
       path: '/api/public/stt'
@@ -124,11 +183,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSttRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/shares/$id/': {
+      id: '/api/shares/$id/'
+      path: '/api/shares/$id'
+      fullPath: '/api/shares/$id/'
+      preLoaderRoute: typeof ApiSharesIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/shares/': {
       id: '/api/public/shares/'
       path: '/api/public/shares'
       fullPath: '/api/public/shares/'
       preLoaderRoute: typeof ApiPublicSharesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/shares/$id/sync': {
+      id: '/api/shares/$id/sync'
+      path: '/api/shares/$id/sync'
+      fullPath: '/api/shares/$id/sync'
+      preLoaderRoute: typeof ApiSharesIdSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/shares/$id/data': {
+      id: '/api/shares/$id/data'
+      path: '/api/shares/$id/data'
+      fullPath: '/api/shares/$id/data'
+      preLoaderRoute: typeof ApiSharesIdDataRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/shares/$id/': {
@@ -158,7 +238,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiPublicSttRoute: ApiPublicSttRoute,
+  ApiSharesIndexRoute: ApiSharesIndexRoute,
+  ApiSharesIdDataRoute: ApiSharesIdDataRoute,
+  ApiSharesIdSyncRoute: ApiSharesIdSyncRoute,
   ApiPublicSharesIndexRoute: ApiPublicSharesIndexRoute,
+  ApiSharesIdIndexRoute: ApiSharesIdIndexRoute,
   ApiPublicSharesIdDataRoute: ApiPublicSharesIdDataRoute,
   ApiPublicSharesIdSyncRoute: ApiPublicSharesIdSyncRoute,
   ApiPublicSharesIdIndexRoute: ApiPublicSharesIdIndexRoute,
