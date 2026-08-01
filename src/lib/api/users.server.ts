@@ -43,12 +43,18 @@ export async function updateUser(ctx: ApiContext) {
   if (profile.id !== userId && !ctx.isAdmin) throw forbidden('You can only update your own profile');
 
   const body = await readJson(ctx.request);
-  const patch: Record<string, unknown> = {};
-  if ('bio' in body) patch['bio'] = optionalString(body['bio'], 'bio', 2000);
-  if ('blog' in body) patch['blog'] = optionalString(body['blog'], 'blog', 500);
-  if ('location' in body) patch['location'] = optionalString(body['location'], 'location', 200);
-  if ('name' in body) patch['name'] = optionalString(body['name'], 'name', 200);
-  if ('avatar_url' in body) patch['avatar_url'] = optionalString(body['avatar_url'], 'avatar_url', 1000);
+  const patch: {
+    bio?: string | null;
+    blog?: string | null;
+    location?: string | null;
+    name?: string | null;
+    avatar_url?: string | null;
+  } = {};
+  if ('bio' in body) patch.bio = optionalString(body['bio'], 'bio', 2000);
+  if ('blog' in body) patch.blog = optionalString(body['blog'], 'blog', 500);
+  if ('location' in body) patch.location = optionalString(body['location'], 'location', 200);
+  if ('name' in body) patch.name = optionalString(body['name'], 'name', 200);
+  if ('avatar_url' in body) patch.avatar_url = optionalString(body['avatar_url'], 'avatar_url', 1000);
 
   const { data, error } = await ctx.db.from('profiles').update(patch).eq('id', profile.id).select('*').maybeSingle();
   if (error) throw new Error(error.message);
