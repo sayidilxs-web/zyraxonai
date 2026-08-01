@@ -14,16 +14,451 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_events: {
+        Row: {
+          created_at: string
+          data: Json | null
+          event_type: string
+          id: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          event_type: string
+          id?: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          event_type?: string
+          id?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "ai_sessions"
+            referencedColumns: ["session_id"]
+          },
+        ]
+      }
+      ai_sessions: {
+        Row: {
+          capabilities: string[]
+          created_at: string
+          events_count: number
+          id: string
+          last_active: string
+          session_id: string
+          status: Database["public"]["Enums"]["ai_session_status"]
+          user_id: string | null
+        }
+        Insert: {
+          capabilities?: string[]
+          created_at?: string
+          events_count?: number
+          id?: string
+          last_active?: string
+          session_id: string
+          status?: Database["public"]["Enums"]["ai_session_status"]
+          user_id?: string | null
+        }
+        Update: {
+          capabilities?: string[]
+          created_at?: string
+          events_count?: number
+          id?: string
+          last_active?: string
+          session_id?: string
+          status?: Database["public"]["Enums"]["ai_session_status"]
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          item_id: string | null
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          item_id?: string | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          item_id?: string | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          item_id: string
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          item_id: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "ecosystem_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecosystem_items: {
+        Row: {
+          author_id: string
+          category: Database["public"]["Enums"]["item_category"]
+          comments_count: number
+          content: Json | null
+          created_at: string
+          demo_url: string | null
+          description: string | null
+          downloads_count: number
+          featured: boolean
+          github_url: string | null
+          id: string
+          likes_count: number
+          marketplace_published: boolean
+          slug: string
+          status: Database["public"]["Enums"]["item_status"]
+          tags: string[]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          views_count: number
+        }
+        Insert: {
+          author_id: string
+          category: Database["public"]["Enums"]["item_category"]
+          comments_count?: number
+          content?: Json | null
+          created_at?: string
+          demo_url?: string | null
+          description?: string | null
+          downloads_count?: number
+          featured?: boolean
+          github_url?: string | null
+          id?: string
+          likes_count?: number
+          marketplace_published?: boolean
+          slug: string
+          status?: Database["public"]["Enums"]["item_status"]
+          tags?: string[]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          views_count?: number
+        }
+        Update: {
+          author_id?: string
+          category?: Database["public"]["Enums"]["item_category"]
+          comments_count?: number
+          content?: Json | null
+          created_at?: string
+          demo_url?: string | null
+          description?: string | null
+          downloads_count?: number
+          featured?: boolean
+          github_url?: string | null
+          id?: string
+          likes_count?: number
+          marketplace_published?: boolean
+          slug?: string
+          status?: Database["public"]["Enums"]["item_status"]
+          tags?: string[]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          views_count?: number
+        }
+        Relationships: []
+      }
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      item_versions: {
+        Row: {
+          content: Json | null
+          created_at: string
+          description: string | null
+          downloads: number
+          id: string
+          item_id: string
+          version: string
+        }
+        Insert: {
+          content?: Json | null
+          created_at?: string
+          description?: string | null
+          downloads?: number
+          id?: string
+          item_id: string
+          version: string
+        }
+        Update: {
+          content?: Json | null
+          created_at?: string
+          description?: string | null
+          downloads?: number
+          id?: string
+          item_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_versions_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "ecosystem_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      likes: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "ecosystem_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          metadata: Json | null
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          metadata?: Json | null
+          read?: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          metadata?: Json | null
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          blog: string | null
+          created_at: string
+          email: string | null
+          github_id: number | null
+          github_login: string | null
+          id: string
+          location: string | null
+          login: string
+          name: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          blog?: string | null
+          created_at?: string
+          email?: string | null
+          github_id?: number | null
+          github_login?: string | null
+          id: string
+          location?: string | null
+          login: string
+          name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          blog?: string | null
+          created_at?: string
+          email?: string | null
+          github_id?: number | null
+          github_login?: string | null
+          id?: string
+          location?: string | null
+          login?: string
+          name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rate_limits: {
+        Row: {
+          bucket_key: string
+          hits: number
+          window_start: string
+        }
+        Insert: {
+          bucket_key: string
+          hits?: number
+          window_start: string
+        }
+        Update: {
+          bucket_key?: string
+          hits?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_rate_limit: {
+        Args: { _key: string; _limit: number }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      increment_item_counter: {
+        Args: { _column: string; _item_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      ai_session_status: "active" | "inactive" | "ended"
+      app_role: "admin" | "moderator" | "user"
+      item_category:
+        | "website"
+        | "sdk"
+        | "pdf"
+        | "ai_bot"
+        | "plugin"
+        | "template"
+        | "mobile_app"
+        | "api"
+      item_status: "draft" | "published" | "archived" | "pending" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +585,20 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      ai_session_status: ["active", "inactive", "ended"],
+      app_role: ["admin", "moderator", "user"],
+      item_category: [
+        "website",
+        "sdk",
+        "pdf",
+        "ai_bot",
+        "plugin",
+        "template",
+        "mobile_app",
+        "api",
+      ],
+      item_status: ["draft", "published", "archived", "pending", "rejected"],
+    },
   },
 } as const
