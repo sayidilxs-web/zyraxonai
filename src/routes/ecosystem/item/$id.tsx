@@ -17,7 +17,7 @@ type EcosystemItem = {
   description: string | null;
   content: any;
   tags: string[];
-  github_url: string | null;
+  github_url: string | null; downloadUrl?: string; installCommand?: string;
   demo_url: string | null;
   thumbnail_url: string | null;
   status: string;
