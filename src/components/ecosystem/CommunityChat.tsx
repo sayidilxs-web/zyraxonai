@@ -350,6 +350,14 @@ export default function CommunityChat() {
     setMessages((prev) => [...prev, msg])
     setInput("")
 
+    // Instant delivery first, so slow GitHub persistence never delays peers.
+    broadcastToPeers({ type: "chat", message: msg })
+    try {
+      rtRef.current?.sendChat(msg)
+    } catch {}
+
+
+
     try {
       const storage = githubStorage.current
       if (storage) {
@@ -378,12 +386,8 @@ export default function CommunityChat() {
         }
       }
     } catch {}
-
-    broadcastToPeers({ type: "chat", message: msg })
-    try {
-      rtRef.current?.sendChat(msg)
-    } catch {}
   }, [input, broadcastToPeers])
+
 
   const shareFile = useCallback(
     (file: File) => {
