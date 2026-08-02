@@ -1,558 +1,1251 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { useEffect, useState, useMemo } from 'react';
+import { createFileRoute } from '@tanstack/react-router'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import {
+  getAllItems,
+  getCategories,
+  getStats,
+  getAuthState,
+  clearAuthState,
+  loginWithToken,
+  type EcosystemItem,
+  type CategoryInfo,
+  type EcosystemStats,
+  type User,
+} from '../../lib/ecosystem'
 
-const GITHUB_API = "https://api.github.com";
-const GITHUB_REPO = "onelpawarai/ZYRAXON-AI";
-const MARKETPLACE_PATH = "/marketplace/published/index.json";
-const SAMPLE_PATHS = [
-  "/marketplace/plugins/index.json",
-  "/marketplace/bots/index.json",
-  "/marketplace/templates/index.json",
-];
-const CACHE_KEY = "zyraxon_marketplace_cache";
-const LOCAL_CACHE_KEY = "zyraxon_marketplace_local_cache";
-const CACHE_TTL = 30000;
-
-type MarketplaceItem = {
-  id: string;
-  name: string;
-  description: string;
-  version: string;
-  author: string;
-  authorAvatar?: string;
-  authorId: string;
-  category: string;
-  type: string;
-  tags: string[];
-  coverImage?: string;
-  logo?: string;
-  downloads: number;
-  rating: number;
-  reviews: number;
-  likeCount: number;
-  commentCount: number;
-  verified: boolean;
-  featured: boolean;
-  createdAt: string;
-  updatedAt: string;
-  platforms?: string[];
-  downloadUrl?: string;
-  installCommand?: string;
-  fileSize?: string;
-  license?: string;
-  liveDemo?: string;
-  repository?: string;
-};
-
-type CategoryInfo = {
-  id: string;
-  name: string;
-  icon: string;
-  description: string;
-  count: number;
-};
-
-const CATEGORIES: CategoryInfo[] = [
-  { id: "all", name: "All", icon: "grid", description: "Browse everything", count: 0 },
-  { id: "ai-bots", name: "AI Bots", icon: "bot", description: "Custom AI assistants", count: 0 },
-  { id: "plugins", name: "Plugins", icon: "puzzle", description: "Extend ZYRAXON", count: 0 },
-  { id: "website-templates", name: "Templates", icon: "layout", description: "Website starters", count: 0 },
-  { id: "themes", name: "Themes", icon: "palette", description: "UI themes", count: 0 },
-  { id: "components", name: "Components", icon: "box", description: "Reusable UI parts", count: 0 },
-  { id: "desktop-apps", name: "Desktop Apps", icon: "monitor", description: "Win/Mac/Linux apps", count: 0 },
-  { id: "mobile-apps", name: "Mobile Apps", icon: "smartphone", description: "Android/iOS apps", count: 0 },
-  { id: "ai-models", name: "AI Models", icon: "cpu", description: "Pre-trained models", count: 0 },
-  { id: "tools", name: "Dev Tools", icon: "wrench", description: "Developer utilities", count: 0 },
-  { id: "cli-tools", name: "CLI Tools", icon: "terminal", description: "Command-line tools", count: 0 },
-  { id: "sdks", name: "SDKs", icon: "package", description: "Dev kits", count: 0 },
-  { id: "fonts", name: "Fonts", icon: "type", description: "Custom fonts", count: 0 },
-  { id: "iso-images", name: "ISO Images", icon: "disc", description: "Bootable images", count: 0 },
-  { id: "devops", name: "DevOps", icon: "rocket", description: "CI/CD & Docker", count: 0 },
-  { id: "pdfs", name: "PDFs", icon: "file-text", description: "Docs & guides", count: 0 },
-  { id: "books", name: "Books", icon: "book", description: "E-books", count: 0 },
-  { id: "prompts", name: "AI Prompts", icon: "message", description: "Prompt templates", count: 0 },
-  { id: "datasets", name: "Datasets", icon: "database", description: "Training data", count: 0 },
-  { id: "code-snippets", name: "Snippets", icon: "code", description: "Code patterns", count: 0 },
-  { id: "apis", name: "APIs", icon: "globe", description: "API integrations", count: 0 },
-  { id: "browser-extensions", name: "Extensions", icon: "extension", description: "Browser add-ons", count: 0 },
-  { id: "landing-pages", name: "Landing Pages", icon: "layout", description: "Marketing pages", count: 0 },
-  { id: "ui-kits", name: "UI Kits", icon: "layers", description: "Design systems", count: 0 },
-  { id: "icons", name: "Icons", icon: "image", description: "Icon packs", count: 0 },
-  { id: "startkits", name: "Starter Kits", icon: "rocket", description: "Project starters", count: 0 },
-  { id: "workflows", name: "Workflows", icon: "zap", description: "Automation flows", count: 0 },
-  { id: "types", name: "Types", icon: "file", description: "TS type defs", count: 0 },
-];
-
-const CATEGORY_ICONS_SVG: Record<string, string> = {
-  grid: "M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z",
-  bot: "M12 2a4 4 0 014 4v2h2a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2v-8a2 2 0 012-2h2V6a4 4 0 014-4zm-2 10a1 1 0 100 2 1 1 0 000-2zm4 0a1 1 0 100 2 1 1 0 000-2z",
-  puzzle: "M20.5 11H19V7a2 2 0 00-2-2h-4V3.5a2.5 2.5 0 00-5 0V5H4a2 2 0 00-2 2v3.8h1.5a2.5 2.5 0 010 5H2V20a2 2 0 002 2h3.8v-1.5a2.5 2.5 0 015 0V22H17a2 2 0 002-2v-4h1.5a2.5 2.5 0 100-5z",
-  layout: "M3 3h18v18H3zm2 2v14h14V5z",
-  palette: "M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10a2.5 2.5 0 002.5-2.5c0-.61-.23-1.21-.64-1.67A1.37 1.37 0 0113.5 17c0-.76.62-1.38 1.38-1.38H17a5 5 0 005-5c0-4.96-4.49-8-10-8z",
-  monitor: "M3 4h18v12H3zm6 14h6",
-  smartphone: "M7 2h10a2 2 0 012 2v16a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2zm5 18a1 1 0 100-2 1 1 0 000-2z",
-  cpu: "M4 4h16v16H4zm4 4h8v8H8z",
-  wrench: "M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z",
-  terminal: "M4 4h16v16H4zm2 4l4 4-4 4m4-8h8",
-  package: "M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z",
-  type: "M4 7V4h16v3M9 20h6M12 4v16",
-  disc: "M12 2a10 10 0 100 20 10 10 0 000-20zm0 4a6 6 0 110 12 6 6 0 010-12z",
-  rocket: "M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09zm12.9-1.5a2.18 2.18 0 00-2.91-.09c-.84.71-2.13.7-2.91-.09-1.5-1.5-2.24-5-2.24-5s3.5.74 5 2.24z",
-  "file-text": "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z",
-  book: "M4 4h16v16H4zm2 2v12h12V6z",
-  message: "M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z",
-  database: "M12 2a10 10 0 100 20 10 10 0 000-20zm0 4a6 6 0 110 12 6 6 0 010-12z",
-  code: "M16 18l6-6-6-6M8 6l-6 6 6 6",
-  globe: "M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20M12 2a15 15 0 014 10 15 15 0 01-4 10 15 15 0 01-4-10A15 15 0 0112 2z",
-  extension: "M20.5 11H19V7a2 2 0 00-2-2h-4V3.5a2.5 2.5 0 00-5 0V5H4a2 2 0 00-2 2v3.8h1.5a2.5 2.5 0 010 5H2V20a2 2 0 002 2h3.8v-1.5a2.5 2.5 0 015 0V22H17a2 2 0 002-2v-4h1.5a2.5 2.5 0 100-5z",
-  layers: "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5",
-  image: "M3 3h18v18H3zm5 12l3-4 2 3 3-4 4 5H4z",
-  zap: "M13 2L3 14h9l-1 10 10-12h-9l1-10z",
-  box: "M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z",
-};
-
-function SvgIcon({ name, size = 16 }: { name: string; size?: number }) {
-  const d = CATEGORY_ICONS_SVG[name] || CATEGORY_ICONS_SVG.box;
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d={d} />
-    </svg>
-  );
-}
-
-function CategoryBadge({ category }: { category: string }) {
-  const cat = CATEGORIES.find((c) => c.id === category);
-  const label = cat?.name || category;
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium text-slate-300">
-      {cat && <SvgIcon name={cat.icon} size={12} />}
-      {label}
-    </span>
-  );
-}
-
-function PlatformBadge({ platform }: { platform: string }) {
-  const labels: Record<string, string> = { windows: "Windows", macos: "macOS", linux: "Linux", android: "Android", ios: "iOS", web: "Web" };
-  const colors: Record<string, string> = {
-    windows: "bg-blue-500/15 text-blue-400 border-blue-500/20",
-    macos: "bg-slate-400/15 text-slate-300 border-slate-400/20",
-    linux: "bg-amber-500/15 text-amber-400 border-amber-500/20",
-    android: "bg-green-500/15 text-green-400 border-green-500/20",
-    ios: "bg-slate-300/15 text-slate-200 border-slate-300/20",
-    web: "bg-cyan-500/15 text-cyan-400 border-cyan-500/20",
-  };
-  return (
-    <span className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-medium ${colors[platform] || "bg-white/10 text-slate-400 border-white/10"}`}>
-      {labels[platform] || platform}
-    </span>
-  );
-}
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <span className="inline-flex items-center gap-1 text-sm text-amber-400">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-      </svg>
-      {rating.toFixed(1)}
-    </span>
-  );
-}
+type ViewMode = 'home' | 'explore' | 'categories' | 'top-rated' | 'trending' | 'new' | 'product-detail'
 
 export const Route = createFileRoute('/ecosystem')({
-  head: () => ({
-    meta: [
-      { title: "ZYRAXON Ecosystem - Marketplace" },
-      { name: "description", content: "Discover plugins, bots, templates, desktop apps, mobile apps, and more in the ZYRAXON Ecosystem marketplace." },
-      { property: "og:title", content: "ZYRAXON Ecosystem - Marketplace" },
-      { property: "og:description", content: "Discover plugins, bots, templates, and more." },
-      { property: "og:type", content: "website" },
-    ],
-  }),
   component: EcosystemPage,
-});
+})
 
 function EcosystemPage() {
-  const [items, setItems] = useState<MarketplaceItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"trending" | "newest" | "top-rated">("trending");
+  const [view, setView] = useState<ViewMode>('home')
+  const [items, setItems] = useState<EcosystemItem[]>([])
+  const [categories, setCategories] = useState<CategoryInfo[]>([])
+  const [stats, setStats] = useState<EcosystemStats>({ plugins: 0, bots: 0, templates: 0, downloads: 0, users: 0 })
+  const [loading, setLoading] = useState(true)
+  const [selectedItem, setSelectedItem] = useState<EcosystemItem | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [showLogin, setShowLogin] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const loadData = useCallback(async () => {
+    setLoading(true)
+    try {
+      const [allItems, cats, st] = await Promise.all([
+        getAllItems(),
+        getCategories(),
+        getStats(),
+      ])
+      setItems(allItems)
+      setCategories(cats)
+      setStats(st)
+    } catch (err) {
+      console.error('Failed to load ecosystem data:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    const cached = sessionStorage.getItem(CACHE_KEY);
-    if (cached) {
-      try {
-        const { data, time } = JSON.parse(cached);
-        if (Date.now() - time < CACHE_TTL) {
-          setItems(data);
-          setLoading(false);
-          return;
-        }
-      } catch {}
-    }
-
-    let alive = true;
-    async function load() {
-      try {
-        const headers: Record<string, string> = {};
-        const fetchJson = async (path: string) => {
-          const res = await fetch(`${GITHUB_API}/repos/${GITHUB_REPO}/contents${path}`, { headers });
-          if (!res.ok) return [];
-          const data = await res.json();
-          if (data.content) return JSON.parse(atob(data.content.replace(/\n/g, "")));
-          if (Array.isArray(data)) return data;
-          if (data.items) return data.items;
-          return [];
-        };
-
-        const [published, plugins, bots, templates] = await Promise.all([
-          fetchJson(MARKETPLACE_PATH),
-          ...SAMPLE_PATHS.map(fetchJson),
-        ]);
-
-        const allGithub = [...published, ...plugins, ...bots, ...templates];
-        const result: MarketplaceItem[] = allGithub.length > 0 ? allGithub : [];
-        if (!alive) return;
-        setItems(result);
-        const cachePayload = JSON.stringify({ data: result, time: Date.now() });
-        sessionStorage.setItem(CACHE_KEY, cachePayload);
-        localStorage.setItem(LOCAL_CACHE_KEY, cachePayload);
-      } catch (e: any) {
-        if (!alive) return;
-        const localCache = localStorage.getItem(LOCAL_CACHE_KEY);
-        if (localCache) {
-          try {
-            const { data } = JSON.parse(localCache);
-            if (data && data.length > 0) {
-              setItems(data);
-              setError(null);
-              setLoading(false);
-              return;
-            }
-          } catch {}
-        }
-        const msg = e?.message || "Unknown error";
-        if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
-          setError("Unable to reach GitHub. You may be offline or the service is temporarily unavailable.");
-        } else if (msg.includes("403")) {
-          setError("GitHub API rate limit exceeded. Please try again later.");
-        } else if (msg.includes("404")) {
-          setError("Marketplace data not found. The repository or data file may have been moved.");
-        } else {
-          setError(`Failed to load marketplace data: ${msg}`);
-        }
-      } finally {
-        if (alive) setLoading(false);
-      }
-    }
-    load();
-    return () => { alive = false; };
-  }, []);
-
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: items.length };
-    items.forEach((item) => {
-      counts[item.category] = (counts[item.category] || 0) + 1;
-    });
-    return counts;
-  }, [items]);
+    loadData()
+    const auth = getAuthState()
+    if (auth) setUser(auth)
+  }, [loadData])
 
   const filteredItems = useMemo(() => {
-    let result = items;
-    if (selectedCategory !== "all") {
-      result = result.filter((i) => i.category === selectedCategory);
-    }
+    let result = [...items]
     if (searchQuery) {
-      const q = searchQuery.toLowerCase();
+      const q = searchQuery.toLowerCase()
       result = result.filter(
         (i) =>
           i.name.toLowerCase().includes(q) ||
           i.description.toLowerCase().includes(q) ||
+          i.author.toLowerCase().includes(q) ||
           i.tags.some((t) => t.toLowerCase().includes(q))
-      );
+      )
     }
-    if (sortBy === "trending") result = [...result].sort((a, b) => b.downloads - a.downloads);
-    else if (sortBy === "newest") result = [...result].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    else if (sortBy === "top-rated") result = [...result].sort((a, b) => b.rating - a.rating);
-    return result;
-  }, [items, selectedCategory, searchQuery, sortBy]);
-
-  const featuredItems = useMemo(() => items.filter((i) => i.featured).slice(0, 4), [items]);
-
-  const handleDownload = (item: MarketplaceItem) => {
-    if (item.downloadUrl) {
-      const a = document.createElement("a");
-      a.href = item.downloadUrl;
-      a.download = item.name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+    if (activeCategory) {
+      result = result.filter((i) => i.category === activeCategory)
     }
-  };
+    return result
+  }, [items, searchQuery, activeCategory])
 
-  const handleInstall = (item: MarketplaceItem) => {
-    if (item.installCommand) {
-      navigator.clipboard.writeText(item.installCommand);
+  const sortedItems = useMemo(() => {
+    const arr = [...filteredItems]
+    switch (view) {
+      case 'top-rated':
+        return arr.sort((a, b) => b.rating - a.rating)
+      case 'trending':
+        return arr.sort((a, b) => b.downloads - a.downloads)
+      case 'new':
+        return arr.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      default:
+        return arr
     }
-  };
+  }, [filteredItems, view])
 
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-white/10 border-t-cyan-400 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-slate-400">Loading marketplace...</p>
-        </div>
-      </main>
-    );
+  const featuredItems = useMemo(() => items.filter((i) => i.featured).slice(0, 4), [items])
+
+  const handleLogin = async (token: string) => {
+    const u = await loginWithToken(token)
+    if (u) {
+      setUser(u)
+      setShowLogin(false)
+    }
   }
 
-  if (error) {
-    return (
-      <main className="min-h-screen bg-[#0a0a0f] flex items-center justify-center px-6">
-        <div className="text-center max-w-md">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400">
-              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          </div>
-          <h1 className="text-xl font-bold text-white mb-2">Couldn't load marketplace</h1>
-          <p className="text-sm text-slate-400 mb-6">{error}</p>
-          <div className="flex items-center justify-center gap-3">
-            <button
-              onClick={() => window.location.reload()}
-              className="rounded-lg bg-cyan-500/10 border border-cyan-500/20 px-4 py-2 text-sm font-medium text-cyan-300 hover:bg-cyan-500/20 transition"
-            >
-              Try Again
-            </button>
-            <Link to="/" className="rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-white/10 transition">
-              Go Home
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
+  const handleLogout = () => {
+    clearAuthState()
+    setUser(null)
+  }
+
+  const navigateTo = (v: ViewMode) => {
+    setView(v)
+    setSelectedItem(null)
+    setActiveCategory(null)
+    setSearchQuery('')
+  }
+
+  const openItem = (item: EcosystemItem) => {
+    setSelectedItem(item)
+    setView('product-detail')
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0f] text-slate-200">
-      <header className="border-b border-white/10 bg-gradient-to-b from-cyan-500/10 via-transparent to-transparent">
-        <div className="mx-auto max-w-7xl px-5 py-12 text-center">
-          <p className="text-xs uppercase tracking-[0.3em] text-cyan-300/70 mb-3">ZYRAXON Ecosystem</p>
-          <h1 className="text-4xl font-bold text-white sm:text-5xl">Marketplace</h1>
-          <p className="mt-3 text-slate-400 max-w-xl mx-auto">Discover plugins, bots, templates, desktop apps, mobile apps, fonts, and more â€” built by the community.</p>
-          <div className="mt-6 max-w-md mx-auto">
-            <input
-              type="text"
-              placeholder="Search marketplace..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30 transition"
+    <div
+      style={{
+        display: 'flex',
+        minHeight: '100vh',
+        background: '#0a0a0f',
+        color: '#fff',
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      }}
+    >
+      <Sidebar
+        view={view}
+        onNavigate={navigateTo}
+        user={user}
+        onLogin={() => setShowLogin(true)}
+        onLogout={handleLogout}
+        stats={stats}
+      />
+      <main style={{ flex: 1, marginLeft: 240, display: 'flex', flexDirection: 'column' }}>
+        <Header
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          view={view}
+          onBack={() => {
+            setSelectedItem(null)
+            setView('home')
+          }}
+        />
+        <div style={{ flex: 1, padding: '0 32px 32px', overflowY: 'auto' }}>
+          {loading ? (
+            <LoadingState />
+          ) : view === 'product-detail' && selectedItem ? (
+            <ProductDetail item={selectedItem} onBack={() => { setSelectedItem(null); setView('home') }} user={user} />
+          ) : view === 'home' ? (
+            <HomeView
+              stats={stats}
+              categories={categories}
+              featuredItems={featuredItems}
+              items={sortedItems}
+              onOpenItem={openItem}
+              onSelectCategory={(cat) => { setActiveCategory(cat); setView('categories') }}
             />
+          ) : view === 'categories' ? (
+            <CategoriesView
+              categories={categories}
+              activeCategory={activeCategory}
+              onSelectCategory={setActiveCategory}
+              items={filteredItems}
+              onOpenItem={openItem}
+            />
+          ) : (
+            <ItemGridView
+              items={sortedItems}
+              view={view}
+              onOpenItem={openItem}
+            />
+          )}
+        </div>
+      </main>
+      {showLogin && (
+        <LoginModal
+          onLogin={handleLogin}
+          onClose={() => setShowLogin(false)}
+        />
+      )}
+    </div>
+  )
+}
+
+function Sidebar({
+  view,
+  onNavigate,
+  user,
+  onLogin,
+  onLogout,
+  stats,
+}: {
+  view: ViewMode
+  onNavigate: (v: ViewMode) => void
+  user: User | null
+  onLogin: () => void
+  onLogout: () => void
+  stats: EcosystemStats
+}) {
+  const navItems: { id: ViewMode; label: string; icon: string }[] = [
+    { id: 'home', label: 'Home', icon: '⌂' },
+    { id: 'explore', label: 'Explore', icon: '◎' },
+    { id: 'categories', label: 'Categories', icon: '⊞' },
+    { id: 'top-rated', label: 'Top Rated', icon: '★' },
+    { id: 'trending', label: 'Trending', icon: '▲' },
+    { id: 'new', label: 'New', icon: '◆' },
+  ]
+
+  return (
+    <aside
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: 240,
+        height: '100vh',
+        background: '#0d0d12',
+        borderRight: '1px solid rgba(255,255,255,0.06)',
+        display: 'flex',
+        flexDirection: 'column',
+        zIndex: 100,
+      }}
+    >
+      <div
+        style={{
+          padding: '24px 20px',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              background: 'linear-gradient(135deg, #00e5ff, #00b0ff)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 16,
+              fontWeight: 700,
+              color: '#0a0a0f',
+            }}
+          >
+            Z
           </div>
-          <div className="mt-4 flex items-center justify-center gap-2 text-sm">
-            <span className="text-slate-500">{items.length} items</span>
-            <span className="text-slate-600">|</span>
-            <span className="text-slate-500">{items.reduce((sum, i) => sum + (i.downloads || 0), 0).toLocaleString()} downloads</span>
-            <span className="text-slate-600">|</span>
-            <span className="text-slate-500">{new Set(items.map((i) => i.authorId || i.author)).size} authors</span>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: '#fff' }}>ZYRAXON</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Ecosystem</div>
           </div>
         </div>
-      </header>
+      </div>
+
+      <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {navItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => onNavigate(item.id)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              padding: '10px 12px',
+              borderRadius: 8,
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: 14,
+              fontWeight: view === item.id ? 600 : 400,
+              color: view === item.id ? '#00e5ff' : 'rgba(255,255,255,0.6)',
+              background: view === item.id ? 'rgba(0,229,255,0.08)' : 'transparent',
+              transition: 'all 0.15s',
+              textAlign: 'left',
+            }}
+            onMouseEnter={(e) => {
+              if (view !== item.id) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+            }}
+            onMouseLeave={(e) => {
+              if (view !== item.id) e.currentTarget.style.background = 'transparent'
+            }}
+          >
+            <span style={{ fontSize: 16, width: 20, textAlign: 'center' }}>{item.icon}</span>
+            {item.label}
+          </button>
+        ))}
+      </nav>
+
+      <div
+        style={{
+          padding: '16px 20px',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 8,
+            marginBottom: 12,
+          }}
+        >
+          {[
+            { label: 'Plugins', value: stats.plugins },
+            { label: 'Bots', value: stats.bots },
+            { label: 'Templates', value: stats.templates },
+            { label: 'Downloads', value: stats.downloads },
+          ].map((s) => (
+            <div key={s.label} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#00e5ff' }}>
+                {s.value >= 1000 ? `${(s.value / 1000).toFixed(1)}k` : s.value}
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+        {user ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <img
+              src={user.avatarUrl}
+              alt=""
+              style={{ width: 28, height: 28, borderRadius: '50%' }}
+            />
+            <span style={{ fontSize: 13, color: '#fff', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {user.login}
+            </span>
+            <button
+              onClick={onLogout}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'rgba(255,255,255,0.3)',
+                cursor: 'pointer',
+                fontSize: 12,
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={onLogin}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              borderRadius: 6,
+              border: '1px solid rgba(0,229,255,0.3)',
+              background: 'rgba(0,229,255,0.06)',
+              color: '#00e5ff',
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: 'pointer',
+            }}
+          >
+            Sign in with GitHub
+          </button>
+        )}
+      </div>
+    </aside>
+  )
+}
+
+function Header({
+  searchQuery,
+  onSearchChange,
+  view,
+  onBack,
+}: {
+  searchQuery: string
+  onSearchChange: (q: string) => void
+  view: ViewMode
+  onBack: () => void
+}) {
+  return (
+    <header
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        padding: '16px 32px',
+        background: 'rgba(10,10,15,0.85)',
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
+      {view === 'product-detail' && (
+        <button
+          onClick={onBack}
+          style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 6,
+            color: '#fff',
+            padding: '6px 12px',
+            cursor: 'pointer',
+            fontSize: 13,
+          }}
+        >
+          ← Back
+        </button>
+      )}
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 8,
+          padding: '0 14px',
+          maxWidth: 480,
+        }}
+      >
+        <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 16 }}>⌕</span>
+        <input
+          type="text"
+          placeholder="Search plugins, bots, templates..."
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          style={{
+            flex: 1,
+            background: 'none',
+            border: 'none',
+            outline: 'none',
+            color: '#fff',
+            fontSize: 14,
+            padding: '10px 0',
+          }}
+        />
+        {searchQuery && (
+          <button
+            onClick={() => onSearchChange('')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'rgba(255,255,255,0.3)',
+              cursor: 'pointer',
+              fontSize: 16,
+            }}
+          >
+            ✕
+          </button>
+        )}
+      </div>
+    </header>
+  )
+}
+
+function LoadingState() {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '60vh',
+        flexDirection: 'column',
+        gap: 16,
+      }}
+    >
+      <div
+        style={{
+          width: 40,
+          height: 40,
+          border: '3px solid rgba(255,255,255,0.08)',
+          borderTopColor: '#00e5ff',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+        }}
+      />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>Loading ecosystem...</div>
+    </div>
+  )
+}
+
+function StatCard({ label, value, icon }: { label: string; value: number | string; icon: string }) {
+  return (
+    <div
+      style={{
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.06)',
+        borderRadius: 12,
+        padding: '20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 8,
+      }}
+    >
+      <div style={{ fontSize: 24 }}>{icon}</div>
+      <div style={{ fontSize: 28, fontWeight: 700, color: '#00e5ff' }}>
+        {typeof value === 'number' ? value.toLocaleString() : value}
+      </div>
+      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>{label}</div>
+    </div>
+  )
+}
+
+function HomeView({
+  stats,
+  categories,
+  featuredItems,
+  items,
+  onOpenItem,
+  onSelectCategory,
+}: {
+  stats: EcosystemStats
+  categories: CategoryInfo[]
+  featuredItems: EcosystemItem[]
+  items: EcosystemItem[]
+  onOpenItem: (item: EcosystemItem) => void
+  onSelectCategory: (cat: string) => void
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
+      <section>
+        <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 20, color: '#fff' }}>Overview</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+          <StatCard icon="⊡" label="Plugins" value={stats.plugins} />
+          <StatCard icon="🤖" label="Bots" value={stats.bots} />
+          <StatCard icon="📄" label="Templates" value={stats.templates} />
+          <StatCard icon="⬇" label="Total Downloads" value={stats.downloads} />
+        </div>
+      </section>
+
+      <section>
+        <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 20, color: '#fff' }}>Categories</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+          {categories.map((cat) => (
+            <button
+              key={cat.name}
+              onClick={() => onSelectCategory(cat.name)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '14px 16px',
+                borderRadius: 10,
+                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'rgba(255,255,255,0.02)',
+                color: '#fff',
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(0,229,255,0.3)'; e.currentTarget.style.background = 'rgba(0,229,255,0.04)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.background = 'rgba(255,255,255,0.02)' }}
+            >
+              <span style={{ fontSize: 20 }}>{cat.icon || '⊞'}</span>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 500 }}>{cat.name}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{cat.count} items</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
 
       {featuredItems.length > 0 && (
-        <section className="mx-auto max-w-7xl px-5 py-8">
-          <h2 className="text-lg font-semibold text-white mb-4">Featured</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section>
+          <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 20, color: '#fff' }}>Featured</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
             {featuredItems.map((item) => (
-              <Link
-                key={item.id}
-                to="/ecosystem/item/$id"
-                params={{ id: item.id }}
-                className="group rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden hover:border-cyan-500/30 transition-all hover:bg-white/[0.06]"
-              >
-                <div className="h-36 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 relative overflow-hidden">
-                  {item.coverImage && (
-                    <img src={item.coverImage} alt="" className="w-full h-full object-cover" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <h3 className="text-sm font-bold text-white truncate">{item.name}</h3>
-                    <p className="text-xs text-white/60">v{item.version}</p>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <p className="text-xs text-slate-400 line-clamp-2">{item.description}</p>
-                  <div className="mt-3 flex items-center justify-between">
-                    <StarRating rating={item.rating} />
-                    <span className="text-xs text-slate-500">{item.downloads.toLocaleString()} downloads</span>
-                  </div>
-                </div>
-              </Link>
+              <ItemCard key={item.id} item={item} onClick={() => onOpenItem(item)} />
             ))}
           </div>
         </section>
       )}
 
-      <div className="mx-auto max-w-7xl px-5 py-6">
-        <div className="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-2">
-          {CATEGORIES.filter((c) => c.id === "all" || (categoryCounts[c.id] || 0) > 0).map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition whitespace-nowrap ${
-                selectedCategory === cat.id
-                  ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-300"
-                  : "border-white/10 bg-white/[0.03] text-slate-400 hover:bg-white/[0.06] hover:text-slate-200"
-              }`}
-            >
-              <SvgIcon name={cat.icon} size={12} />
-              {cat.name}
-              <span className="text-[10px] opacity-60">{categoryCounts[cat.id] || 0}</span>
-            </button>
+      <section>
+        <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 20, color: '#fff' }}>All Items</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+          {items.map((item) => (
+            <ItemCard key={item.id} item={item} onClick={() => onOpenItem(item)} />
           ))}
         </div>
+      </section>
+    </div>
+  )
+}
 
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">
-            {selectedCategory === "all" ? "All Items" : CATEGORIES.find((c) => c.id === selectedCategory)?.name}
-          </h2>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 outline-none"
+function CategoriesView({
+  categories,
+  activeCategory,
+  onSelectCategory,
+  items,
+  onOpenItem,
+}: {
+  categories: CategoryInfo[]
+  activeCategory: string | null
+  onSelectCategory: (cat: string | null) => void
+  items: EcosystemItem[]
+  onOpenItem: (item: EcosystemItem) => void
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        <button
+          onClick={() => onSelectCategory(null)}
+          style={{
+            padding: '6px 14px',
+            borderRadius: 20,
+            border: '1px solid',
+            borderColor: !activeCategory ? '#00e5ff' : 'rgba(255,255,255,0.1)',
+            background: !activeCategory ? 'rgba(0,229,255,0.1)' : 'rgba(255,255,255,0.03)',
+            color: !activeCategory ? '#00e5ff' : 'rgba(255,255,255,0.5)',
+            fontSize: 13,
+            fontWeight: 500,
+            cursor: 'pointer',
+          }}
+        >
+          All
+        </button>
+        {categories.map((cat) => (
+          <button
+            key={cat.name}
+            onClick={() => onSelectCategory(cat.name)}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 20,
+              border: '1px solid',
+              borderColor: activeCategory === cat.name ? '#00e5ff' : 'rgba(255,255,255,0.1)',
+              background: activeCategory === cat.name ? 'rgba(0,229,255,0.1)' : 'rgba(255,255,255,0.03)',
+              color: activeCategory === cat.name ? '#00e5ff' : 'rgba(255,255,255,0.5)',
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: 'pointer',
+            }}
           >
-            <option value="trending">Trending</option>
-            <option value="newest">Newest</option>
-            <option value="top-rated">Top Rated</option>
-          </select>
-        </div>
-
-        {filteredItems.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-lg text-slate-400">No items found</p>
-            <p className="text-sm text-slate-500 mt-1">Try a different search or category</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredItems.map((item) => (
-              <div key={item.id} className="rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden hover:border-white/20 transition-all group">
-                <Link to="/ecosystem/item/$id" params={{ id: item.id }} className="block">
-                  <div className="h-40 bg-gradient-to-br from-white/5 to-white/[0.02] relative overflow-hidden">
-                    {item.coverImage && (
-                      <img src={item.coverImage} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    )}
-                    {!item.coverImage && (
-                      <div className="flex items-center justify-center h-full">
-                        {item.logo ? (
-                          <img src={item.logo} alt="" className="w-16 h-16 rounded-xl" />
-                        ) : (
-                          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-cyan-500/30 to-purple-500/30 flex items-center justify-center text-2xl font-bold text-white/60">
-                            {item.name.charAt(0)}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    <div className="absolute top-3 right-3 flex gap-1.5">
-                      {item.verified && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-green-500/15 border border-green-500/20 px-1.5 py-0.5 text-[10px] font-medium text-green-400">
-                          Verified
-                        </span>
-                      )}
-                      {item.featured && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 border border-amber-500/20 px-1.5 py-0.5 text-[10px] font-medium text-amber-400">
-                          Featured
-                        </span>
-                      )}
-                    </div>
-                    {item.platforms && item.platforms.length > 0 && (
-                      <div className="absolute bottom-3 left-3 flex gap-1">
-                        {item.platforms.map((p) => <PlatformBadge key={p} platform={p} />)}
-                      </div>
-                    )}
-                  </div>
-                </Link>
-
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex-1 min-w-0">
-                      <Link to="/ecosystem/item/$id" params={{ id: item.id }} className="block">
-                        <h3 className="text-sm font-bold text-white truncate hover:text-cyan-300 transition">{item.name}</h3>
-                      </Link>
-                      <p className="text-xs text-slate-500">by {item.author}</p>
-                    </div>
-                    <span className="text-xs text-slate-600 shrink-0">v{item.version}</span>
-                  </div>
-
-                  <p className="text-xs text-slate-400 line-clamp-2 mb-3">{item.description}</p>
-
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    <CategoryBadge category={item.category} />
-                    {item.license && (
-                      <span className="inline-flex items-center rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-500">
-                        {item.license}
-                      </span>
-                    )}
-                    {item.fileSize && (
-                      <span className="inline-flex items-center rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-500">
-                        {item.fileSize}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs text-slate-500 mb-3">
-                    <StarRating rating={item.rating} />
-                    <span>{item.downloads.toLocaleString()} downloads</span>
-                  </div>
-
-                  {item.installCommand ? (
-                    <button
-                      onClick={() => handleInstall(item)}
-                      className="w-full rounded-lg bg-cyan-500/10 border border-cyan-500/20 px-3 py-2 text-xs font-medium text-cyan-300 hover:bg-cyan-500/20 transition text-center"
-                    >
-                      Copy Install Command
-                    </button>
-                  ) : item.downloadUrl ? (
-                    <button
-                      onClick={() => handleDownload(item)}
-                      className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs font-medium text-slate-300 hover:bg-white/10 transition text-center"
-                    >
-                      Download
-                    </button>
-                  ) : item.liveDemo ? (
-                    <a
-                      href={item.liveDemo}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs font-medium text-slate-300 hover:bg-white/10 transition text-center"
-                    >
-                      Live Demo
-                    </a>
-                  ) : (
-                    <Link
-                      to="/ecosystem/item/$id"
-                      params={{ id: item.id }}
-                      className="block w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs font-medium text-slate-300 hover:bg-white/10 transition text-center"
-                    >
-                      View Details
-                    </Link>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+            {cat.icon || '⊞'} {cat.name}
+          </button>
+        ))}
       </div>
 
-      <footer className="border-t border-white/10 mt-12 py-8 text-center">
-        <p className="text-xs text-slate-500">
-          ZYRAXON Ecosystem â€” Powered by GitHub
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+        {items.map((item) => (
+          <ItemCard key={item.id} item={item} onClick={() => onOpenItem(item)} />
+        ))}
+      </div>
+
+      {items.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(255,255,255,0.3)' }}>
+          No items found in this category.
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ItemGridView({
+  items,
+  view,
+  onOpenItem,
+}: {
+  items: EcosystemItem[]
+  view: ViewMode
+  onOpenItem: (item: EcosystemItem) => void
+}) {
+  const titles: Record<string, string> = {
+    explore: 'Explore All',
+    'top-rated': 'Top Rated',
+    trending: 'Trending',
+    new: 'New Arrivals',
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <h2 style={{ fontSize: 22, fontWeight: 600, color: '#fff' }}>{titles[view] || 'Items'}</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+        {items.map((item) => (
+          <ItemCard key={item.id} item={item} onClick={() => onOpenItem(item)} />
+        ))}
+      </div>
+      {items.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(255,255,255,0.3)' }}>
+          No items found.
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ItemCard({ item, onClick }: { item: EcosystemItem; onClick: () => void }) {
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        border: '1px solid rgba(255,255,255,0.06)',
+        borderRadius: 12,
+        overflow: 'hidden',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = 'rgba(0,229,255,0.25)'
+        e.currentTarget.style.transform = 'translateY(-2px)'
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = 'none'
+      }}
+    >
+      {item.coverImage && (
+        <div
+          style={{
+            height: 160,
+            background: `url(${item.coverImage}) center/cover`,
+            background: `linear-gradient(135deg, rgba(0,229,255,0.08), rgba(0,176,255,0.04))`,
+          }}
+        >
+          {item.coverImage && (
+            <img
+              src={item.coverImage}
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+            />
+          )}
+        </div>
+      )}
+      {!item.coverImage && (
+        <div
+          style={{
+            height: 120,
+            background: 'linear-gradient(135deg, rgba(0,229,255,0.08), rgba(0,176,255,0.04))',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 36,
+            color: 'rgba(0,229,255,0.2)',
+          }}
+        >
+          {item.category === 'Plugin' ? '⊡' : item.category === 'Bot' ? '🤖' : '📄'}
+        </div>
+      )}
+      <div style={{ padding: '14px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 500,
+              color: '#00e5ff',
+              background: 'rgba(0,229,255,0.08)',
+              padding: '2px 8px',
+              borderRadius: 4,
+            }}
+          >
+            {item.category}
+          </span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>★ {item.rating.toFixed(1)}</span>
+        </div>
+        <div style={{ fontSize: 15, fontWeight: 600, color: '#fff', marginBottom: 4 }}>{item.name}</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          by {item.author}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>
+            {item.downloads.toLocaleString()} downloads
+          </span>
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 500,
+              color: '#00e5ff',
+              background: 'rgba(0,229,255,0.08)',
+              padding: '4px 10px',
+              borderRadius: 6,
+            }}
+          >
+            View →
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ProductDetail({
+  item,
+  onBack,
+  user,
+}: {
+  item: EcosystemItem
+  onBack: () => void
+  user: User | null
+}) {
+  const [copied, setCopied] = useState(false)
+  const shareUrl = `https://zyraxonai.lovable.app/ecosystem/item/${item.id}`
+
+  const handleCopyInstall = () => {
+    navigator.clipboard.writeText(`zyraxon install ${item.id}`)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(shareUrl)
+  }
+
+  return (
+    <div style={{ maxWidth: 960, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 32 }}>
+      {item.coverImage && (
+        <div
+          style={{
+            borderRadius: 12,
+            overflow: 'hidden',
+            height: 320,
+            background: 'linear-gradient(135deg, rgba(0,229,255,0.06), rgba(0,176,255,0.02))',
+          }}
+        >
+          <img
+            src={item.coverImage}
+            alt={item.name}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 320, display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 500,
+                color: '#00e5ff',
+                background: 'rgba(0,229,255,0.1)',
+                padding: '4px 12px',
+                borderRadius: 6,
+              }}
+            >
+              {item.category}
+            </span>
+            {item.featured && (
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: '#fbbf24',
+                  background: 'rgba(251,191,36,0.1)',
+                  padding: '4px 12px',
+                  borderRadius: 6,
+                }}
+              >
+                ★ Featured
+              </span>
+            )}
+          </div>
+
+          <h1 style={{ fontSize: 32, fontWeight: 700, color: '#fff', margin: 0 }}>{item.name}</h1>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, margin: 0 }}>
+            {item.description}
+          </p>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {item.tags.map((tag) => (
+              <span
+                key={tag}
+                style={{
+                  fontSize: 12,
+                  color: 'rgba(255,255,255,0.5)',
+                  background: 'rgba(255,255,255,0.05)',
+                  padding: '4px 10px',
+                  borderRadius: 6,
+                  border: '1px solid rgba(255,255,255,0.06)',
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          {item.platforms && item.platforms.length > 0 && (
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {item.platforms.map((p) => (
+                <span
+                  key={p}
+                  style={{
+                    fontSize: 12,
+                    color: 'rgba(255,255,255,0.4)',
+                    background: 'rgba(255,255,255,0.03)',
+                    padding: '4px 10px',
+                    borderRadius: 6,
+                    border: '1px solid rgba(255,255,255,0.06)',
+                  }}
+                >
+                  {p}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              fontSize: 14,
+              color: 'rgba(255,255,255,0.4)',
+            }}
+          >
+            <span>★ {item.rating.toFixed(1)}</span>
+            <span>↓ {item.downloads.toLocaleString()} downloads</span>
+            <span>v{item.version}</span>
+          </div>
+        </div>
+
+        <div
+          style={{
+            width: 280,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            flexShrink: 0,
+          }}
+        >
+          <div
+            style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: 10,
+              padding: 20,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+            }}
+          >
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Install</div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                background: 'rgba(0,0,0,0.3)',
+                borderRadius: 6,
+                padding: '8px 12px',
+                fontFamily: 'monospace',
+                fontSize: 12,
+                color: '#00e5ff',
+              }}
+            >
+              <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                zyraxon install {item.id}
+              </span>
+              <button
+                onClick={handleCopyInstall}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: copied ? '#22c55e' : 'rgba(255,255,255,0.3)',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                }}
+              >
+                {copied ? '✓' : '⎘'}
+              </button>
+            </div>
+
+            <a
+              href={item.github || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '10px 16px',
+                borderRadius: 8,
+                background: 'linear-gradient(135deg, #00e5ff, #00b0ff)',
+                color: '#0a0a0f',
+                fontSize: 14,
+                fontWeight: 600,
+                textDecoration: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              ⬇ Download
+            </a>
+
+            {item.liveDemo && (
+              <a
+                href={item.liveDemo}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  padding: '10px 16px',
+                  borderRadius: 8,
+                  border: '1px solid rgba(0,229,255,0.3)',
+                  background: 'rgba(0,229,255,0.06)',
+                  color: '#00e5ff',
+                  fontSize: 14,
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                ◎ Live Demo
+              </a>
+            )}
+
+            <button
+              onClick={handleShare}
+              style={{
+                padding: '10px 16px',
+                borderRadius: 8,
+                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.03)',
+                color: 'rgba(255,255,255,0.6)',
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: 'pointer',
+              }}
+            >
+              🔗 Copy Share Link
+            </button>
+          </div>
+
+          <div
+            style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: 10,
+              padding: 20,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+            }}
+          >
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Author</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {item.authorAvatar && (
+                <img
+                  src={item.authorAvatar}
+                  alt=""
+                  style={{ width: 32, height: 32, borderRadius: '50%' }}
+                />
+              )}
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>{item.author}</div>
+                {item.authorUrl && (
+                  <a
+                    href={item.authorUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}
+                  >
+                    View Profile →
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {item.liveDemo && (
+        <div>
+          <h3 style={{ fontSize: 16, fontWeight: 600, color: '#fff', marginBottom: 12 }}>Live Preview</h3>
+          <div
+            style={{
+              borderRadius: 10,
+              overflow: 'hidden',
+              border: '1px solid rgba(255,255,255,0.06)',
+              background: '#000',
+            }}
+          >
+            <iframe
+              src={item.liveDemo}
+              style={{ width: '100%', height: 400, border: 'none' }}
+              title="Live Demo"
+              sandbox="allow-scripts allow-same-origin"
+            />
+          </div>
+        </div>
+      )}
+
+      {item.readme && (
+        <div>
+          <h3 style={{ fontSize: 16, fontWeight: 600, color: '#fff', marginBottom: 12 }}>Documentation</h3>
+          <div
+            style={{
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: 10,
+              padding: 24,
+              fontSize: 14,
+              color: 'rgba(255,255,255,0.7)',
+              lineHeight: 1.7,
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            {item.readme}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function LoginModal({
+  onLogin,
+  onClose,
+}: {
+  onLogin: (token: string) => void
+  onClose: () => void
+}) {
+  const [token, setToken] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async () => {
+    if (!token.trim()) {
+      setError('Please enter a token')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const result = await onLogin
+      await onLogin(token.trim())
+    } catch (err) {
+      setError('Invalid token')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(0,0,0,0.7)',
+        backdropFilter: 'blur(4px)',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: '#12121a',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 14,
+          padding: 32,
+          width: 420,
+          maxWidth: '90vw',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 style={{ fontSize: 20, fontWeight: 600, color: '#fff', margin: '0 0 8px' }}>Sign In</h2>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', margin: '0 0 24px' }}>
+          Paste a GitHub Personal Access Token with <code>repo</code> scope to authenticate.
         </p>
-      </footer>
-    </main>
-  );
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div>
+            <label style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>
+              GitHub Token
+            </label>
+            <input
+              type="password"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+              style={{
+                width: '100%',
+                padding: '10px 14px',
+                borderRadius: 8,
+                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(0,0,0,0.3)',
+                color: '#fff',
+                fontSize: 14,
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit() }}
+            />
+          </div>
+
+          {error && (
+            <div style={{ fontSize: 13, color: '#ef4444' }}>{error}</div>
+          )}
+
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button
+              onClick={onClose}
+              style={{
+                flex: 1,
+                padding: '10px 16px',
+                borderRadius: 8,
+                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(255,255,255,0.03)',
+                color: 'rgba(255,255,255,0.6)',
+                fontSize: 14,
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              style={{
+                flex: 1,
+                padding: '10px 16px',
+                borderRadius: 8,
+                border: 'none',
+                background: 'linear-gradient(135deg, #00e5ff, #00b0ff)',
+                color: '#0a0a0f',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1,
+              }}
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 20, fontSize: 12, color: 'rgba(255,255,255,0.25)', lineHeight: 1.5 }}>
+          Generate a token at{' '}
+          <a
+            href="https://github.com/settings/tokens/new?scopes=repo&description=Ecosystem"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#00e5ff' }}
+          >
+            github.com/settings/tokens
+          </a>
+        </div>
+      </div>
+    </div>
+  )
 }
