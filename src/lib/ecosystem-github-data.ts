@@ -151,8 +151,9 @@ class GitHubDataStorage {
     return (await this.getFile("comments.json")) || []
   }
 
-  async addComment(comment: any): Promise<void> {
+  async addComment(itemIdOrComment: string | any, possibleComment?: any): Promise<void> {
     const comments = await this.getComments()
+    const comment = possibleComment ? { ...possibleComment, itemId: itemIdOrComment } : itemIdOrComment
     comments.push({ ...comment, id: crypto.randomUUID(), userId: this.username, createdAt: new Date().toISOString() })
     await this.updateFile("comments.json", comments, "Add comment")
   }
@@ -240,6 +241,22 @@ class GitHubDataStorage {
     const items = await this.getMarketplaceItems()
     items.push({ ...item, id: crypto.randomUUID(), listedBy: this.username, listedAt: new Date().toISOString() })
     await this.updateFile("marketplace.json", items, "Add marketplace item")
+  }
+
+  async get(key: string): Promise<any> {
+    return this.getFile(`${key}.json`)
+  }
+
+  async set(key: string, value: any): Promise<void> {
+    const path = `${key}.json`
+    const current = await fetch(`${GITHUB_API}/repos/${this.username}/${this.repoName}/contents/${path}`, {
+      headers: this.headers,
+    })
+    if (current.status === 404) {
+      await this.createFile(path, JSON.stringify(value, null, 2))
+      return
+    }
+    await this.updateFile(path, value, `Update ${key}`)
   }
 
   async getStats(): Promise<{ totalLikes: number; totalComments: number; totalFollowers: number; totalFollowing: number; totalPublished: number }> {
