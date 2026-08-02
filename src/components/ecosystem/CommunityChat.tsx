@@ -1,37 +1,49 @@
-import { useState, useEffect, useRef } from 'react'
-import { ChatMessage, getGitHubStorage, getAuthState } from '../../lib/ecosystem'
+import { useState, useEffect, useRef, useCallback } from "react"
+import { ChatMessage, getGitHubStorage, getAuthState } from "../../lib/ecosystem"
+
+const MAX_PEERS_PER_ROOM = 5
+const ROOM_PREFIX = "zyraxon-room"
+const MESSAGES_POLL_INTERVAL = 10000
+const GITHUB_API = "https://api.github.com"
+const ECOSYSTEM_DATA_REPO = "onelpawarai/zyraxon-ecosystem-data"
 
 const EMOJI_CATEGORIES = [
-  { name: 'Smileys', emojis: ['😀', '😂', '🥹', '😍', '🤩', '😎', '🤔', '😢', '😭', '🥳', '🤯', '🫡', '😴', '🙄', '😬', '🥺', '😤', '🤗', '😈', '💀', '👻', '🤖', '👽', '🎃', '🔥', '✨', '💫', '🌟', '⭐', '🌈'] },
-  { name: 'Gestures', emojis: ['👍', '👎', '👏', '🙌', '🤝', '💪', '🫶', '✌️', '🤙', '👋', '🫰', '☝️', '👆', '👇', '👈', '👉', '🖖', '🙏', '👀', '🧠', '❤️‍🔥', '💅', '🦾', '🫂', '🏃', '🚶', '🧎', '🧑‍💻', '👨‍🚀', '🦸'] },
-  { name: 'Hearts', emojis: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '♥️', '🫶', '❤️‍🩹', '🩷', '🩵', '❤️‍🔥', '❣️', '💑', '💏', '👩‍❤️‍👨', '🫀'] },
-  { name: 'Objects', emojis: ['💻', '🖥️', '📱', '⌨️', '🖱️', '💾', '💿', '📀', '🖨️', '📷', '📸', '📹', '🎥', '📽️', '🎬', '📺', '📻', '🎙️', '🎚️', '🎛️', '🧭', '⏱️', '⏰', '📡', '🔋', '🔌', '💡', '🔦', '🪫', '🧲'] },
-  { name: 'Nature', emojis: ['🌸', '🌺', '🌻', '🌹', '🌷', '🌱', '🌿', '🍀', '🍁', '🍂', '🌾', '🌵', '🌴', '🌳', '🌲', '🪵', '🍄', '🌍', '🌎', '🌏', '🌙', '⭐', '🌤️', '⛅', '🌦️', '🌈', '☀️', '🌊', '🏔️', '🏜️'] },
-  { name: 'Food', emojis: ['🍕', '🍔', '🍟', '🌭', '🍿', '🧁', '🍰', '🎂', '🍩', '🍪', '🍫', '🍬', '☕', '🍵', '🧋', '🥤', '🍺', '🍷', '🥂', '🧃', '🥛', '🍳', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🥪', '🌮'] },
+  { name: "Smileys", emojis: ["😀","😂","🥹","😍","🤩","😎","🤔","😢","😭","🥳","🤯","🫡","😴","🙄","😬","🥺","😤","🤗","😈","💀","👻","🤖","👽","🎃","🔥","✨","💫","🌟","⭐","🌈"] },
+  { name: "Gestures", emojis: ["👍","👎","👏","🙌","🤝","💪","🫶","✌️","🤙","👋","🫰","☝️","👆","👇","👈","👉","🖖","🙏","👀","🧠","❤️‍🔥","💅","🦾","🫂","🏃","🚶","🧎","🧑‍💻","👨‍🚀","🦸"] },
+  { name: "Hearts", emojis: ["❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","💔","❣️","💕","💞","💓","💗","💖","💘","💝","💟","♥️","🫶","❤️‍🩹","🩷","🩵","❤️‍🔥","❣️","💑","💏","👩‍❤️‍👨","🫀"] },
+  { name: "Objects", emojis: ["💻","🖥️","📱","⌨️","🖱️","💾","💿","📀","🖨️","📷","📸","📹","🎥","📽️","🎬","📺","📻","🎙️","🎚️","🎛️","🧭","⏱️","⏰","📡","🔋","🔌","💡","🔦","🪫","🧲"] },
+  { name: "Nature", emojis: ["🌸","🌺","🌻","🌹","🌷","🌱","🌿","🍀","🍁","🍂","🌾","🌵","🌴","🌳","🌲","🪵","🍄","🌍","🌎","🌏","🌙","⭐","🌤️","⛅","🌦️","🌈","☀️","🌊","🏔️","🏜️"] },
+  { name: "Food", emojis: ["🍕","🍔","🍟","🌭","🍿","🧁","🍰","🎂","🍩","🍪","🍫","🍬","☕","🍵","🧋","🥤","🍺","🍷","🥂","🧃","🥛","🍳","🥞","🧇","🥓","🥩","🍗","🍖","🥪","🌮"] },
 ]
 
-function formatTime(ts: number) {
+function formatTime(ts: string | number) {
   const d = new Date(ts)
-  const now = new Date()
-  const diff = now.getTime() - d.getTime()
-  if (diff < 60000) return 'just now'
+  const now = Date.now()
+  const diff = now - d.getTime()
+  if (diff < 60000) return "just now"
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
   if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
   if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`
   return d.toLocaleDateString()
 }
 
+function getAvatarUrl(username: string) {
+  return `https://github.com/${username}.png`
+}
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2)
+}
+
 export default function CommunityChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [input, setInput] = useState('')
-  const [username, setUsername] = useState('')
+  const [input, setInput] = useState("")
   const [isInCall, setIsInCall] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoOff, setIsVideoOff] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [selectedEmojiCategory, setSelectedEmojiCategory] = useState(0)
   const [peers, setPeers] = useState<{ id: string; stream: MediaStream }[]>([])
-  const [showFileInput, setShowFileInput] = useState(false)
   const [roomUsers, setRoomUsers] = useState<string[]>([])
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -41,220 +53,230 @@ export default function CommunityChat() {
   const peerJsRef = useRef<any>(null)
   const dataChannels = useRef<Map<string, RTCDataChannel>>(new Map())
   const fileChunksRef = useRef<Map<string, { data: string[]; name: string; type: string }>>(new Map())
-  const roomIdRef = useRef<string>('')
+  const roomIdRef = useRef<string>("")
   const githubStorage = useRef(getGitHubStorage())
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const authRef = useRef(getAuthState())
 
-  useEffect(() => {
-    const auth = getAuthState()
-    if (auth?.user?.login) setUsername(auth.user.login)
-    loadMessages()
-    return () => { leaveCall() }
+  const loadMessages = useCallback(async () => {
+    try {
+      const storage = githubStorage.current
+      if (storage) {
+        const msgs = await storage.getChatMessages()
+        if (Array.isArray(msgs) && msgs.length > 0) {
+          setMessages(msgs.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).slice(-200))
+          return
+        }
+      }
+    } catch {}
+
+    try {
+      const response = await fetch(
+        `${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents/community_chat.json`,
+        { headers: { Accept: "application/vnd.github.v3+json" } }
+      )
+      if (response.ok) {
+        const data = await response.json()
+        if (data.content) {
+          const decoded = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))))
+          if (Array.isArray(decoded) && decoded.length > 0) {
+            setMessages(decoded.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).slice(-200))
+          }
+        }
+      }
+    } catch {}
   }, [])
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  const loadRoomsFromGitHub = useCallback(async (): Promise<Record<string, number>> => {
+    try {
+      const response = await fetch(
+        `${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents/active_rooms.json`,
+        { headers: { Accept: "application/vnd.github.v3+json" } }
+      )
+      if (response.ok) {
+        const data = await response.json()
+        if (data.content) {
+          return JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))))
+        }
+      }
+    } catch {}
+    return {}
+  }, [])
 
-  async function loadMessages() {
+  const saveRoomsToGitHub = useCallback(async (rooms: Record<string, number>) => {
     try {
       const storage = githubStorage.current
-      const stored = await storage.load('chat_messages.json')
-      if (stored && Array.isArray(stored)) {
-        setMessages(stored.slice(-200))
-        return
+      if (storage) {
+        await (storage as any).updateFile("active_rooms.json", rooms, "Update active call rooms")
       }
     } catch {}
-    try {
-      const res = await fetch('https://raw.githubusercontent.com/zyraxon/zyraxon-chat/main/public/chat_messages.json')
-      if (res.ok) {
-        const data = await res.json()
-        if (Array.isArray(data)) setMessages(data.slice(-200))
-      }
-    } catch {}
-  }
+  }, [])
 
-  async function sendMessage() {
-    if (!input.trim()) return
-    const msg: ChatMessage = {
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2),
-      username: username || 'Anonymous',
-      content: input,
-      timestamp: Date.now(),
-      likes: 0,
-      likedBy: [],
+  const findAvailableRoom = useCallback(async (): Promise<string> => {
+    const rooms = await loadRoomsFromGitHub()
+    const roomEntries = typeof rooms === "object" && !Array.isArray(rooms) ? rooms : {}
+    for (let i = 0; i < 1000; i++) {
+      const roomId = `${ROOM_PREFIX}-${i}`
+      const count = roomEntries[roomId] || 0
+      if (count < MAX_PEERS_PER_ROOM) return roomId
     }
-    setMessages(prev => [...prev, msg])
-    setInput('')
-    try {
-      const storage = githubStorage.current
-      const existing = await storage.load('chat_messages.json')
-      const all = Array.isArray(existing) ? [...existing, msg] : [msg]
-      await storage.save('chat_messages.json', all.slice(-200))
-    } catch {}
-    broadcastToPeers({ type: 'chat', message: msg })
-  }
+    return `${ROOM_PREFIX}-${Date.now()}`
+  }, [loadRoomsFromGitHub])
 
-  function broadcastToPeers(data: any) {
+  const broadcastToPeers = useCallback((data: any) => {
     const json = JSON.stringify(data)
-    dataChannels.current.forEach(ch => {
-      if (ch.readyState === 'open') ch.send(json)
+    dataChannels.current.forEach((ch) => {
+      if (ch.readyState === "open") ch.send(json)
     })
-  }
+  }, [])
 
-  async function startCall() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      localStream.current = stream
-      if (localVideoRef.current) localVideoRef.current.srcObject = stream
-      setIsInCall(true)
-
-      const roomId = 'room_' + Math.random().toString(36).slice(2, 8)
-      roomIdRef.current = roomId
-      await joinOrCreateRoom(roomId)
-    } catch (err) {
-      console.error('Failed to start call:', err)
-    }
-  }
-
-  async function joinOrCreateRoom(roomId: string) {
-    try {
-      const storage = githubStorage.current
-      const rooms = (await storage.load('active_rooms.json')) || {}
-      const room = rooms[roomId]
-      const existingPeers = room?.peers || []
-      if (existingPeers.length >= 5) {
-        alert('Room is full')
-        return
-      }
-      rooms[roomId] = {
-        peers: [...existingPeers, username || 'anon'],
-        created: Date.now(),
-      }
-      await storage.save('active_rooms.json', rooms)
-      setRoomUsers([...existingPeers, username || 'anon'])
-    } catch {}
-
-    try {
-      const PeerJS = (await import('peerjs')).default
-      const peer = new PeerJS(username || 'anon_' + Math.random().toString(36).slice(2, 6), {
-        debug: 0,
-      })
-      peerJsRef.current = peer
-
-      peer.on('open', () => {
-        connectToExistingPeers()
-      })
-
-      peer.on('call', (call: any) => {
-        if (localStream.current) {
-          call.answer(localStream.current)
-          call.on('stream', (remoteStream: MediaStream) => {
-            setPeers(prev => {
-              const exists = prev.find(p => p.id === call.peer)
-              if (exists) return prev.map(p => p.id === call.peer ? { ...p, stream: remoteStream } : p)
-              return [...prev, { id: call.peer, stream: remoteStream }]
-            })
-          })
-        }
-      })
-
-      peer.on('connection', (conn: any) => {
-        setupDataChannelHandlers(conn)
-      })
-    } catch {}
-  }
-
-  async function connectToExistingPeers() {
-    const storage = githubStorage.current
-    const rooms = (await storage.load('active_rooms.json')) || {}
-    const room = rooms[roomIdRef.current]
-    if (!room) return
-
-    room.peers.forEach((peerId: string) => {
-      if (peerId === username || peerJsRef.current?.id === peerId) return
-      if (peerConnections.current.has(peerId)) return
-
-      try {
-        const conn = peerJsRef.current.connect(peerId)
-        peerConnections.current.set(peerId, conn)
-        setupDataChannelHandlers(conn)
-
-        if (localStream.current) {
-          const call = peerJsRef.current.call(peerId, localStream.current)
-          if (call) {
-            call.on('stream', (remoteStream: MediaStream) => {
-              setPeers(prev => {
-                const exists = prev.find(p => p.id === peerId)
-                if (exists) return prev.map(p => p.id === peerId ? { ...p, stream: remoteStream } : p)
-                return [...prev, { id: peerId, stream: remoteStream }]
-              })
-            })
-          }
-        }
-      } catch {}
-    })
-  }
-
-  function setupDataChannelHandlers(conn: any) {
-    conn.on('open', () => {
-      dataChannels.current.set(conn.peer, conn)
-    })
-    conn.on('data', (data: any) => {
-      if (typeof data === 'string') {
-        try {
-          const parsed = JSON.parse(data)
-          if (parsed.type === 'chat') {
-            setMessages(prev => {
-              if (prev.find(m => m.id === parsed.message.id)) return prev
-              return [...prev, parsed.message]
-            })
-          } else if (parsed.type === 'file_chunk') {
-            handleFileChunk(parsed)
-          } else if (parsed.type === 'file_complete') {
-            handleFileComplete(parsed)
-          }
-        } catch {}
-      }
-    })
-    conn.on('close', () => {
-      dataChannels.current.delete(conn.peer)
-      peerConnections.current.delete(conn.peer)
-      setPeers(prev => prev.filter(p => p.id !== conn.peer))
-    })
-  }
-
-  function handleFileChunk(chunk: any) {
+  const handleFileChunk = useCallback((chunk: any) => {
     const { fileId, index, data, name, mimeType } = chunk
     if (!fileChunksRef.current.has(fileId)) {
       fileChunksRef.current.set(fileId, { data: [], name, type: mimeType })
     }
     const file = fileChunksRef.current.get(fileId)!
     file.data[index] = data
-  }
+  }, [])
 
-  function handleFileComplete(parsed: any) {
-    const { fileId } = parsed
-    const file = fileChunksRef.current.get(fileId)
-    if (!file) return
-    const base64 = file.data.join('')
-    const dataUrl = `data:${file.type};base64,${base64}`
-    const msg: ChatMessage = {
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2),
-      username: username || 'Anonymous',
-      content: `📎 ${file.name}`,
-      timestamp: Date.now(),
-      likes: 0,
-      likedBy: [],
-      attachment: { name: file.name, type: file.type, url: dataUrl },
+  const handleFileComplete = useCallback(
+    (parsed: any) => {
+      const { fileId } = parsed
+      const file = fileChunksRef.current.get(fileId)
+      if (!file) return
+      const base64 = file.data.join("")
+      const dataUrl = `data:${file.type};base64,${base64}`
+      const auth = authRef.current
+      const msg: ChatMessage = {
+        id: generateId(),
+        userId: auth.user?.id || "anon",
+        username: auth.user?.username || "Sign in to join",
+        avatarUrl: auth.user?.avatarUrl || "",
+        content: `📎 ${file.name}`,
+        timestamp: new Date().toISOString(),
+        likes: 0,
+        likedBy: [],
+      }
+      setMessages((prev) => [...prev, msg])
+      fileChunksRef.current.delete(fileId)
+    },
+    []
+  )
+
+  const setupDataChannelHandlers = useCallback(
+    (conn: any) => {
+      conn.on("open", () => {
+        dataChannels.current.set(conn.peer, conn)
+      })
+      conn.on("data", (data: any) => {
+        if (typeof data === "string") {
+          try {
+            const parsed = JSON.parse(data)
+            if (parsed.type === "chat") {
+              setMessages((prev) => {
+                if (prev.find((m) => m.id === parsed.message.id)) return prev
+                return [...prev, parsed.message]
+              })
+            } else if (parsed.type === "file_chunk") {
+              handleFileChunk(parsed)
+            } else if (parsed.type === "file_complete") {
+              handleFileComplete(parsed)
+            }
+          } catch {}
+        }
+      })
+      conn.on("close", () => {
+        dataChannels.current.delete(conn.peer)
+        peerConnections.current.delete(conn.peer)
+        setPeers((prev) => prev.filter((p) => p.id !== conn.peer))
+      })
+    },
+    [handleFileChunk, handleFileComplete]
+  )
+
+  const connectToExistingPeers = useCallback(async () => {
+    const rooms = await loadRoomsFromGitHub()
+    const roomEntries = typeof rooms === "object" && !Array.isArray(rooms) ? rooms : {}
+    const existingPeers = roomEntries[roomIdRef.current] || 0
+    const myPeerId = peerJsRef.current?.id
+    if (!myPeerId) return
+
+    for (let i = 0; i < MAX_PEERS_PER_ROOM; i++) {
+      const tryPeerId = `${roomIdRef.current}-peer-${i}`
+      if (tryPeerId === myPeerId) continue
+      if (peerConnections.current.has(tryPeerId)) continue
+      if (i >= existingPeers && i >= MAX_PEERS_PER_ROOM) break
+
+      try {
+        const conn = peerJsRef.current.connect(tryPeerId)
+        peerConnections.current.set(tryPeerId, conn)
+        setupDataChannelHandlers(conn)
+
+        if (localStream.current) {
+          const call = peerJsRef.current.call(tryPeerId, localStream.current)
+          if (call) {
+            call.on("stream", (remoteStream: MediaStream) => {
+              setPeers((prev) => {
+                const exists = prev.find((p) => p.id === tryPeerId)
+                if (exists) return prev.map((p) => (p.id === tryPeerId ? { ...p, stream: remoteStream } : p))
+                return [...prev, { id: tryPeerId, stream: remoteStream }]
+              })
+            })
+          }
+        }
+      } catch {}
     }
-    setMessages(prev => [...prev, msg])
-    fileChunksRef.current.delete(fileId)
-  }
+  }, [loadRoomsFromGitHub, setupDataChannelHandlers])
 
-  async function leaveCall() {
+  const joinOrCreateRoom = useCallback(
+    async (roomId: string) => {
+      const auth = authRef.current
+      const userId = auth.user?.id || "anon"
+      const rooms = await loadRoomsFromGitHub()
+      const roomEntries = typeof rooms === "object" && !Array.isArray(rooms) ? rooms : {}
+      const currentCount = roomEntries[roomId] || 0
+      if (currentCount >= MAX_PEERS_PER_ROOM) {
+        alert("Room is full")
+        return
+      }
+      roomEntries[roomId] = currentCount + 1
+      await saveRoomsToGitHub(roomEntries)
+      setRoomUsers(Array.from({ length: currentCount + 1 }, (_, i) => i === currentCount ? auth.user?.username || "anon" : `peer-${i}`))
+
+      try {
+        const PeerJS = (await import("peerjs")).default
+        const peerId = `${roomId}-${userId}`
+        const peer = new PeerJS(peerId, { debug: 0 })
+        peerJsRef.current = peer
+
+        peer.on("open", () => {
+          connectToExistingPeers()
+        })
+
+        peer.on("call", (call: any) => {
+          if (localStream.current) {
+            call.answer(localStream.current)
+            call.on("stream", (remoteStream: MediaStream) => {
+              setPeers((prev) => {
+                const exists = prev.find((p) => p.id === call.peer)
+                if (exists) return prev.map((p) => (p.id === call.peer ? { ...p, stream: remoteStream } : p))
+                return [...prev, { id: call.peer, stream: remoteStream }]
+              })
+            })
+          }
+        })
+
+        peer.on("connection", (conn: any) => {
+          setupDataChannelHandlers(conn)
+        })
+      } catch {}
+    },
+    [loadRoomsFromGitHub, saveRoomsToGitHub, connectToExistingPeers, setupDataChannelHandlers]
+  )
+
+  const leaveCall = useCallback(async () => {
     if (localStream.current) {
-      localStream.current.getTracks().forEach(t => t.stop())
+      localStream.current.getTracks().forEach((t) => t.stop())
       localStream.current = null
     }
     peerJsRef.current?.destroy()
@@ -264,204 +286,353 @@ export default function CommunityChat() {
     fileChunksRef.current.clear()
     setPeers([])
     setIsInCall(false)
+    setIsMuted(false)
+    setIsVideoOff(false)
+
+    if (roomIdRef.current) {
+      try {
+        const rooms = await loadRoomsFromGitHub()
+        const roomEntries = typeof rooms === "object" && !Array.isArray(rooms) ? rooms : {}
+        const currentCount = roomEntries[roomIdRef.current] || 0
+        if (currentCount <= 1) {
+          delete roomEntries[roomIdRef.current]
+        } else {
+          roomEntries[roomIdRef.current] = currentCount - 1
+        }
+        await saveRoomsToGitHub(roomEntries)
+      } catch {}
+    }
+    roomIdRef.current = ""
+    setRoomUsers([])
+  }, [loadRoomsFromGitHub, saveRoomsToGitHub])
+
+  const startCall = useCallback(async () => {
+    const auth = authRef.current
+    if (!auth.isAuthenticated) {
+      alert("Sign in to join calls")
+      return
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      localStream.current = stream
+      if (localVideoRef.current) localVideoRef.current.srcObject = stream
+      setIsInCall(true)
+
+      const roomId = await findAvailableRoom()
+      roomIdRef.current = roomId
+      await joinOrCreateRoom(roomId)
+    } catch (err) {
+      console.error("Failed to start call:", err)
+    }
+  }, [findAvailableRoom, joinOrCreateRoom])
+
+  const sendMessage = useCallback(async () => {
+    if (!input.trim()) return
+    const auth = authRef.current
+    const msg: ChatMessage = {
+      id: generateId(),
+      userId: auth.user?.id || "anon",
+      username: auth.user?.username || "Sign in to join",
+      avatarUrl: auth.user?.avatarUrl || "",
+      content: input,
+      timestamp: new Date().toISOString(),
+      likes: 0,
+      likedBy: [],
+    }
+    setMessages((prev) => [...prev, msg])
+    setInput("")
 
     try {
       const storage = githubStorage.current
-      const rooms = (await storage.load('active_rooms.json')) || {}
-      if (rooms[roomIdRef.current]) {
-        rooms[roomIdRef.current].peers = rooms[roomIdRef.current].peers.filter((p: string) => p !== username)
-        if (rooms[roomIdRef.current].peers.length === 0) delete rooms[roomIdRef.current]
-        await storage.save('active_rooms.json', rooms)
+      if (storage) {
+        const existing = await storage.getChatMessages()
+        const all = Array.isArray(existing) ? [...existing, msg] : [msg]
+        await (storage as any).updateFile("chat-messages.json", all.slice(-200), "Update chat messages")
       }
     } catch {}
-    roomIdRef.current = ''
-  }
 
-  function shareFile(file: File) {
-    const reader = new FileReader()
-    reader.onload = () => {
-      const base64 = (reader.result as string).split(',')[1]
-      const fileId = Date.now().toString(36) + Math.random().toString(36).slice(2)
-      const chunkSize = 16384
-      const totalChunks = Math.ceil(base64.length / chunkSize)
-
-      for (let i = 0; i < totalChunks; i++) {
-        const chunk = base64.slice(i * chunkSize, (i + 1) * chunkSize)
-        broadcastToPeers({
-          type: 'file_chunk',
-          fileId,
-          index: i,
-          data: chunk,
-          name: file.name,
-          mimeType: file.type,
-        })
+    try {
+      const response = await fetch(
+        `${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents/community_chat.json`,
+        { headers: { Accept: "application/vnd.github.v3+json" } }
+      )
+      if (response.ok) {
+        const data = await response.json()
+        if (data.content) {
+          const decoded = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))))
+          if (Array.isArray(decoded)) {
+            const storage = githubStorage.current
+            if (storage) {
+              const all = [...decoded, msg].slice(-200)
+              await (storage as any).updateFile("community_chat.json", all, "Update community chat")
+            }
+          }
+        }
       }
-      broadcastToPeers({ type: 'file_complete', fileId })
+    } catch {}
 
-      const msg: ChatMessage = {
-        id: Date.now().toString(36) + Math.random().toString(36).slice(2),
-        username: username || 'Anonymous',
-        content: `📎 ${file.name}`,
-        timestamp: Date.now(),
-        likes: 0,
-        likedBy: [],
-        attachment: { name: file.name, type: file.type, url: `data:${file.type};base64,${base64}` },
+    broadcastToPeers({ type: "chat", message: msg })
+  }, [input, broadcastToPeers])
+
+  const shareFile = useCallback(
+    (file: File) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(",")[1]
+        const fileId = generateId()
+        const chunkSize = 16384
+        const totalChunks = Math.ceil(base64.length / chunkSize)
+
+        for (let i = 0; i < totalChunks; i++) {
+          const chunk = base64.slice(i * chunkSize, (i + 1) * chunkSize)
+          broadcastToPeers({
+            type: "file_chunk",
+            fileId,
+            index: i,
+            data: chunk,
+            name: file.name,
+            mimeType: file.type,
+          })
+        }
+        broadcastToPeers({ type: "file_complete", fileId })
+
+        const auth = authRef.current
+        const msg: ChatMessage = {
+          id: generateId(),
+          userId: auth.user?.id || "anon",
+          username: auth.user?.username || "Sign in to join",
+          avatarUrl: auth.user?.avatarUrl || "",
+          content: `📎 ${file.name}`,
+          timestamp: new Date().toISOString(),
+          likes: 0,
+          likedBy: [],
+        }
+        setMessages((prev) => [...prev, msg])
       }
-      setMessages(prev => [...prev, msg])
+      reader.readAsDataURL(file)
+    },
+    [broadcastToPeers]
+  )
+
+  useEffect(() => {
+    githubStorage.current = getGitHubStorage()
+    authRef.current = getAuthState()
+    loadMessages()
+    return () => {
+      leaveCall()
     }
-    reader.readAsDataURL(file)
-  }
+  }, [loadMessages, leaveCall])
 
-  function renderContent(content: string) {
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
+
+  useEffect(() => {
+    const interval = setInterval(loadMessages, MESSAGES_POLL_INTERVAL)
+    return () => clearInterval(interval)
+  }, [loadMessages])
+
+  const renderContent = (content: string) => {
     const imageMatch = content.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/)
     if (imageMatch) {
-      return <img src={imageMatch[1]} alt="shared" style={{ maxWidth: '100%', borderRadius: 8, marginTop: 4 }} />
+      return <img src={imageMatch[1]} alt="shared" className="max-w-full rounded-lg mt-1" />
     }
     return <span>{content}</span>
   }
 
+  const auth = authRef.current
+  const currentUsername = auth.user?.username || ""
+  const isOwnMessage = (msg: ChatMessage) => msg.userId === auth.user?.id
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#0a0a0f', color: '#e0e0e0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid #1a1a2e', background: '#0f0f1a' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>💬</div>
+    <div className="flex flex-col h-full bg-[#0d1117] text-[#c9d1d9]">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#21262d] bg-[#161b22]">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-base">
+            💬
+          </div>
           <div>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: '#fff' }}>ZYRAXON Community</h3>
-            <p style={{ margin: 0, fontSize: 12, color: '#888' }}>{messages.length} messages</p>
+            <h3 className="m-0 text-sm font-semibold text-white">ZYRAXON Community</h3>
+            <p className="m-0 text-xs text-[#8b949e]">{messages.length} messages</p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="flex gap-2">
           <button
             onClick={() => { if (isInCall) leaveCall(); else startCall() }}
-            style={{
-              padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500,
-              background: isInCall ? '#dc2626' : '#10b981', color: '#fff',
-            }}
+            className={`px-3.5 py-1.5 rounded-lg border-none cursor-pointer text-xs font-medium text-white transition-colors ${
+              isInCall ? "bg-red-600 hover:bg-red-700" : "bg-emerald-500 hover:bg-emerald-600"
+            }`}
           >
-            {isInCall ? 'Leave Call' : 'Join Call'}
+            {isInCall ? "Leave Call" : auth.isAuthenticated ? "Join Call" : "Sign in to join"}
           </button>
           {isInCall && (
             <>
               <button
                 onClick={() => {
                   if (localStream.current) {
-                    localStream.current.getAudioTracks().forEach(t => { t.enabled = isMuted })
+                    localStream.current.getAudioTracks().forEach((t) => { t.enabled = isMuted })
                     setIsMuted(!isMuted)
                   }
                 }}
-                style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #333', background: isMuted ? '#dc2626' : '#1a1a2e', color: '#fff', cursor: 'pointer', fontSize: 13 }}
+                className={`px-2.5 py-1.5 rounded-lg border cursor-pointer text-xs text-white ${
+                  isMuted ? "bg-red-600 border-red-600" : "bg-[#161b22] border-[#21262d]"
+                }`}
               >
-                {isMuted ? '🔇' : '🎤'}
+                {isMuted ? "🔇" : "🎤"}
               </button>
               <button
                 onClick={() => {
                   if (localStream.current) {
-                    localStream.current.getVideoTracks().forEach(t => { t.enabled = isVideoOff })
+                    localStream.current.getVideoTracks().forEach((t) => { t.enabled = isVideoOff })
                     setIsVideoOff(!isVideoOff)
                   }
                 }}
-                style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #333', background: isVideoOff ? '#dc2626' : '#1a1a2e', color: '#fff', cursor: 'pointer', fontSize: 13 }}
+                className={`px-2.5 py-1.5 rounded-lg border cursor-pointer text-xs text-white ${
+                  isVideoOff ? "bg-red-600 border-red-600" : "bg-[#161b22] border-[#21262d]"
+                }`}
               >
-                {isVideoOff ? '📷' : '📹'}
+                {isVideoOff ? "📷" : "📹"}
               </button>
             </>
           )}
         </div>
       </div>
 
+      {/* Video Grid */}
       {isInCall && (
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid #1a1a2e', background: '#0f0f1a' }}>
-          <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 4 }}>
-            <div style={{ position: 'relative', minWidth: 160, height: 120, borderRadius: 8, overflow: 'hidden', background: '#111', border: '2px solid #6366f1' }}>
-              <video ref={localVideoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              <span style={{ position: 'absolute', bottom: 4, left: 4, background: 'rgba(0,0,0,0.7)', padding: '2px 6px', borderRadius: 4, fontSize: 11, color: '#aaa' }}>You</span>
+        <div className="px-4 py-3 border-b border-[#21262d] bg-[#161b22]">
+          <div className="flex gap-3 overflow-x-auto pb-1">
+            <div className="relative min-w-[160px] h-[120px] rounded-lg overflow-hidden bg-black border-2 border-indigo-500">
+              <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
+              <span className="absolute bottom-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[11px] text-[#8b949e]">You</span>
             </div>
-            {peers.map(p => (
-              <div key={p.id} style={{ position: 'relative', minWidth: 160, height: 120, borderRadius: 8, overflow: 'hidden', background: '#111', border: '2px solid #333' }}>
+            {peers.map((p) => (
+              <div key={p.id} className="relative min-w-[160px] h-[120px] rounded-lg overflow-hidden bg-black border-2 border-[#21262d]">
                 <PeerVideo stream={p.stream} />
-                <span style={{ position: 'absolute', bottom: 4, left: 4, background: 'rgba(0,0,0,0.7)', padding: '2px 6px', borderRadius: 4, fontSize: 11, color: '#aaa' }}>{p.id}</span>
+                <span className="absolute bottom-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[11px] text-[#8b949e]">
+                  {p.id.split("-").slice(2).join("-") || "peer"}
+                </span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {messages.map(msg => {
-          const isOwn = msg.username === (username || 'Anonymous')
-          return (
-            <div key={msg.id} style={{ display: 'flex', justifyContent: isOwn ? 'flex-end' : 'flex-start' }}>
-              <div style={{ maxWidth: '75%' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                  {!isOwn && (
-                    <div style={{
-                      width: 24, height: 24, borderRadius: '50%', fontSize: 11,
-                      background: `hsl(${msg.username.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 360}, 60%, 40%)`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 600,
-                    }}>
-                      {msg.username[0].toUpperCase()}
-                    </div>
-                  )}
-                  <span style={{ fontSize: 12, fontWeight: 500, color: isOwn ? '#818cf8' : '#aaa' }}>{msg.username}</span>
-                  <span style={{ fontSize: 11, color: '#666' }}>{formatTime(msg.timestamp)}</span>
-                </div>
-                <div style={{
-                  padding: '8px 12px', borderRadius: 12,
-                  background: isOwn ? 'linear-gradient(135deg, #4338ca, #6366f1)' : '#1a1a2e',
-                  color: '#fff', fontSize: 14, lineHeight: 1.5, wordBreak: 'break-word',
-                }}>
-                  {msg.attachment ? (
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                        <span>📎</span>
-                        <a href={msg.attachment.url} download={msg.attachment.name} style={{ color: '#93c5fd', textDecoration: 'underline' }}>{msg.attachment.name}</a>
-                      </div>
-                      {msg.attachment.type?.startsWith('image/') && (
-                        <img src={msg.attachment.url} alt={msg.attachment.name} style={{ maxWidth: '100%', borderRadius: 6, marginTop: 4 }} />
-                      )}
-                    </div>
-                  ) : renderContent(msg.content)}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, paddingLeft: 4 }}>
-                  <button
-                    onClick={() => {
-                      setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, likes: m.likes + 1 } : m))
-                    }}
-                    style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: 12, padding: '2px 4px' }}
+      {/* Auth Gate */}
+      {!auth.isAuthenticated && (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center px-6">
+            <div className="text-4xl mb-3">🔒</div>
+            <p className="text-[#8b949e] text-sm mb-2">Sign in to join the community chat</p>
+            <p className="text-[#484f58] text-xs">Connect your GitHub account to start chatting</p>
+          </div>
+        </div>
+      )}
+
+      {/* Messages */}
+      {auth.isAuthenticated && (
+        <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2">
+          {messages.map((msg) => {
+            const own = isOwnMessage(msg)
+            return (
+              <div key={msg.id} className={`flex ${own ? "justify-end" : "justify-start"}`}>
+                <div className="max-w-[75%]">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    {!own && (
+                      <img
+                        src={msg.avatarUrl || getAvatarUrl(msg.username)}
+                        alt={msg.username}
+                        className="w-6 h-6 rounded-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.style.display = "none"
+                        }}
+                      />
+                    )}
+                    <span className={`text-xs font-medium ${own ? "text-indigo-400" : "text-[#8b949e]"}`}>
+                      {msg.username}
+                    </span>
+                    <span className="text-[11px] text-[#484f58]">{formatTime(msg.timestamp)}</span>
+                  </div>
+                  <div
+                    className={`px-3 py-2 rounded-xl text-sm leading-relaxed break-words ${
+                      own
+                        ? "bg-gradient-to-br from-indigo-600 to-indigo-500 text-white"
+                        : "bg-[#161b22] text-[#c9d1d9]"
+                    }`}
                   >
-                    ❤️ {msg.likes}
-                  </button>
+                    {msg.attachment ? (
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span>📎</span>
+                          <a
+                            href={msg.attachment.url}
+                            download={msg.attachment.name}
+                            className="text-blue-300 underline"
+                          >
+                            {msg.attachment.name}
+                          </a>
+                        </div>
+                        {msg.attachment.type?.startsWith("image/") && (
+                          <img
+                            src={msg.attachment.url}
+                            alt={msg.attachment.name}
+                            className="max-w-full rounded-md mt-1"
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      renderContent(msg.content)
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 mt-0.5 pl-1">
+                    <button
+                      onClick={() => {
+                        setMessages((prev) =>
+                          prev.map((m) => (m.id === msg.id ? { ...m, likes: m.likes + 1 } : m))
+                        )
+                      }}
+                      className="bg-transparent border-none text-[#8b949e] cursor-pointer text-xs py-0.5 px-1 hover:text-red-400 transition-colors"
+                    >
+                      ❤️ {msg.likes}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )
-        })}
-        <div ref={messagesEndRef} />
-      </div>
+            )
+          })}
+          <div ref={messagesEndRef} />
+        </div>
+      )}
 
+      {/* Emoji Picker */}
       {showEmojiPicker && (
-        <div style={{ borderTop: '1px solid #1a1a2e', background: '#0f0f1a', padding: 8 }}>
-          <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
+        <div className="border-t border-[#21262d] bg-[#161b22] p-2">
+          <div className="flex gap-1 mb-2">
             {EMOJI_CATEGORIES.map((cat, i) => (
               <button
                 key={cat.name}
                 onClick={() => setSelectedEmojiCategory(i)}
-                style={{
-                  padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12,
-                  background: i === selectedEmojiCategory ? '#6366f1' : '#1a1a2e',
-                  color: i === selectedEmojiCategory ? '#fff' : '#aaa',
-                }}
+                className={`px-2.5 py-1 rounded-md border-none cursor-pointer text-xs transition-colors ${
+                  i === selectedEmojiCategory
+                    ? "bg-indigo-500 text-white"
+                    : "bg-[#161b22] text-[#8b949e] hover:bg-[#21262d]"
+                }`}
               >
                 {cat.name}
               </button>
             ))}
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, maxHeight: 120, overflowY: 'auto' }}>
-            {EMOJI_CATEGORIES[selectedEmojiCategory].emojis.map(emoji => (
+          <div className="flex flex-wrap gap-1 max-h-[120px] overflow-y-auto">
+            {EMOJI_CATEGORIES[selectedEmojiCategory].emojis.map((emoji) => (
               <button
                 key={emoji}
-                onClick={() => { setInput(prev => prev + emoji); setShowEmojiPicker(false) }}
-                style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', padding: 4 }}
+                onClick={() => {
+                  setInput((prev) => prev + emoji)
+                  setShowEmojiPicker(false)
+                }}
+                className="bg-transparent border-none text-xl cursor-pointer p-1 hover:bg-[#21262d] rounded transition-colors"
               >
                 {emoji}
               </button>
@@ -470,52 +641,56 @@ export default function CommunityChat() {
         </div>
       )}
 
-      <div style={{ padding: '12px 16px', borderTop: '1px solid #1a1a2e', background: '#0f0f1a' }}>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: 18 }}
-          >
-            📎
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"
-            style={{ display: 'none' }}
-            onChange={e => {
-              const file = e.target.files?.[0]
-              if (file) shareFile(file)
-              e.target.value = ''
-            }}
-          />
-          <input
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
-            placeholder="Type a message..."
-            style={{
-              flex: 1, padding: '8px 12px', borderRadius: 10, border: '1px solid #1a1a2e',
-              background: '#111', color: '#fff', fontSize: 14, outline: 'none',
-            }}
-          />
-          <button
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            style={{ background: 'none', border: 'none', color: showEmojiPicker ? '#6366f1' : '#888', cursor: 'pointer', fontSize: 18 }}
-          >
-            😊
-          </button>
-          <button
-            onClick={sendMessage}
-            style={{
-              padding: '8px 16px', borderRadius: 10, border: 'none',
-              background: 'linear-gradient(135deg, #4338ca, #6366f1)', color: '#fff', cursor: 'pointer', fontWeight: 500, fontSize: 14,
-            }}
-          >
-            Send
-          </button>
+      {/* Input Bar */}
+      {auth.isAuthenticated && (
+        <div className="px-4 py-3 border-t border-[#21262d] bg-[#161b22]">
+          <div className="flex gap-2 items-center">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="bg-transparent border-none text-[#8b949e] cursor-pointer text-lg hover:text-[#c9d1d9] transition-colors"
+            >
+              📎
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) shareFile(file)
+                e.target.value = ""
+              }}
+            />
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault()
+                  sendMessage()
+                }
+              }}
+              placeholder="Type a message..."
+              className="flex-1 px-3 py-2 rounded-xl border border-[#21262d] bg-[#0d1117] text-white text-sm outline-none focus:border-indigo-500 transition-colors"
+            />
+            <button
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className={`bg-transparent border-none cursor-pointer text-lg transition-colors ${
+                showEmojiPicker ? "text-indigo-500" : "text-[#8b949e] hover:text-[#c9d1d9]"
+              }`}
+            >
+              😊
+            </button>
+            <button
+              onClick={sendMessage}
+              className="px-4 py-2 rounded-xl border-none bg-gradient-to-br from-indigo-600 to-indigo-500 text-white cursor-pointer font-medium text-sm hover:from-indigo-500 hover:to-indigo-400 transition-all"
+            >
+              Send
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
@@ -525,5 +700,5 @@ function PeerVideo({ stream }: { stream: MediaStream }) {
   useEffect(() => {
     if (ref.current) ref.current.srcObject = stream
   }, [stream])
-  return <video ref={ref} autoPlay playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+  return <video ref={ref} autoPlay playsInline className="w-full h-full object-cover" />
 }
