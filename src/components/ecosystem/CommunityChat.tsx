@@ -320,6 +320,7 @@ export default function CommunityChat() {
       localStream.current = stream
       if (localVideoRef.current) localVideoRef.current.srcObject = stream
       setIsInCall(true)
+      rtRef.current?.startCall(stream).catch(() => {})
 
       const roomId = await findAvailableRoom()
       roomIdRef.current = roomId
