@@ -17,6 +17,7 @@ import { Route as ApiSharesIndexRouteImport } from './routes/api/shares/index'
 import { Route as EcosystemItemIdRouteImport } from './routes/ecosystem/item/$id'
 import { Route as ApiPublicSttRouteImport } from './routes/api/public/stt'
 import { Route as ApiPublicGithubDeviceRouteImport } from './routes/api/public/github-device'
+import { Route as ApiPublicCommunityRouteImport } from './routes/api/public/community'
 import { Route as ApiPublicSplatRouteImport } from './routes/api/public/$'
 import { Route as ApiSharesIdIndexRouteImport } from './routes/api/shares/$id/index'
 import { Route as ApiPublicSharesIndexRouteImport } from './routes/api/public/shares/index'
@@ -66,6 +67,11 @@ const ApiPublicGithubDeviceRoute = ApiPublicGithubDeviceRouteImport.update({
   path: '/api/public/github-device',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCommunityRoute = ApiPublicCommunityRouteImport.update({
+  id: '/api/public/community',
+  path: '/api/public/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSplatRoute = ApiPublicSplatRouteImport.update({
   id: '/api/public/$',
   path: '/api/public/$',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/share/$id': typeof ShareIdRoute
   '/ecosystem/': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
+  '/api/public/community': typeof ApiPublicCommunityRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/share/$id': typeof ShareIdRoute
   '/ecosystem': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
+  '/api/public/community': typeof ApiPublicCommunityRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/share/$id': typeof ShareIdRoute
   '/ecosystem/': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
+  '/api/public/community': typeof ApiPublicCommunityRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/share/$id'
     | '/ecosystem/'
     | '/api/public/$'
+    | '/api/public/community'
     | '/api/public/github-device'
     | '/api/public/stt'
     | '/ecosystem/item/$id'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/share/$id'
     | '/ecosystem'
     | '/api/public/$'
+    | '/api/public/community'
     | '/api/public/github-device'
     | '/api/public/stt'
     | '/ecosystem/item/$id'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/share/$id'
     | '/ecosystem/'
     | '/api/public/$'
+    | '/api/public/community'
     | '/api/public/github-device'
     | '/api/public/stt'
     | '/ecosystem/item/$id'
@@ -225,6 +237,7 @@ export interface RootRouteChildren {
   ShareIdRoute: typeof ShareIdRoute
   EcosystemIndexRoute: typeof EcosystemIndexRoute
   ApiPublicSplatRoute: typeof ApiPublicSplatRoute
+  ApiPublicCommunityRoute: typeof ApiPublicCommunityRoute
   ApiPublicGithubDeviceRoute: typeof ApiPublicGithubDeviceRoute
   ApiPublicSttRoute: typeof ApiPublicSttRoute
   EcosystemItemIdRoute: typeof EcosystemItemIdRoute
@@ -296,6 +309,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGithubDeviceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/community': {
+      id: '/api/public/community'
+      path: '/api/public/community'
+      fullPath: '/api/public/community'
+      preLoaderRoute: typeof ApiPublicCommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/$': {
       id: '/api/public/$'
       path: '/api/public/$'
@@ -361,6 +381,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShareIdRoute: ShareIdRoute,
   EcosystemIndexRoute: EcosystemIndexRoute,
   ApiPublicSplatRoute: ApiPublicSplatRoute,
+  ApiPublicCommunityRoute: ApiPublicCommunityRoute,
   ApiPublicGithubDeviceRoute: ApiPublicGithubDeviceRoute,
   ApiPublicSttRoute: ApiPublicSttRoute,
   EcosystemItemIdRoute: EcosystemItemIdRoute,
