@@ -386,12 +386,8 @@ export default function CommunityChat() {
         }
       }
     } catch {}
-
-    broadcastToPeers({ type: "chat", message: msg })
-    try {
-      rtRef.current?.sendChat(msg)
-    } catch {}
   }, [input, broadcastToPeers])
+
 
   const shareFile = useCallback(
     (file: File) => {
