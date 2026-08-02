@@ -84,16 +84,211 @@ export function getAIConnection() {
   };
 }
 
-export async function publishItem(item: EcosystemItem): Promise<EcosystemItem> {
+export async function uploadFileToRepo(
+  repoOwner: string,
+  repoName: string,
+  filePath: string,
+  fileContent: ArrayBuffer,
+  message: string
+): Promise<string | null> {
+  const auth = getAuthState();
+  if (!auth.token) return null;
+
+  const contentBase64 = btoa(
+    new Uint8Array(fileContent).reduce((data, byte) => data + String.fromCharCode(byte), "")
+  );
+
+  let sha: string | undefined;
+  try {
+    const resp = await fetch(
+      `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`,
+      { headers: { Authorization: `Bearer ${auth.token}`, Accept: "application/vnd.github.v3+json" } }
+    );
+    if (resp.ok) {
+      const data = await resp.json();
+      sha = data.sha;
+    }
+  } catch {}
+
+  const body: Record<string, any> = { message, content: contentBase64 };
+  if (sha) body.sha = sha;
+
+  const resp = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${auth.token}`,
+      Accept: "application/vnd.github.v3+json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (resp.ok) {
+    return `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${filePath}`;
+  }
+  return null;
+}
+
+export async function createGitHubRelease(
+  repoOwner: string,
+  repoName: string,
+  tagName: string,
+  name: string,
+  body: string
+): Promise<{ id: number; uploadUrl: string } | null> {
+  const auth = getAuthState();
+  if (!auth.token) return null;
+
+  const resp = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/releases`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${auth.token}`,
+      Accept: "application/vnd.github.v3+json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ tag_name: tagName, name, body, draft: false, prerelease: false }),
+  });
+
+  if (resp.ok) {
+    const data = await resp.json();
+    return { id: data.id, uploadUrl: data.upload_url };
+  }
+  return null;
+}
+
+export async function uploadReleaseAsset(
+  uploadUrl: string,
+  fileName: string,
+  fileContent: ArrayBuffer,
+  contentType: string
+): Promise<string | null> {
+  const auth = getAuthState();
+  if (!auth.token) return null;
+
+  const url = uploadUrl.replace("{?name,label}", `?name=${encodeURIComponent(fileName)}`);
+
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${auth.token}`,
+      "Content-Type": contentType,
+      Accept: "application/vnd.github.v3+json",
+    },
+    body: fileContent,
+  });
+
+  if (resp.ok) {
+    const data = await resp.json();
+    return data.browser_download_url;
+  }
+  return null;
+}
+
+export async function uploadFileForItem(
+  file: File,
+  itemId: string,
+  auth: { username: string; token: string }
+): Promise<string | null> {
+  const reader = new FileReader();
+  return new Promise((resolve) => {
+    reader.onload = async () => {
+      const ArrayBuffer = reader.result as ArrayBuffer;
+      const filePath = `marketplace/assets/${itemId}/${file.name}`;
+      const url = await uploadFileToRepo(
+        auth.username,
+        "zyraxon-ecosystem-data",
+        filePath,
+        ArrayBuffer,
+        `Upload asset: ${file.name} for ${itemId}`
+      );
+      resolve(url);
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+export function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+export async function publishItem(
+  item: EcosystemItem,
+  files?: {
+    coverImage?: File;
+    screenshots?: File[];
+    downloadFile?: File;
+    logo?: File;
+  }
+): Promise<EcosystemItem> {
   const auth = getAuthState();
   if (!auth.isAuthenticated || !auth.user) throw new Error("Sign in before publishing");
   const storage = getGitHubStorage();
   if (!storage) throw new Error("GitHub storage is not initialized");
 
+  const itemId = item.id || `${item.type}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+  let coverImageUrl = item.coverImage || "";
+  let logoUrl = item.logo || "";
+  let downloadUrl = item.downloadUrl || "";
+  const screenshotUrls: string[] = item.screenshots || [];
+
+  if (files?.coverImage) {
+    const url = await uploadFileForItem(files.coverImage, itemId, {
+      username: auth.user.username,
+      token: auth.token!,
+    });
+    if (url) coverImageUrl = url;
+  }
+
+  if (files?.logo) {
+    const url = await uploadFileForItem(files.logo, itemId, {
+      username: auth.user.username,
+      token: auth.token!,
+    });
+    if (url) logoUrl = url;
+  }
+
+  if (files?.downloadFile) {
+    const ArrayBuffer = await files.downloadFile.arrayBuffer();
+    const tagName = `${itemId}-v${item.version || "1.0.0"}`;
+    const release = await createGitHubRelease(
+      auth.user.username,
+      "zyraxon-ecosystem-data",
+      tagName,
+      `${item.name} v${item.version || "1.0.0"}`,
+      item.description
+    );
+    if (release) {
+      const assetUrl = await uploadReleaseAsset(
+        release.uploadUrl,
+        files.downloadFile.name,
+        ArrayBuffer,
+        files.downloadFile.type || "application/octet-stream"
+      );
+      if (assetUrl) downloadUrl = assetUrl;
+    }
+  }
+
+  if (files?.screenshots) {
+    for (const ss of files.screenshots.slice(0, 5)) {
+      const url = await uploadFileForItem(ss, `${itemId}-ss-${Date.now()}`, {
+        username: auth.user.username,
+        token: auth.token!,
+      });
+      if (url) screenshotUrls.push(url);
+    }
+  }
+
   const now = new Date().toISOString();
   const published: EcosystemItem = {
     ...item,
-    id: item.id || crypto.randomUUID(),
+    id: itemId,
+    authorId: auth.user.id,
     downloads: item.downloads || 0,
     rating: item.rating || 0,
     reviews: item.reviews || 0,
@@ -101,6 +296,10 @@ export async function publishItem(item: EcosystemItem): Promise<EcosystemItem> {
     commentCount: item.commentCount || 0,
     verified: item.verified || false,
     featured: item.featured || false,
+    coverImage: coverImageUrl || undefined,
+    logo: logoUrl || undefined,
+    downloadUrl: downloadUrl || undefined,
+    screenshots: screenshotUrls.length > 0 ? screenshotUrls : undefined,
     createdAt: item.createdAt || now,
     updatedAt: now,
     repository: item.repository || item.githubRepo || "",
