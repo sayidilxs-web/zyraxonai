@@ -426,6 +426,32 @@ export default function CommunityChat() {
     }
   }, [loadMessages, leaveCall])
 
+  // Instant website-to-website (and app) transport, added on top of the
+  // existing GitHub storage — nothing above is replaced.
+  useEffect(() => {
+    const auth = getAuthState()
+    const rt = new CommunityRealtime(
+      {
+        userId: auth.user?.id || `guest-${generateId()}`,
+        username: auth.user?.username || "guest",
+        avatarUrl: auth.user?.avatarUrl || "",
+      },
+      {
+        onChat: (message: ChatMessage) => {
+          if (!message?.id) return
+          setMessages((prev) => (prev.some((m) => m.id === message.id) ? prev : [...prev, message]))
+        },
+        onPeers: (list) => setRtPeers(list),
+      },
+    )
+    rtRef.current = rt
+    rt.connect().catch(() => {})
+    return () => {
+      rt.disconnect()
+      rtRef.current = null
+    }
+  }, [])
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
