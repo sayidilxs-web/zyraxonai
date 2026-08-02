@@ -114,8 +114,27 @@ function EcosystemItemPage() {
           const res = await fetch(`${GITHUB_API}/repos/${GITHUB_REPO}/contents${path}`, { headers });
           if (!res.ok) return [];
           const data = await res.json();
-          if (data.content) return JSON.parse(atob(data.content.replace(/\n/g, "")));
-          return Array.isArray(data) ? data : data.items || [];
+          if (data.content) {
+            const parsed = JSON.parse(atob(data.content.replace(/\n/g, "")));
+            if (Array.isArray(parsed)) return parsed;
+            if (parsed && parsed.id) return [parsed];
+            return [];
+          }
+          if (Array.isArray(data)) return data;
+          if (data.items) return data.items;
+          if (data && data.id) return [data];
+          return [];
+        };
+        const ensureArray = (val: any): string[] => {
+          if (Array.isArray(val)) return val;
+          if (typeof val === "string" && val.trim()) return val.split(",").map((s: string) => s.trim()).filter(Boolean);
+          return [];
+        };
+        const normalizeAuthor = (item: any) => {
+          if (item.author && typeof item.author === "object") {
+            return { id: item.authorId || item.author.name || "", login: item.author.name || item.author.login || "", name: item.author.name || "", avatar_url: item.authorAvatar || item.author.avatar || null, bio: null };
+          }
+          return { id: item.authorId || item.author || "", login: item.author || "", name: item.author || "", avatar_url: item.authorAvatar || null, bio: null };
         };
         const [published, plugins, bots, templates] = await Promise.all([
           fetchJson("/marketplace/published/index.json"),
@@ -126,6 +145,8 @@ function EcosystemItemPage() {
         const all = [...published, ...plugins, ...bots, ...templates];
         const found = all.find((i: any) => i.id === id);
         if (found && alive) {
+          const itemTags = ensureArray(found.tags);
+          const itemPlatforms = ensureArray(found.platforms);
           setItem({
             id: found.id,
             title: found.name || found.title || "",
@@ -134,25 +155,25 @@ function EcosystemItemPage() {
             category: found.category || "unknown",
             description: found.description || null,
             content: null,
-            tags: found.tags || [],
-            github_url: found.repository || null,
+            tags: itemTags,
+            github_url: found.repository || found.githubRepo || null,
             demo_url: found.liveDemo || null,
-            thumbnail_url: found.coverImage || found.logo || null,
-            coverImage: found.coverImage,
+            thumbnail_url: found.coverImage || found.cover || found.logo || null,
+            coverImage: found.coverImage || found.cover,
             logo: found.logo,
             status: "published",
             views_count: found.downloads || 0,
             downloads_count: found.downloads || 0,
             likes_count: found.likeCount || 0,
             comments_count: found.commentCount || 0,
-            created_at: found.createdAt || new Date().toISOString(),
-            updated_at: found.updatedAt || new Date().toISOString(),
-            author: { id: found.authorId || "", login: found.author || "", name: found.author || "", avatar_url: found.authorAvatar || null, bio: null },
+            created_at: found.createdAt || found.publishedAt || new Date().toISOString(),
+            updated_at: found.updatedAt || found.publishedAt || new Date().toISOString(),
+            author: normalizeAuthor(found),
             liked: false,
             version: found.version,
             downloadUrl: found.downloadUrl,
             installCommand: found.installCommand,
-            platforms: found.platforms,
+            platforms: itemPlatforms,
             fileSize: found.fileSize,
             license: found.license,
             verified: found.verified,

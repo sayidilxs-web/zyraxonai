@@ -6,7 +6,7 @@ const MAX_PEERS_PER_ROOM = 5
 const ROOM_PREFIX = "zyraxon-room"
 const MESSAGES_POLL_INTERVAL = 10000
 const GITHUB_API = "https://api.github.com"
-const ECOSYSTEM_DATA_REPO = "onelpawarai/zyraxon-ecosystem-data"
+const ECOSYSTEM_DATA_REPO = "onelpawarai/ZYRAXON-AI"
 
 const EMOJI_CATEGORIES = [
   { name: "Smileys", emojis: ["😀","😂","🥹","😍","🤩","😎","🤔","😢","😭","🥳","🤯","🫡","😴","🙄","😬","🥺","😤","🤗","😈","💀","👻","🤖","👽","🎃","🔥","✨","💫","🌟","⭐","🌈"] },
@@ -62,17 +62,6 @@ export default function CommunityChat() {
   const authRef = useRef(getAuthState())
 
   const loadMessages = useCallback(async () => {
-    try {
-      const storage = githubStorage.current
-      if (storage) {
-        const msgs = await storage.getChatMessages()
-        if (Array.isArray(msgs) && msgs.length > 0) {
-          setMessages(msgs.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).slice(-200))
-          return
-        }
-      }
-    } catch {}
-
     try {
       const response = await fetch(
         `${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents/community_chat.json`,
@@ -359,31 +348,37 @@ export default function CommunityChat() {
 
 
     try {
-      const storage = githubStorage.current
-      if (storage) {
-        const existing = await storage.getChatMessages()
-        const all = Array.isArray(existing) ? [...existing, msg] : [msg]
-        await (storage as any).updateFile("chat-messages.json", all.slice(-200), "Update chat messages")
-      }
-    } catch {}
-
-    try {
-      const response = await fetch(
-        `${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents/community_chat.json`,
-        { headers: { Accept: "application/vnd.github.v3+json" } }
-      )
-      if (response.ok) {
-        const data = await response.json()
+      const chatPath = "/community_chat.json"
+      const getHeaders = () => ({ Accept: "application/vnd.github.v3+json" })
+      const readRes = await fetch(`${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents${chatPath}`, { headers: getHeaders() })
+      let existing: ChatMessage[] = []
+      let sha: string | undefined
+      if (readRes.ok) {
+        const data = await readRes.json()
+        sha = data.sha
         if (data.content) {
           const decoded = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))))
-          if (Array.isArray(decoded)) {
-            const storage = githubStorage.current
-            if (storage) {
-              const all = [...decoded, msg].slice(-200)
-              await (storage as any).updateFile("community_chat.json", all, "Update community chat")
-            }
-          }
+          if (Array.isArray(decoded)) existing = decoded
         }
+      }
+      const all = [...existing, msg].slice(-200)
+      const auth = authRef.current
+      const websiteToken = auth.token || ""
+      if (websiteToken) {
+        const body: any = {
+          message: "Update community chat",
+          content: btoa(unescape(encodeURIComponent(JSON.stringify(all, null, 2)))),
+        }
+        if (sha) body.sha = sha
+        await fetch(`${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents${chatPath}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `token ${websiteToken}`,
+            Accept: "application/vnd.github.v3+json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        })
       }
     } catch {}
   }, [input, broadcastToPeers])

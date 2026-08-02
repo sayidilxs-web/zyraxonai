@@ -83,7 +83,7 @@ function normalizeItem(item: any): EcosystemItem {
     authorId: authorId || author,
     category: category as any,
     type: type as any,
-    tags: Array.isArray(item.tags) ? item.tags : [],
+    tags: Array.isArray(item.tags) ? item.tags : (typeof item.tags === 'string' && item.tags.trim() ? item.tags.split(',').map((s: string) => s.trim()).filter(Boolean) : []),
     icon: item.icon || '',
     coverImage: item.coverImage || item.cover || '',
     logo: item.logo || '',
@@ -118,6 +118,7 @@ async function fetchJson(path: string): Promise<EcosystemItem[]> {
     const data = await fetchFromGitHub(path);
     if (Array.isArray(data)) return data.map(normalizeItem);
     if (data?.items) return data.items.map(normalizeItem);
+    if (data?.id) return [normalizeItem(data)];
     return [];
   } catch {
     return [];
