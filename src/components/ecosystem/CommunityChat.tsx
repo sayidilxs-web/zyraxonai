@@ -201,7 +201,7 @@ export default function CommunityChat() {
     const myPeerId = peerJsRef.current?.id
     if (!myPeerId) return
 
-    for (let i = 0; i < MAX_PEERS_PER_ROOM; i++) {
+    for (let i = 0; i < existingPeers; i++) {
       const tryPeerId = `${roomIdRef.current}-peer-${i}`
       if (tryPeerId === myPeerId) continue
       if (peerConnections.current.has(tryPeerId)) continue
@@ -245,7 +245,7 @@ export default function CommunityChat() {
 
       try {
         const PeerJS = (await import("peerjs")).default
-        const peerId = `${roomId}-${userId}`
+        const peerId = `${roomId}-peer-${currentCount}`
         const peer = new PeerJS(peerId, { debug: 0 })
         peerJsRef.current = peer
 

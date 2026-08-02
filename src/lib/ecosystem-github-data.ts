@@ -31,7 +31,7 @@ class GitHubDataStorage {
       { path: "follows.json", content: JSON.stringify({ followers: [], following: [] }) },
       { path: "published.json", content: JSON.stringify([]) },
       { path: "ai-connection.json", content: JSON.stringify({ connected: false, sessions: [] }) },
-      { path: "chat-messages.json", content: JSON.stringify([]) },
+      { path: "community_chat.json", content: JSON.stringify([]) },
       { path: "marketplace.json", content: JSON.stringify([]) },
     ]
 
@@ -211,13 +211,13 @@ class GitHubDataStorage {
   }
 
   async getChatMessages(): Promise<any[]> {
-    return (await this.getFile("chat-messages.json")) || []
+    return (await this.getFile("community_chat.json")) || []
   }
 
   async addChatMessage(message: any): Promise<void> {
     const messages = await this.getChatMessages()
-    messages.push({ ...message, id: crypto.randomUUID(), userId: this.username, timestamp: new Date().toISOString(), likes: [] })
-    await this.updateFile("chat-messages.json", messages, "Add chat message")
+    messages.push(message)
+    await this.updateFile("community_chat.json", messages, `Chat message from ${message.username}`)
   }
 
   async likeChatMessage(messageId: string, userId: string): Promise<void> {
@@ -228,7 +228,7 @@ class GitHubDataStorage {
       if (!msg.likes.includes(userId)) {
         msg.likes.push(userId)
       }
-      await this.updateFile("chat-messages.json", messages, `Like message ${messageId}`)
+      await this.updateFile("community_chat.json", messages, `Like message: ${messageId}`)
     }
   }
 
