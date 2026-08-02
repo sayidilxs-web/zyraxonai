@@ -21,7 +21,7 @@ import { Marketplace } from '../../components/ecosystem/Marketplace'
 import CommunityChat from '../../components/ecosystem/CommunityChat'
 import { PublishModal } from '../../components/ecosystem/PublishModal'
 
-export const Route = createFileRoute('/ecosystem')({
+export const Route = createFileRoute('/ecosystem/')({
   component: EcosystemPage,
 })
 

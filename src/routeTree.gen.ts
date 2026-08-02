@@ -10,9 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EcosystemIndexRouteImport } from './routes/ecosystem/index'
 import { Route as ShareIdRouteImport } from './routes/share/$id'
 import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as ApiSharesIndexRouteImport } from './routes/api/shares/index'
+import { Route as EcosystemItemIdRouteImport } from './routes/ecosystem/item/$id'
 import { Route as ApiPublicSttRouteImport } from './routes/api/public/stt'
 import { Route as ApiPublicSplatRouteImport } from './routes/api/public/$'
 import { Route as ApiSharesIdIndexRouteImport } from './routes/api/shares/$id/index'
@@ -28,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EcosystemIndexRoute = EcosystemIndexRouteImport.update({
+  id: '/ecosystem/',
+  path: '/ecosystem/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShareIdRoute = ShareIdRouteImport.update({
   id: '/share/$id',
   path: '/share/$id',
@@ -41,6 +48,11 @@ const ApiSplatRoute = ApiSplatRouteImport.update({
 const ApiSharesIndexRoute = ApiSharesIndexRouteImport.update({
   id: '/api/shares/',
   path: '/api/shares/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EcosystemItemIdRoute = EcosystemItemIdRouteImport.update({
+  id: '/ecosystem/item/$id',
+  path: '/ecosystem/item/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicSttRoute = ApiPublicSttRouteImport.update({
@@ -93,8 +105,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/$': typeof ApiSplatRoute
   '/share/$id': typeof ShareIdRoute
+  '/ecosystem/': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
   '/api/public/stt': typeof ApiPublicSttRoute
+  '/ecosystem/item/$id': typeof EcosystemItemIdRoute
   '/api/shares/': typeof ApiSharesIndexRoute
   '/api/shares/$id/data': typeof ApiSharesIdDataRoute
   '/api/shares/$id/sync': typeof ApiSharesIdSyncRoute
@@ -108,8 +122,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/$': typeof ApiSplatRoute
   '/share/$id': typeof ShareIdRoute
+  '/ecosystem': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
   '/api/public/stt': typeof ApiPublicSttRoute
+  '/ecosystem/item/$id': typeof EcosystemItemIdRoute
   '/api/shares': typeof ApiSharesIndexRoute
   '/api/shares/$id/data': typeof ApiSharesIdDataRoute
   '/api/shares/$id/sync': typeof ApiSharesIdSyncRoute
@@ -124,8 +140,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/api/$': typeof ApiSplatRoute
   '/share/$id': typeof ShareIdRoute
+  '/ecosystem/': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
   '/api/public/stt': typeof ApiPublicSttRoute
+  '/ecosystem/item/$id': typeof EcosystemItemIdRoute
   '/api/shares/': typeof ApiSharesIndexRoute
   '/api/shares/$id/data': typeof ApiSharesIdDataRoute
   '/api/shares/$id/sync': typeof ApiSharesIdSyncRoute
@@ -141,8 +159,10 @@ export interface FileRouteTypes {
     | '/'
     | '/api/$'
     | '/share/$id'
+    | '/ecosystem/'
     | '/api/public/$'
     | '/api/public/stt'
+    | '/ecosystem/item/$id'
     | '/api/shares/'
     | '/api/shares/$id/data'
     | '/api/shares/$id/sync'
@@ -156,8 +176,10 @@ export interface FileRouteTypes {
     | '/'
     | '/api/$'
     | '/share/$id'
+    | '/ecosystem'
     | '/api/public/$'
     | '/api/public/stt'
+    | '/ecosystem/item/$id'
     | '/api/shares'
     | '/api/shares/$id/data'
     | '/api/shares/$id/sync'
@@ -171,8 +193,10 @@ export interface FileRouteTypes {
     | '/'
     | '/api/$'
     | '/share/$id'
+    | '/ecosystem/'
     | '/api/public/$'
     | '/api/public/stt'
+    | '/ecosystem/item/$id'
     | '/api/shares/'
     | '/api/shares/$id/data'
     | '/api/shares/$id/sync'
@@ -187,8 +211,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiSplatRoute: typeof ApiSplatRoute
   ShareIdRoute: typeof ShareIdRoute
+  EcosystemIndexRoute: typeof EcosystemIndexRoute
   ApiPublicSplatRoute: typeof ApiPublicSplatRoute
   ApiPublicSttRoute: typeof ApiPublicSttRoute
+  EcosystemItemIdRoute: typeof EcosystemItemIdRoute
   ApiSharesIndexRoute: typeof ApiSharesIndexRoute
   ApiSharesIdDataRoute: typeof ApiSharesIdDataRoute
   ApiSharesIdSyncRoute: typeof ApiSharesIdSyncRoute
@@ -206,6 +232,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ecosystem/': {
+      id: '/ecosystem/'
+      path: '/ecosystem'
+      fullPath: '/ecosystem/'
+      preLoaderRoute: typeof EcosystemIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/share/$id': {
@@ -227,6 +260,13 @@ declare module '@tanstack/react-router' {
       path: '/api/shares'
       fullPath: '/api/shares/'
       preLoaderRoute: typeof ApiSharesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ecosystem/item/$id': {
+      id: '/ecosystem/item/$id'
+      path: '/ecosystem/item/$id'
+      fullPath: '/ecosystem/item/$id'
+      preLoaderRoute: typeof EcosystemItemIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/stt': {
@@ -299,8 +339,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiSplatRoute: ApiSplatRoute,
   ShareIdRoute: ShareIdRoute,
+  EcosystemIndexRoute: EcosystemIndexRoute,
   ApiPublicSplatRoute: ApiPublicSplatRoute,
   ApiPublicSttRoute: ApiPublicSttRoute,
+  EcosystemItemIdRoute: EcosystemItemIdRoute,
   ApiSharesIndexRoute: ApiSharesIndexRoute,
   ApiSharesIdDataRoute: ApiSharesIdDataRoute,
   ApiSharesIdSyncRoute: ApiSharesIdSyncRoute,
@@ -313,3 +355,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
