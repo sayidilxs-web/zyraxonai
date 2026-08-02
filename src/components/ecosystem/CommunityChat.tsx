@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { ChatMessage, getGitHubStorage, getAuthState } from "../../lib/ecosystem"
+import { CommunityRealtime } from "../../lib/community-realtime"
 
 const MAX_PEERS_PER_ROOM = 5
 const ROOM_PREFIX = "zyraxon-room"
