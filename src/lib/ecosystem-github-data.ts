@@ -151,8 +151,9 @@ class GitHubDataStorage {
     return (await this.getFile("comments.json")) || []
   }
 
-  async addComment(comment: any): Promise<void> {
+  async addComment(itemIdOrComment: string | any, possibleComment?: any): Promise<void> {
     const comments = await this.getComments()
+    const comment = possibleComment ? { ...possibleComment, itemId: itemIdOrComment } : itemIdOrComment
     comments.push({ ...comment, id: crypto.randomUUID(), userId: this.username, createdAt: new Date().toISOString() })
     await this.updateFile("comments.json", comments, "Add comment")
   }

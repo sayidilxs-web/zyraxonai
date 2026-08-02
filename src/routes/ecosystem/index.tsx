@@ -22,6 +22,16 @@ import CommunityChat from '../../components/ecosystem/CommunityChat'
 import { PublishModal } from '../../components/ecosystem/PublishModal'
 
 export const Route = createFileRoute('/ecosystem/')({
+  head: () => ({
+    meta: [
+      { title: 'ZYRAXON Ecosystem — AI Marketplace' },
+      { name: 'description', content: 'Explore plugins, AI bots, templates, and tools for the ZYRAXON ecosystem.' },
+      { property: 'og:title', content: 'ZYRAXON Ecosystem — AI Marketplace' },
+      { property: 'og:description', content: 'Explore plugins, AI bots, templates, and tools for the ZYRAXON ecosystem.' },
+      { property: 'og:type', content: 'website' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+    ],
+  }),
   component: EcosystemPage,
 })
 

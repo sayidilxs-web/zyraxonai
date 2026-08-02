@@ -107,6 +107,11 @@ export interface ChatMessage {
   timestamp: string;
   likes: number;
   likedBy: string[];
+  attachment?: {
+    name: string;
+    url: string;
+    type?: string;
+  };
 }
 
 export interface Comment {
