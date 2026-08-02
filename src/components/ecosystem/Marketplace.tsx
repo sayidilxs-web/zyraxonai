@@ -97,10 +97,11 @@ export const Marketplace: React.FC<MarketplaceProps> = ({ onSelectItem, onUserCl
       if (selectedCategory !== 'All' && item.category !== CATEGORY_MAP[selectedCategory]) return false
       if (searchQuery) {
         const q = searchQuery.toLowerCase()
+        const authorName = typeof item.author === 'string' ? item.author : (item.author as any)?.name || ''
         return (
           item.name.toLowerCase().includes(q) ||
           item.description.toLowerCase().includes(q) ||
-          item.author.toLowerCase().includes(q) ||
+          authorName.toLowerCase().includes(q) ||
           item.tags.some((t) => t.toLowerCase().includes(q))
         )
       }
@@ -337,26 +338,25 @@ export const Marketplace: React.FC<MarketplaceProps> = ({ onSelectItem, onUserCl
                         background: '#21262d', flexShrink: 0,
                       }}>
                         {item.authorAvatar ? (
-                          <img src={item.authorAvatar} alt={item.author} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img src={item.authorAvatar} alt={typeof item.author === 'string' ? item.author : (item.author as any)?.name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                           <div style={{
                             width: '100%', height: '100%', display: 'flex', alignItems: 'center',
                             justifyContent: 'center', fontSize: '11px', fontWeight: '600', color: '#8b949e',
                           }}>
-                            {item.author.charAt(0).toUpperCase()}
+                            {typeof item.author === 'string' ? item.author.charAt(0).toUpperCase() : ((item.author as any)?.name || '?').charAt(0).toUpperCase()}
                           </div>
                         )}
                       </div>
                       <button
-                        onClick={(e) => { e.stopPropagation(); onUserClick?.(item.author) }}
+                        onClick={(e) => { e.stopPropagation(); onUserClick?.(typeof item.author === 'string' ? item.author : (item.author as any)?.name || '') }}
                         style={{
                           background: 'transparent', border: 'none', padding: 0,
                           fontSize: '12px', color: '#8b949e', cursor: 'pointer',
                           fontFamily: 'inherit', outline: 'none',
                         }}
                       >
-                        {item.author}
-                      </button>
+                        {typeof item.author === 'string' ? item.author : (item.author as any)?.name || 'Unknown'}                      </button>
                     </div>
 
                     <div style={{

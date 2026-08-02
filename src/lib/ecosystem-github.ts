@@ -40,11 +40,84 @@ async function fetchFromGitHub(path: string): Promise<any> {
   return data;
 }
 
+function normalizeItem(item: any): EcosystemItem {
+  let author = item.author;
+  let authorAvatar = item.authorAvatar;
+  let authorId = item.authorId;
+  if (author && typeof author === 'object') {
+    authorAvatar = authorAvatar || author.avatar || '';
+    authorId = authorId || author.name || '';
+    author = author.name || author.login || String(author);
+  }
+  const CATEGORY_MAP: Record<string, string> = {
+    'e-commerce': 'website-templates',
+    'ecommerce': 'website-templates',
+    'e commerce': 'website-templates',
+    'game': 'website-games',
+    'html5-game': 'website-games',
+    'browser-game': 'website-games',
+  };
+  let category = item.category || 'plugins';
+  const catLower = category.toLowerCase().replace(/[_\s]+/g, '-');
+  if (CATEGORY_MAP[catLower]) category = CATEGORY_MAP[catLower];
+  const TYPE_MAP: Record<string, string> = {
+    'template': 'template',
+    'bot': 'bot',
+    'plugin': 'plugin',
+    'model': 'model',
+    'tool': 'tool',
+    'sdk': 'sdk',
+    'app': 'app',
+    'desktop-app': 'desktop-app',
+    'website-game': 'website-game',
+  };
+  let type = item.type || 'plugin';
+  type = TYPE_MAP[type.toLowerCase()] || type.toLowerCase();
+  return {
+    id: item.id || `item-${Date.now()}`,
+    name: item.name || 'Untitled',
+    description: item.description || '',
+    version: item.version || '1.0.0',
+    author,
+    authorAvatar,
+    authorId: authorId || author,
+    category: category as any,
+    type: type as any,
+    tags: Array.isArray(item.tags) ? item.tags : [],
+    icon: item.icon || '',
+    coverImage: item.coverImage || item.cover || '',
+    logo: item.logo || '',
+    screenshots: item.screenshots || [],
+    downloads: item.downloads || 0,
+    rating: item.rating || 0,
+    reviews: item.reviews || 0,
+    likeCount: item.likeCount || 0,
+    commentCount: item.commentCount || 0,
+    verified: item.verified || false,
+    featured: item.featured || false,
+    createdAt: item.createdAt || item.publishedAt || new Date().toISOString(),
+    updatedAt: item.updatedAt || item.publishedAt || new Date().toISOString(),
+    repository: item.repository || item.githubRepo || '',
+    liveDemo: item.liveDemo || '',
+    npmPackage: item.npmPackage || '',
+    githubRepo: item.githubRepo || '',
+    socialLinks: item.socialLinks || {},
+    platforms: item.platforms || ['web'],
+    downloadUrl: item.downloadUrl || '',
+    installCommand: item.installCommand || '',
+    fileSize: item.fileSize || '',
+    license: item.license || 'MIT',
+    remixedFrom: item.remixedFrom || undefined,
+    remixCount: item.remixCount || 0,
+    gameConfig: item.gameConfig || undefined,
+  };
+}
+
 async function fetchJson(path: string): Promise<EcosystemItem[]> {
   try {
     const data = await fetchFromGitHub(path);
-    if (Array.isArray(data)) return data;
-    if (data?.items) return data.items;
+    if (Array.isArray(data)) return data.map(normalizeItem);
+    if (data?.items) return data.items.map(normalizeItem);
     return [];
   } catch {
     return [];
@@ -144,6 +217,7 @@ export async function getCategories(): Promise<CategoryInfo[]> {
     { id: "startkits", name: "Starter Kits", icon: "rocket", description: "Project starters" },
     { id: "workflows", name: "Workflows", icon: "zap", description: "Automation flows" },
     { id: "types", name: "Types", icon: "file", description: "TS type defs" },
+    { id: "website-games", name: "Website Games", icon: "gamepad", description: "Playable games" },
   ];
   return categoryDefs.map((cat) => ({
     ...cat,
