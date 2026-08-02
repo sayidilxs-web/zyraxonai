@@ -4,13 +4,13 @@ export type Category =
   | "pdfs" | "books" | "apis" | "mobile-apps" | "browser-extensions"
   | "cli-tools" | "prompts" | "datasets" | "icons" | "ui-kits"
   | "landing-pages" | "desktop-apps" | "iso-images" | "fonts"
-  | "code-snippets" | "devops";
+  | "code-snippets" | "devops" | "website-games";
 
 export type ItemType =
   | "plugin" | "template" | "bot" | "model" | "tool" | "sdk" | "api"
   | "app" | "extension" | "cli" | "prompt" | "dataset" | "icon"
   | "ui-kit" | "landing-page" | "workflow" | "pdf" | "book" | "component"
-  | "theme" | "startkit" | "desktop-app" | "iso" | "font" | "snippet" | "devops";
+  | "theme" | "startkit" | "desktop-app" | "iso" | "font" | "snippet" | "devops" | "website-game";
 
 export interface EcosystemItem {
   id: string;
@@ -46,6 +46,14 @@ export interface EcosystemItem {
   installCommand?: string;
   fileSize?: string;
   license?: string;
+  remixedFrom?: string;
+  remixCount?: number;
+  gameConfig?: {
+    engine: string;
+    width?: number;
+    height?: number;
+    fullscreen?: boolean;
+  };
 }
 
 export interface CategoryInfo {
