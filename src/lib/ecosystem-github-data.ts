@@ -242,6 +242,22 @@ class GitHubDataStorage {
     await this.updateFile("marketplace.json", items, "Add marketplace item")
   }
 
+  async get(key: string): Promise<any> {
+    return this.getFile(`${key}.json`)
+  }
+
+  async set(key: string, value: any): Promise<void> {
+    const path = `${key}.json`
+    const current = await fetch(`${GITHUB_API}/repos/${this.username}/${this.repoName}/contents/${path}`, {
+      headers: this.headers,
+    })
+    if (current.status === 404) {
+      await this.createFile(path, JSON.stringify(value, null, 2))
+      return
+    }
+    await this.updateFile(path, value, `Update ${key}`)
+  }
+
   async getStats(): Promise<{ totalLikes: number; totalComments: number; totalFollowers: number; totalFollowing: number; totalPublished: number }> {
     const [likes, comments, follows, published] = await Promise.all([
       this.getLikes(),
