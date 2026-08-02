@@ -99,7 +99,7 @@ class GitHubDataStorage {
     return JSON.parse(raw)
   }
 
-  private async updateFile(path: string, content: any, message: string): Promise<void> {
+  async updateFile(path: string, content: any, message: string): Promise<void> {
     const res = await fetch(`${GITHUB_API}/repos/${this.username}/${this.repoName}/contents/${path}`, {
       headers: this.headers,
     })
