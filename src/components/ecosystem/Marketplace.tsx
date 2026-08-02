@@ -12,6 +12,7 @@ const CATEGORIES = [
   'Mobile Apps', 'AI Models', 'Dev Tools', 'CLI Tools', 'SDKs', 'Fonts', 'ISO Images',
   'DevOps', 'PDFs', 'Books', 'AI Prompts', 'Datasets', 'Snippets', 'APIs',
   'Extensions', 'Landing Pages', 'UI Kits', 'Icons', 'Starter Kits', 'Workflows',
+  'Website Games',
 ] as const
 
 const CATEGORY_MAP: Record<string, string> = {
@@ -23,6 +24,7 @@ const CATEGORY_MAP: Record<string, string> = {
   'Datasets': 'datasets', 'Snippets': 'code-snippets', 'APIs': 'apis',
   'Extensions': 'browser-extensions', 'Landing Pages': 'landing-pages',
   'UI Kits': 'ui-kits', 'Icons': 'icons', 'Starter Kits': 'startkits', 'Workflows': 'workflows',
+  'Website Games': 'website-games',
 }
 
 const formatNumber = (num: number): string => {
@@ -50,11 +52,12 @@ const TYPE_COLORS: Record<string, string> = {
   workflow: '#1f6feb', 'ui-kit': '#a371f7', snippet: '#8b949e', devops: '#238636',
   font: '#8b949e', 'landing-page': '#1f6feb', 'iso': '#da3633', 'startkit': '#1f6feb',
   api: '#1f6feb', dataset: '#da3633', prompt: '#8957e5', book: '#e3b341',
-  pdf: '#da3633', icon: '#a371f7', component: '#1f6feb',
+  pdf: '#da3633', icon: '#a371f7', component: '#1f6feb', 'website-game': '#f0883e',
 }
 
 const getActionInfo = (item: EcosystemItem) => {
   const cat = item.category
+  if (cat === 'website-games') return { label: 'Play Game', color: '#f0883e', hoverColor: '#d29922' }
   if (cat === 'plugins') return { label: 'Install', color: '#238636', hoverColor: '#2ea043' }
   if (cat === 'ai-bots') return { label: 'Add Bot', color: '#8957e5', hoverColor: '#a371f7' }
   if (cat === 'website-templates') return { label: 'Use Template', color: '#1f6feb', hoverColor: '#58a6ff' }

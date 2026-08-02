@@ -38,6 +38,7 @@ const CATEGORIES: { id: Category; label: string; accept: string }[] = [
   { id: 'startkits', label: 'Starter Kits', accept: '.zip,.tar.gz' },
   { id: 'workflows', label: 'Workflows', accept: '.json,.yaml,.yml,.zip' },
   { id: 'types', label: 'Types', accept: '.d.ts,.ts,.json,.zip' },
+  { id: 'website-games', label: 'Website Games', accept: '.html,.js,.css,.zip,.json' },
 ]
 
 const LICENSES = ['MIT', 'BSL-1.1', 'Apache-2.0', 'GPL-3.0', 'BSD-3-Clause', 'Unlicense', 'None']
@@ -51,7 +52,7 @@ const TYPE_MAP: Record<string, string> = {
   'datasets': 'dataset', 'code-snippets': 'snippet', 'apis': 'api',
   'browser-extensions': 'extension', 'landing-pages': 'landing-page',
   'ui-kits': 'ui-kit', 'icons': 'icon', 'startkits': 'startkit',
-  'workflows': 'workflow', 'types': 'component',
+  'workflows': 'workflow', 'types': 'component', 'website-games': 'website-game',
 }
 
 const defaultForm = {
