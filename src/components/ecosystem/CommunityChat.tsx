@@ -518,6 +518,14 @@ export default function CommunityChat() {
                 </span>
               </div>
             ))}
+            {rtPeers.map((p) => (
+              <div key={`rt-${p.id}`} className="relative min-w-[160px] h-[120px] rounded-lg overflow-hidden bg-black border-2 border-emerald-500">
+                <PeerVideo stream={p.stream} />
+                <span className="absolute bottom-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[11px] text-[#8b949e]">
+                  {p.username || "peer"}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       )}
