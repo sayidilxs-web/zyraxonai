@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { ChatMessage, getGitHubStorage, getAuthState } from "../../lib/ecosystem"
+import { CommunityRealtime } from "../../lib/community-realtime"
 
 const MAX_PEERS_PER_ROOM = 5
 const ROOM_PREFIX = "zyraxon-room"
@@ -45,6 +46,8 @@ export default function CommunityChat() {
   const [selectedEmojiCategory, setSelectedEmojiCategory] = useState(0)
   const [peers, setPeers] = useState<{ id: string; stream: MediaStream }[]>([])
   const [roomUsers, setRoomUsers] = useState<string[]>([])
+  const [rtPeers, setRtPeers] = useState<{ id: string; username: string; stream: MediaStream }[]>([])
+  const rtRef = useRef<CommunityRealtime | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const localVideoRef = useRef<HTMLVideoElement>(null)
@@ -285,6 +288,10 @@ export default function CommunityChat() {
     dataChannels.current.clear()
     fileChunksRef.current.clear()
     setPeers([])
+    try {
+      rtRef.current?.endCall()
+    } catch {}
+    setRtPeers([])
     setIsInCall(false)
     setIsMuted(false)
     setIsVideoOff(false)
@@ -317,6 +324,7 @@ export default function CommunityChat() {
       localStream.current = stream
       if (localVideoRef.current) localVideoRef.current.srcObject = stream
       setIsInCall(true)
+      rtRef.current?.startCall(stream).catch(() => {})
 
       const roomId = await findAvailableRoom()
       roomIdRef.current = roomId
@@ -372,6 +380,9 @@ export default function CommunityChat() {
     } catch {}
 
     broadcastToPeers({ type: "chat", message: msg })
+    try {
+      rtRef.current?.sendChat(msg)
+    } catch {}
   }, [input, broadcastToPeers])
 
   const shareFile = useCallback(
@@ -422,6 +433,32 @@ export default function CommunityChat() {
       leaveCall()
     }
   }, [loadMessages, leaveCall])
+
+  // Instant website-to-website (and app) transport, added on top of the
+  // existing GitHub storage — nothing above is replaced.
+  useEffect(() => {
+    const auth = getAuthState()
+    const rt = new CommunityRealtime(
+      {
+        userId: auth.user?.id || `guest-${generateId()}`,
+        username: auth.user?.username || "guest",
+        avatarUrl: auth.user?.avatarUrl || "",
+      },
+      {
+        onChat: (message: ChatMessage) => {
+          if (!message?.id) return
+          setMessages((prev) => (prev.some((m) => m.id === message.id) ? prev : [...prev, message]))
+        },
+        onPeers: (list) => setRtPeers(list),
+      },
+    )
+    rtRef.current = rt
+    rt.connect().catch(() => {})
+    return () => {
+      rt.disconnect()
+      rtRef.current = null
+    }
+  }, [])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -512,6 +549,14 @@ export default function CommunityChat() {
                 <PeerVideo stream={p.stream} />
                 <span className="absolute bottom-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[11px] text-[#8b949e]">
                   {p.id.split("-").slice(2).join("-") || "peer"}
+                </span>
+              </div>
+            ))}
+            {rtPeers.map((p) => (
+              <div key={`rt-${p.id}`} className="relative min-w-[160px] h-[120px] rounded-lg overflow-hidden bg-black border-2 border-emerald-500">
+                <PeerVideo stream={p.stream} />
+                <span className="absolute bottom-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[11px] text-[#8b949e]">
+                  {p.username || "peer"}
                 </span>
               </div>
             ))}
