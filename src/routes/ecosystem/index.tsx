@@ -10,6 +10,7 @@ const SAMPLE_PATHS = [
   "/marketplace/templates/index.json",
 ];
 const CACHE_KEY = "zyraxon_marketplace_cache";
+const LOCAL_CACHE_KEY = "zyraxon_marketplace_local_cache";
 const CACHE_TTL = 30000;
 
 type MarketplaceItem = {
@@ -215,9 +216,33 @@ function EcosystemPage() {
         const result: MarketplaceItem[] = allGithub.length > 0 ? allGithub : [];
         if (!alive) return;
         setItems(result);
-        sessionStorage.setItem(CACHE_KEY, JSON.stringify({ data: result, time: Date.now() }));
+        const cachePayload = JSON.stringify({ data: result, time: Date.now() });
+        sessionStorage.setItem(CACHE_KEY, cachePayload);
+        localStorage.setItem(LOCAL_CACHE_KEY, cachePayload);
       } catch (e: any) {
-        if (alive) setError(e.message);
+        if (!alive) return;
+        const localCache = localStorage.getItem(LOCAL_CACHE_KEY);
+        if (localCache) {
+          try {
+            const { data } = JSON.parse(localCache);
+            if (data && data.length > 0) {
+              setItems(data);
+              setError(null);
+              setLoading(false);
+              return;
+            }
+          } catch {}
+        }
+        const msg = e?.message || "Unknown error";
+        if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
+          setError("Unable to reach GitHub. You may be offline or the service is temporarily unavailable.");
+        } else if (msg.includes("403")) {
+          setError("GitHub API rate limit exceeded. Please try again later.");
+        } else if (msg.includes("404")) {
+          setError("Marketplace data not found. The repository or data file may have been moved.");
+        } else {
+          setError(`Failed to load marketplace data: ${msg}`);
+        }
       } finally {
         if (alive) setLoading(false);
       }
@@ -287,10 +312,27 @@ function EcosystemPage() {
   if (error) {
     return (
       <main className="min-h-screen bg-[#0a0a0f] flex items-center justify-center px-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-2">Something went wrong</h1>
-          <p className="text-sm text-slate-400">{error}</p>
-          <Link to="/" className="mt-4 inline-block text-sm text-cyan-400 hover:underline">Go Home</Link>
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          </div>
+          <h1 className="text-xl font-bold text-white mb-2">Couldn't load marketplace</h1>
+          <p className="text-sm text-slate-400 mb-6">{error}</p>
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => window.location.reload()}
+              className="rounded-lg bg-cyan-500/10 border border-cyan-500/20 px-4 py-2 text-sm font-medium text-cyan-300 hover:bg-cyan-500/20 transition"
+            >
+              Try Again
+            </button>
+            <Link to="/" className="rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-white/10 transition">
+              Go Home
+            </Link>
+          </div>
         </div>
       </main>
     );
@@ -302,7 +344,7 @@ function EcosystemPage() {
         <div className="mx-auto max-w-7xl px-5 py-12 text-center">
           <p className="text-xs uppercase tracking-[0.3em] text-cyan-300/70 mb-3">ZYRAXON Ecosystem</p>
           <h1 className="text-4xl font-bold text-white sm:text-5xl">Marketplace</h1>
-          <p className="mt-3 text-slate-400 max-w-xl mx-auto">Discover plugins, bots, templates, desktop apps, mobile apps, fonts, and more — built by the community.</p>
+          <p className="mt-3 text-slate-400 max-w-xl mx-auto">Discover plugins, bots, templates, desktop apps, mobile apps, fonts, and more â€” built by the community.</p>
           <div className="mt-6 max-w-md mx-auto">
             <input
               type="text"
@@ -315,9 +357,9 @@ function EcosystemPage() {
           <div className="mt-4 flex items-center justify-center gap-2 text-sm">
             <span className="text-slate-500">{items.length} items</span>
             <span className="text-slate-600">|</span>
-            <span className="text-slate-500">{categoryCounts["desktop-apps"] || 0} desktop apps</span>
+            <span className="text-slate-500">{items.reduce((sum, i) => sum + (i.downloads || 0), 0).toLocaleString()} downloads</span>
             <span className="text-slate-600">|</span>
-            <span className="text-slate-500">{categoryCounts["mobile-apps"] || 0} mobile apps</span>
+            <span className="text-slate-500">{new Set(items.map((i) => i.authorId || i.author)).size} authors</span>
           </div>
         </div>
       </header>
@@ -508,7 +550,7 @@ function EcosystemPage() {
 
       <footer className="border-t border-white/10 mt-12 py-8 text-center">
         <p className="text-xs text-slate-500">
-          ZYRAXON Ecosystem — Powered by GitHub
+          ZYRAXON Ecosystem â€” Powered by GitHub
         </p>
       </footer>
     </main>
