@@ -46,6 +46,8 @@ export default function CommunityChat() {
   const [selectedEmojiCategory, setSelectedEmojiCategory] = useState(0)
   const [peers, setPeers] = useState<{ id: string; stream: MediaStream }[]>([])
   const [roomUsers, setRoomUsers] = useState<string[]>([])
+  const [rtPeers, setRtPeers] = useState<{ id: string; username: string; stream: MediaStream }[]>([])
+  const rtRef = useRef<CommunityRealtime | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const localVideoRef = useRef<HTMLVideoElement>(null)
