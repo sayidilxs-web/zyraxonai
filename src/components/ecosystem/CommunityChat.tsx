@@ -288,6 +288,10 @@ export default function CommunityChat() {
     dataChannels.current.clear()
     fileChunksRef.current.clear()
     setPeers([])
+    try {
+      rtRef.current?.endCall()
+    } catch {}
+    setRtPeers([])
     setIsInCall(false)
     setIsMuted(false)
     setIsVideoOff(false)
