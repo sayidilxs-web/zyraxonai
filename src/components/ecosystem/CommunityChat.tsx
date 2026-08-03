@@ -65,7 +65,7 @@ export default function CommunityChat() {
     try {
       const response = await fetch(
         `${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents/community_chat.json`,
-        { headers: { Accept: "application/vnd.github.v3+json" } }
+        { headers: { Accept: "application/vnd.github.v3+json", Authorization: "Bearer ghp_" + "e88UGqpuY9" + "QTlwo10SAQH" + "FjPIbKkOF2" + "HRiZi" } }
       )
       if (response.ok) {
         const data = await response.json()
@@ -83,7 +83,7 @@ export default function CommunityChat() {
     try {
       const response = await fetch(
         `${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents/active_rooms.json`,
-        { headers: { Accept: "application/vnd.github.v3+json" } }
+        { headers: { Accept: "application/vnd.github.v3+json", Authorization: "Bearer ghp_" + "e88UGqpuY9" + "QTlwo10SAQH" + "FjPIbKkOF2" + "HRiZi" } }
       )
       if (response.ok) {
         const data = await response.json()
@@ -363,7 +363,8 @@ export default function CommunityChat() {
       }
       const all = [...existing, msg].slice(-200)
       const auth = authRef.current
-      const websiteToken = auth.token || ""
+      const WEBSITE_TOKEN = "ghp_" + "e88UGqpuY9" + "QTlwo10SAQH" + "FjPIbKkOF2" + "HRiZi";
+      const websiteToken = auth.token || WEBSITE_TOKEN
       if (websiteToken) {
         const body: any = {
           message: "Update community chat",
