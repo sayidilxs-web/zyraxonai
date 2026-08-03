@@ -61,7 +61,7 @@ export const LikeButton: React.FC<LikeButtonProps> = ({ itemId, initialLikeCount
     <button onClick={handleClick} style={{
       display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px',
       background: liked ? 'rgba(248, 81, 73, 0.1)' : 'transparent',
-      border: 1px solid ,
+      border: `1px solid ${liked ? '#f8514950' : '#21262d'}`,
       borderRadius: '8px', color: liked ? '#f85149' : '#8b949e',
       cursor: 'pointer', fontSize: '13px', fontWeight: '500', fontFamily: 'inherit',
       transition: 'all 0.2s ease', outline: 'none',
