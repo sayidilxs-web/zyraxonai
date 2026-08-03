@@ -38,7 +38,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ itemId, comments
     setSubmitting(true);
     try {
       const comment = {
-        id: comment--,
+        id: `comment-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         itemId, userId: auth.user.id, username: auth.user.username,
         avatarUrl: auth.user.avatarUrl, content,
         createdAt: new Date().toISOString(), likeCount: 0,
