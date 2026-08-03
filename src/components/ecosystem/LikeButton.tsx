@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { getAuthState, getGitHubStorage, getAIConnection } from '../../lib/ecosystem'
+import { getAuthState } from '../../lib/ecosystem'
+import { toggleLike, getLikeCount, getUserLikes } from '../../lib/shared-data'
 import { IconHeart, IconHeartOutline } from './Icons'
 
 interface LikeButtonProps {
@@ -20,36 +21,29 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
   const [animating, setAnimating] = useState(false)
 
   useEffect(() => {
-    const loadLikeState = async () => {
+    const load = async () => {
       try {
         const auth = getAuthState()
-        if (!auth.isAuthenticated || !auth.user) return
-
-        const storage = getGitHubStorage()
-        if (!storage) return
-
-        const userLikes = await storage.get(`likes/${auth.user.id}`)
-        if (userLikes && Array.isArray(userLikes)) {
-          const isLiked = userLikes.includes(itemId)
-          setLiked(isLiked)
-        }
-
-        const itemLikes = await storage.get(`item_likes/${itemId}`)
-        if (typeof itemLikes === 'number') {
-          setLikeCount(itemLikes)
+        const count = await getLikeCount(itemId)
+        setLikeCount(count)
+        if (auth.isAuthenticated && auth.user) {
+          const userLikes = await getUserLikes(auth.user.id)
+          setLiked(userLikes.includes(itemId))
         }
       } catch {}
     }
-    loadLikeState()
+    load()
   }, [itemId])
 
-  const toggleLike = useCallback(async () => {
+  const toggleLikeHandler = useCallback(async () => {
     const auth = getAuthState()
     if (!auth.isAuthenticated || !auth.user) return
 
     setAnimating(true)
     setTimeout(() => setAnimating(false), 300)
 
+    const prevLiked = liked
+    const prevCount = likeCount
     const newLiked = !liked
     const newCount = newLiked ? likeCount + 1 : likeCount - 1
 
@@ -58,42 +52,19 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
     onLikeChange?.(newLiked, newCount)
 
     try {
-      const storage = getGitHubStorage()
-      if (!storage) return
-
-      const userLikes = await storage.get(`likes/${auth.user.id}`)
-      const likes = Array.isArray(userLikes) ? userLikes : []
-
-      if (newLiked) {
-        if (!likes.includes(itemId)) likes.push(itemId)
-      } else {
-        const idx = likes.indexOf(itemId)
-        if (idx > -1) likes.splice(idx, 1)
-      }
-
-      await storage.set(`likes/${auth.user.id}`, likes)
-      await storage.set(`item_likes/${itemId}`, newCount)
-
-      try {
-        const ai = getAIConnection()
-        if (ai && ai.trackEvent) {
-          ai.trackEvent('like', {
-            userId: auth.user.id,
-            itemId,
-            liked: newLiked,
-            likeCount: newCount,
-          })
-        }
-      } catch {}
+      const result = await toggleLike(itemId, auth.user.id)
+      setLiked(result.liked)
+      setLikeCount(result.count)
+      onLikeChange?.(result.liked, result.count)
     } catch {
-      setLiked(liked)
-      setLikeCount(likeCount)
+      setLiked(prevLiked)
+      setLikeCount(prevCount)
     }
   }, [liked, likeCount, itemId, onLikeChange])
 
   return (
     <button
-      onClick={toggleLike}
+      onClick={toggleLikeHandler}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -109,18 +80,6 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
         transition: 'all 0.2s ease',
         fontFamily: 'inherit',
         outline: 'none',
-      }}
-      onMouseEnter={(e) => {
-        if (!liked) {
-          e.currentTarget.style.borderColor = '#f8514950'
-          e.currentTarget.style.color = '#f85149'
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!liked) {
-          e.currentTarget.style.borderColor = '#21262d'
-          e.currentTarget.style.color = '#8b949e'
-        }
       }}
     >
       <span style={{
