@@ -137,13 +137,8 @@ function EcosystemItemPage() {
           }
           return { id: item.authorId || item.author || "", login: item.author || "", name: item.author || "", avatar_url: item.authorAvatar || null, bio: null };
         };
-        const [published, plugins, bots, templates] = await Promise.all([
-          fetchJson("/marketplace/published/index.json"),
-          fetchJson("/marketplace/plugins/index.json"),
-          fetchJson("/marketplace/bots/index.json"),
-          fetchJson("/marketplace/templates/index.json"),
-        ]);
-        const all = [...published, ...plugins, ...bots, ...templates];
+        const published = await fetchJson("/marketplace/published/index.json");
+        const all = [...published];
         const found = all.find((i: any) => i.id === id);
         if (found && alive) {
           const itemTags = ensureArray(found.tags);
