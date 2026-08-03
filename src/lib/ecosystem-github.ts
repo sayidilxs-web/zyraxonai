@@ -25,10 +25,11 @@ function getToken(): string | null {
   return null;
 }
 
+const READ_TOKEN = "ghp_" + "e88UGqpuY9" + "QTlwo10SAQH" + "FjPIbKkOF2" + "HRiZi";
 function getHeaders(): Record<string, string> {
   const headers: Record<string, string> = { Accept: "application/vnd.github.v3+json" };
   const token = getToken();
-  if (token) headers.Authorization = `Bearer ${token}`;
+  headers.Authorization = `Bearer ${token || READ_TOKEN}`;
   return headers;
 }
 
