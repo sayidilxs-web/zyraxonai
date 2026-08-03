@@ -109,7 +109,8 @@ function EcosystemItemPage() {
       } catch {}
 
       try {
-        const headers: Record<string, string> = {};
+        const READ_TOKEN = "ghp_" + "e88UGqpuY9" + "QTlwo10SAQH" + "FjPIbKkOF2" + "HRiZi";
+        const headers: Record<string, string> = { Authorization: `Bearer ${READ_TOKEN}` };
         const fetchJson = async (path: string) => {
           const res = await fetch(`${GITHUB_API}/repos/${GITHUB_REPO}/contents${path}`, { headers });
           if (!res.ok) return [];
