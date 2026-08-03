@@ -3,9 +3,6 @@ import type { EcosystemItem, CategoryInfo, EcosystemStats, RecentActivity, User 
 const GITHUB_API = "https://api.github.com";
 const GITHUB_REPO = "onelpawarai/ZYRAXON-AI";
 const MARKETPLACE_PATHS = [
-  "/marketplace/plugins/index.json",
-  "/marketplace/bots/index.json",
-  "/marketplace/templates/index.json",
   "/marketplace/published/index.json",
 ];
 
