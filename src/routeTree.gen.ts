@@ -10,31 +10,27 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as EcosystemIndexRouteImport } from './routes/ecosystem/index'
 import { Route as ShareIdRouteImport } from './routes/share/$id'
-import { Route as ApiPublicSplatRouteImport } from './routes/api/public/$'
-import { Route as ApiPublicCommunityRouteImport } from './routes/api/public/community'
-import { Route as ApiPublicGithubDeviceRouteImport } from './routes/api/public/github-device'
-import { Route as ApiPublicSttRouteImport } from './routes/api/public/stt'
+import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as ApiSharesIndexRouteImport } from './routes/api/shares/index'
 import { Route as EcosystemItemIdRouteImport } from './routes/ecosystem/item/$id'
-import { Route as ApiPublicSharesIndexRouteImport } from './routes/api/public/shares/index'
+import { Route as ApiPublicSttRouteImport } from './routes/api/public/stt'
+import { Route as ApiPublicGithubDeviceRouteImport } from './routes/api/public/github-device'
+import { Route as ApiPublicDownloadsRouteImport } from './routes/api/public/downloads'
+import { Route as ApiPublicCommunityRouteImport } from './routes/api/public/community'
+import { Route as ApiPublicSplatRouteImport } from './routes/api/public/$'
 import { Route as ApiSharesIdIndexRouteImport } from './routes/api/shares/$id/index'
-import { Route as ApiSharesIdDataRouteImport } from './routes/api/shares/$id/data'
+import { Route as ApiPublicSharesIndexRouteImport } from './routes/api/public/shares/index'
 import { Route as ApiSharesIdSyncRouteImport } from './routes/api/shares/$id/sync'
+import { Route as ApiSharesIdDataRouteImport } from './routes/api/shares/$id/data'
 import { Route as ApiPublicSharesIdIndexRouteImport } from './routes/api/public/shares/$id/index'
-import { Route as ApiPublicSharesIdDataRouteImport } from './routes/api/public/shares/$id/data'
 import { Route as ApiPublicSharesIdSyncRouteImport } from './routes/api/public/shares/$id/sync'
+import { Route as ApiPublicSharesIdDataRouteImport } from './routes/api/public/shares/$id/data'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiSplatRoute = ApiSplatRouteImport.update({
-  id: '/api/$',
-  path: '/api/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EcosystemIndexRoute = EcosystemIndexRouteImport.update({
@@ -47,24 +43,9 @@ const ShareIdRoute = ShareIdRouteImport.update({
   path: '/share/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicSplatRoute = ApiPublicSplatRouteImport.update({
-  id: '/api/public/$',
-  path: '/api/public/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicCommunityRoute = ApiPublicCommunityRouteImport.update({
-  id: '/api/public/community',
-  path: '/api/public/community',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicGithubDeviceRoute = ApiPublicGithubDeviceRouteImport.update({
-  id: '/api/public/github-device',
-  path: '/api/public/github-device',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicSttRoute = ApiPublicSttRouteImport.update({
-  id: '/api/public/stt',
-  path: '/api/public/stt',
+const ApiSplatRoute = ApiSplatRouteImport.update({
+  id: '/api/$',
+  path: '/api/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSharesIndexRoute = ApiSharesIndexRouteImport.update({
@@ -77,9 +58,29 @@ const EcosystemItemIdRoute = EcosystemItemIdRouteImport.update({
   path: '/ecosystem/item/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicSharesIndexRoute = ApiPublicSharesIndexRouteImport.update({
-  id: '/api/public/shares/',
-  path: '/api/public/shares/',
+const ApiPublicSttRoute = ApiPublicSttRouteImport.update({
+  id: '/api/public/stt',
+  path: '/api/public/stt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicGithubDeviceRoute = ApiPublicGithubDeviceRouteImport.update({
+  id: '/api/public/github-device',
+  path: '/api/public/github-device',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicDownloadsRoute = ApiPublicDownloadsRouteImport.update({
+  id: '/api/public/downloads',
+  path: '/api/public/downloads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCommunityRoute = ApiPublicCommunityRouteImport.update({
+  id: '/api/public/community',
+  path: '/api/public/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSplatRoute = ApiPublicSplatRouteImport.update({
+  id: '/api/public/$',
+  path: '/api/public/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSharesIdIndexRoute = ApiSharesIdIndexRouteImport.update({
@@ -87,9 +88,9 @@ const ApiSharesIdIndexRoute = ApiSharesIdIndexRouteImport.update({
   path: '/api/shares/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiSharesIdDataRoute = ApiSharesIdDataRouteImport.update({
-  id: '/api/shares/$id/data',
-  path: '/api/shares/$id/data',
+const ApiPublicSharesIndexRoute = ApiPublicSharesIndexRouteImport.update({
+  id: '/api/public/shares/',
+  path: '/api/public/shares/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSharesIdSyncRoute = ApiSharesIdSyncRouteImport.update({
@@ -97,19 +98,24 @@ const ApiSharesIdSyncRoute = ApiSharesIdSyncRouteImport.update({
   path: '/api/shares/$id/sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSharesIdDataRoute = ApiSharesIdDataRouteImport.update({
+  id: '/api/shares/$id/data',
+  path: '/api/shares/$id/data',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSharesIdIndexRoute = ApiPublicSharesIdIndexRouteImport.update({
   id: '/api/public/shares/$id/',
   path: '/api/public/shares/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicSharesIdDataRoute = ApiPublicSharesIdDataRouteImport.update({
-  id: '/api/public/shares/$id/data',
-  path: '/api/public/shares/$id/data',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicSharesIdSyncRoute = ApiPublicSharesIdSyncRouteImport.update({
   id: '/api/public/shares/$id/sync',
   path: '/api/public/shares/$id/sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSharesIdDataRoute = ApiPublicSharesIdDataRouteImport.update({
+  id: '/api/public/shares/$id/data',
+  path: '/api/public/shares/$id/data',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/ecosystem/': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
   '/api/public/community': typeof ApiPublicCommunityRoute
+  '/api/public/downloads': typeof ApiPublicDownloadsRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/ecosystem': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
   '/api/public/community': typeof ApiPublicCommunityRoute
+  '/api/public/downloads': typeof ApiPublicDownloadsRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/ecosystem/': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
   '/api/public/community': typeof ApiPublicCommunityRoute
+  '/api/public/downloads': typeof ApiPublicDownloadsRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
@@ -180,6 +189,7 @@ export interface FileRouteTypes {
     | '/ecosystem/'
     | '/api/public/$'
     | '/api/public/community'
+    | '/api/public/downloads'
     | '/api/public/github-device'
     | '/api/public/stt'
     | '/ecosystem/item/$id'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/ecosystem'
     | '/api/public/$'
     | '/api/public/community'
+    | '/api/public/downloads'
     | '/api/public/github-device'
     | '/api/public/stt'
     | '/ecosystem/item/$id'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/ecosystem/'
     | '/api/public/$'
     | '/api/public/community'
+    | '/api/public/downloads'
     | '/api/public/github-device'
     | '/api/public/stt'
     | '/ecosystem/item/$id'
@@ -238,6 +250,7 @@ export interface RootRouteChildren {
   EcosystemIndexRoute: typeof EcosystemIndexRoute
   ApiPublicSplatRoute: typeof ApiPublicSplatRoute
   ApiPublicCommunityRoute: typeof ApiPublicCommunityRoute
+  ApiPublicDownloadsRoute: typeof ApiPublicDownloadsRoute
   ApiPublicGithubDeviceRoute: typeof ApiPublicGithubDeviceRoute
   ApiPublicSttRoute: typeof ApiPublicSttRoute
   EcosystemItemIdRoute: typeof EcosystemItemIdRoute
@@ -260,13 +273,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/$': {
-      id: '/api/$'
-      path: '/api/$'
-      fullPath: '/api/$'
-      preLoaderRoute: typeof ApiSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/ecosystem/': {
       id: '/ecosystem/'
       path: '/ecosystem'
@@ -281,32 +287,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShareIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/$': {
-      id: '/api/public/$'
-      path: '/api/public/$'
-      fullPath: '/api/public/$'
-      preLoaderRoute: typeof ApiPublicSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/community': {
-      id: '/api/public/community'
-      path: '/api/public/community'
-      fullPath: '/api/public/community'
-      preLoaderRoute: typeof ApiPublicCommunityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/github-device': {
-      id: '/api/public/github-device'
-      path: '/api/public/github-device'
-      fullPath: '/api/public/github-device'
-      preLoaderRoute: typeof ApiPublicGithubDeviceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/stt': {
-      id: '/api/public/stt'
-      path: '/api/public/stt'
-      fullPath: '/api/public/stt'
-      preLoaderRoute: typeof ApiPublicSttRouteImport
+    '/api/$': {
+      id: '/api/$'
+      path: '/api/$'
+      fullPath: '/api/$'
+      preLoaderRoute: typeof ApiSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/shares/': {
@@ -323,11 +308,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EcosystemItemIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/shares/': {
-      id: '/api/public/shares/'
-      path: '/api/public/shares'
-      fullPath: '/api/public/shares/'
-      preLoaderRoute: typeof ApiPublicSharesIndexRouteImport
+    '/api/public/stt': {
+      id: '/api/public/stt'
+      path: '/api/public/stt'
+      fullPath: '/api/public/stt'
+      preLoaderRoute: typeof ApiPublicSttRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/github-device': {
+      id: '/api/public/github-device'
+      path: '/api/public/github-device'
+      fullPath: '/api/public/github-device'
+      preLoaderRoute: typeof ApiPublicGithubDeviceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/downloads': {
+      id: '/api/public/downloads'
+      path: '/api/public/downloads'
+      fullPath: '/api/public/downloads'
+      preLoaderRoute: typeof ApiPublicDownloadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/community': {
+      id: '/api/public/community'
+      path: '/api/public/community'
+      fullPath: '/api/public/community'
+      preLoaderRoute: typeof ApiPublicCommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/$': {
+      id: '/api/public/$'
+      path: '/api/public/$'
+      fullPath: '/api/public/$'
+      preLoaderRoute: typeof ApiPublicSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/shares/$id/': {
@@ -337,11 +350,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSharesIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/shares/$id/data': {
-      id: '/api/shares/$id/data'
-      path: '/api/shares/$id/data'
-      fullPath: '/api/shares/$id/data'
-      preLoaderRoute: typeof ApiSharesIdDataRouteImport
+    '/api/public/shares/': {
+      id: '/api/public/shares/'
+      path: '/api/public/shares'
+      fullPath: '/api/public/shares/'
+      preLoaderRoute: typeof ApiPublicSharesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/shares/$id/sync': {
@@ -351,6 +364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSharesIdSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/shares/$id/data': {
+      id: '/api/shares/$id/data'
+      path: '/api/shares/$id/data'
+      fullPath: '/api/shares/$id/data'
+      preLoaderRoute: typeof ApiSharesIdDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/shares/$id/': {
       id: '/api/public/shares/$id/'
       path: '/api/public/shares/$id'
@@ -358,18 +378,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSharesIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/shares/$id/data': {
-      id: '/api/public/shares/$id/data'
-      path: '/api/public/shares/$id/data'
-      fullPath: '/api/public/shares/$id/data'
-      preLoaderRoute: typeof ApiPublicSharesIdDataRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/shares/$id/sync': {
       id: '/api/public/shares/$id/sync'
       path: '/api/public/shares/$id/sync'
       fullPath: '/api/public/shares/$id/sync'
       preLoaderRoute: typeof ApiPublicSharesIdSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/shares/$id/data': {
+      id: '/api/public/shares/$id/data'
+      path: '/api/public/shares/$id/data'
+      fullPath: '/api/public/shares/$id/data'
+      preLoaderRoute: typeof ApiPublicSharesIdDataRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -382,6 +402,7 @@ const rootRouteChildren: RootRouteChildren = {
   EcosystemIndexRoute: EcosystemIndexRoute,
   ApiPublicSplatRoute: ApiPublicSplatRoute,
   ApiPublicCommunityRoute: ApiPublicCommunityRoute,
+  ApiPublicDownloadsRoute: ApiPublicDownloadsRoute,
   ApiPublicGithubDeviceRoute: ApiPublicGithubDeviceRoute,
   ApiPublicSttRoute: ApiPublicSttRoute,
   EcosystemItemIdRoute: EcosystemItemIdRoute,
@@ -397,3 +418,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
