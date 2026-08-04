@@ -354,39 +354,9 @@ export default function CommunityChat() {
 
 
     try {
-      const chatPath = "/community_chat.json"
-      const getHeaders = () => ({ Accept: "application/vnd.github.v3+json" })
-      const readRes = await fetch(`${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents${chatPath}`, { headers: getHeaders() })
-      let existing: ChatMessage[] = []
-      let sha: string | undefined
-      if (readRes.ok) {
-        const data = await readRes.json()
-        sha = data.sha
-        if (data.content) {
-          const decoded = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))))
-          if (Array.isArray(decoded)) existing = decoded
-        }
-      }
-      const all = [...existing, msg].slice(-200)
-      const auth = authRef.current
-      const WEBSITE_TOKEN = "ghp_" + "e88UGqpuY9" + "QTlwo10SAQH" + "FjPIbKkOF2" + "HRiZi";
-      const websiteToken = auth.token || WEBSITE_TOKEN
-      if (websiteToken) {
-        const body: any = {
-          message: "Update community chat",
-          content: btoa(unescape(encodeURIComponent(JSON.stringify(all, null, 2)))),
-        }
-        if (sha) body.sha = sha
-        await fetch(`${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents${chatPath}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `token ${websiteToken}`,
-            Accept: "application/vnd.github.v3+json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        })
-      }
+      const existing = await storeRead<ChatMessage[]>("community_chat.json", [])
+      const all = [...(Array.isArray(existing) ? existing : []), msg].slice(-200)
+      await storeWrite("community_chat.json", all, "Update community chat")
     } catch {}
   }, [input, broadcastToPeers])
 
