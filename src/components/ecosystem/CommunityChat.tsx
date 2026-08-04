@@ -63,44 +63,24 @@ export default function CommunityChat() {
 
   const loadMessages = useCallback(async () => {
     try {
-      const response = await fetch(
-        `${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents/community_chat.json`,
-        { headers: { Accept: "application/vnd.github.v3+json", Authorization: "Bearer ghp_" + "e88UGqpuY9" + "QTlwo10SAQH" + "FjPIbKkOF2" + "HRiZi" } }
-      )
-      if (response.ok) {
-        const data = await response.json()
-        if (data.content) {
-          const decoded = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))))
-          if (Array.isArray(decoded) && decoded.length > 0) {
-            setMessages(decoded.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).slice(-200))
-          }
-        }
+      const decoded = await storeRead<ChatMessage[]>("community_chat.json", [])
+      if (Array.isArray(decoded) && decoded.length > 0) {
+        setMessages(decoded.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).slice(-200))
       }
     } catch {}
   }, [])
 
   const loadRoomsFromGitHub = useCallback(async (): Promise<Record<string, number>> => {
     try {
-      const response = await fetch(
-        `${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents/active_rooms.json`,
-        { headers: { Accept: "application/vnd.github.v3+json", Authorization: "Bearer ghp_" + "e88UGqpuY9" + "QTlwo10SAQH" + "FjPIbKkOF2" + "HRiZi" } }
-      )
-      if (response.ok) {
-        const data = await response.json()
-        if (data.content) {
-          return JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))))
-        }
-      }
+      const rooms = await storeRead<Record<string, number>>("active_rooms.json", {})
+      if (rooms && typeof rooms === "object" && !Array.isArray(rooms)) return rooms
     } catch {}
     return {}
   }, [])
 
   const saveRoomsToGitHub = useCallback(async (rooms: Record<string, number>) => {
     try {
-      const storage = githubStorage.current
-      if (storage) {
-        await (storage as any).updateFile("active_rooms.json", rooms, "Update active call rooms")
-      }
+      await storeWrite("active_rooms.json", rooms, "Update active call rooms")
     } catch {}
   }, [])
 
