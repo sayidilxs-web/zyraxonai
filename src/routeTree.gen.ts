@@ -18,6 +18,7 @@ import { Route as EcosystemItemIdRouteImport } from './routes/ecosystem/item/$id
 import { Route as ApiPublicSttRouteImport } from './routes/api/public/stt'
 import { Route as ApiPublicGithubDeviceRouteImport } from './routes/api/public/github-device'
 import { Route as ApiPublicDownloadsRouteImport } from './routes/api/public/downloads'
+import { Route as ApiPublicCommunityStoreRouteImport } from './routes/api/public/community-store'
 import { Route as ApiPublicCommunityRouteImport } from './routes/api/public/community'
 import { Route as ApiPublicSplatRouteImport } from './routes/api/public/$'
 import { Route as ApiSharesIdIndexRouteImport } from './routes/api/shares/$id/index'
@@ -72,6 +73,11 @@ const ApiPublicGithubDeviceRoute = ApiPublicGithubDeviceRouteImport.update({
 const ApiPublicDownloadsRoute = ApiPublicDownloadsRouteImport.update({
   id: '/api/public/downloads',
   path: '/api/public/downloads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCommunityStoreRoute = ApiPublicCommunityStoreRouteImport.update({
+  id: '/api/public/community-store',
+  path: '/api/public/community-store',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicCommunityRoute = ApiPublicCommunityRouteImport.update({
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/ecosystem/': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
   '/api/public/community': typeof ApiPublicCommunityRoute
+  '/api/public/community-store': typeof ApiPublicCommunityStoreRoute
   '/api/public/downloads': typeof ApiPublicDownloadsRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/stt': typeof ApiPublicSttRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/ecosystem': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
   '/api/public/community': typeof ApiPublicCommunityRoute
+  '/api/public/community-store': typeof ApiPublicCommunityStoreRoute
   '/api/public/downloads': typeof ApiPublicDownloadsRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/stt': typeof ApiPublicSttRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/ecosystem/': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
   '/api/public/community': typeof ApiPublicCommunityRoute
+  '/api/public/community-store': typeof ApiPublicCommunityStoreRoute
   '/api/public/downloads': typeof ApiPublicDownloadsRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/stt': typeof ApiPublicSttRoute
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/ecosystem/'
     | '/api/public/$'
     | '/api/public/community'
+    | '/api/public/community-store'
     | '/api/public/downloads'
     | '/api/public/github-device'
     | '/api/public/stt'
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/ecosystem'
     | '/api/public/$'
     | '/api/public/community'
+    | '/api/public/community-store'
     | '/api/public/downloads'
     | '/api/public/github-device'
     | '/api/public/stt'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/ecosystem/'
     | '/api/public/$'
     | '/api/public/community'
+    | '/api/public/community-store'
     | '/api/public/downloads'
     | '/api/public/github-device'
     | '/api/public/stt'
@@ -263,6 +275,7 @@ export interface RootRouteChildren {
   EcosystemIndexRoute: typeof EcosystemIndexRoute
   ApiPublicSplatRoute: typeof ApiPublicSplatRoute
   ApiPublicCommunityRoute: typeof ApiPublicCommunityRoute
+  ApiPublicCommunityStoreRoute: typeof ApiPublicCommunityStoreRoute
   ApiPublicDownloadsRoute: typeof ApiPublicDownloadsRoute
   ApiPublicGithubDeviceRoute: typeof ApiPublicGithubDeviceRoute
   ApiPublicSttRoute: typeof ApiPublicSttRoute
@@ -341,6 +354,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/downloads'
       fullPath: '/api/public/downloads'
       preLoaderRoute: typeof ApiPublicDownloadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/community-store': {
+      id: '/api/public/community-store'
+      path: '/api/public/community-store'
+      fullPath: '/api/public/community-store'
+      preLoaderRoute: typeof ApiPublicCommunityStoreRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/community': {
@@ -423,6 +443,7 @@ const rootRouteChildren: RootRouteChildren = {
   EcosystemIndexRoute: EcosystemIndexRoute,
   ApiPublicSplatRoute: ApiPublicSplatRoute,
   ApiPublicCommunityRoute: ApiPublicCommunityRoute,
+  ApiPublicCommunityStoreRoute: ApiPublicCommunityStoreRoute,
   ApiPublicDownloadsRoute: ApiPublicDownloadsRoute,
   ApiPublicGithubDeviceRoute: ApiPublicGithubDeviceRoute,
   ApiPublicSttRoute: ApiPublicSttRoute,
