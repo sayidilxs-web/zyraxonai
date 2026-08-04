@@ -1,51 +1,36 @@
-const GITHUB_API = "https://api.github.com";
-const MAIN_REPO = "onelpawarai/ZYRAXON-AI";
+/**
+ * Shared ecosystem data (likes, stars, comments, ratings, downloads).
+ * Storage is still GitHub — the JSON files and their shapes are unchanged.
+ * Reads/writes now go through /api/public/community-store, which holds the
+ * GitHub token server-side (the old in-bundle token was revoked, which is why
+ * likes / comments / stars stopped saving).
+ */
+const STORE = "/api/public/community-store";
 const DATA_PREFIX = "marketplace/data";
-const READ_TOKEN = "ghp_" + "e88UGqpuY9" + "QTlwo10SAQH" + "FjPIbKkOF2" + "HRiZi";
 
-function getUserToken(): string | null {
-  if (typeof window === "undefined") return null;
+async function readJson<T>(file: string, fallback: T): Promise<T> {
   try {
-    const stored = localStorage.getItem("zyraxon_ecosystem_auth");
-    if (stored) { const parsed = JSON.parse(stored); return parsed.token || null; }
-  } catch {}
-  return null;
-}
-
-function readHeaders(): Record<string, string> {
-  return { Accept: "application/vnd.github.v3+json", Authorization: `Bearer ${READ_TOKEN}` };
-}
-
-function writeHeaders(): Record<string, string> {
-  const token = getUserToken() || READ_TOKEN;
-  return { Accept: "application/vnd.github.v3+json", Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
-}
-
-async function readJson<T>(path: string, fallback: T): Promise<T> {
-  try {
-    const res = await fetch(`${GITHUB_API}/repos/${MAIN_REPO}/contents/${path}`, { headers: readHeaders() });
+    const res = await fetch(`${STORE}?file=${encodeURIComponent(file)}`, { headers: { Accept: "application/json" } });
     if (!res.ok) return fallback;
-    const data = await res.json();
-    if (!data.content) return fallback;
-    return JSON.parse(atob(String(data.content).replace(/\n/g, ""))) as T;
-  } catch { return fallback; }
+    const data = (await res.json()) as { content?: unknown };
+    if (data.content == null) return fallback;
+    return data.content as T;
+  } catch {
+    return fallback;
+  }
 }
 
-async function writeJson(path: string, content: unknown, message: string): Promise<boolean> {
+async function writeJson(file: string, content: unknown, message: string): Promise<boolean> {
   try {
-    const getRes = await fetch(`${GITHUB_API}/repos/${MAIN_REPO}/contents/${path}`, { headers: readHeaders() });
-    let sha: string | undefined;
-    if (getRes.ok) { const existing = await getRes.json(); sha = existing.sha; }
-    const body: Record<string, unknown> = {
-      message,
-      content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
-    };
-    if (sha) body.sha = sha;
-    const putRes = await fetch(`${GITHUB_API}/repos/${MAIN_REPO}/contents/${path}`, {
-      method: "PUT", headers: writeHeaders(), body: JSON.stringify(body),
+    const res = await fetch(STORE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ file, content, message }),
     });
-    return putRes.ok;
-  } catch { return false; }
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 export async function getLikeCount(itemId: string): Promise<number> {
@@ -100,12 +85,13 @@ export async function addComment(comment: SharedComment): Promise<void> {
 
 interface RatingEntry { userId: string; rating: number; createdAt: string }
 
-export async function getRating(itemId: string): Promise<{ average: number; count: number; userRating: number }> {
+export async function getRating(itemId: string, userId?: string): Promise<{ average: number; count: number; userRating: number }> {
   const allRatings = await readJson<Record<string, RatingEntry[]>>(`${DATA_PREFIX}/ratings.json`, {});
   const ratings = allRatings[itemId] || [];
   if (ratings.length === 0) return { average: 0, count: 0, userRating: 0 };
   const sum = ratings.reduce((s, r) => s + r.rating, 0);
-  return { average: sum / ratings.length, count: ratings.length, userRating: 0 };
+  const mine = userId ? ratings.find((r) => r.userId === userId)?.rating || 0 : 0;
+  return { average: sum / ratings.length, count: ratings.length, userRating: mine };
 }
 
 export async function setRating(itemId: string, userId: string, rating: number): Promise<{ average: number; count: number }> {
@@ -120,6 +106,20 @@ export async function setRating(itemId: string, userId: string, rating: number):
   return { average: sum / itemRatings.length, count: itemRatings.length };
 }
 
+export async function getStarCount(itemId: string): Promise<number> {
+  const data = await readJson<Record<string, string[]>>(`${DATA_PREFIX}/stars.json`, {});
+  return (data[itemId] || []).length;
+}
+
+export async function toggleStar(itemId: string, userId: string): Promise<{ starred: boolean; count: number }> {
+  const data = await readJson<Record<string, string[]>>(`${DATA_PREFIX}/stars.json`, {});
+  const arr = data[itemId] || [];
+  const starred = arr.includes(userId);
+  data[itemId] = starred ? arr.filter((id) => id !== userId) : [...arr, userId];
+  await writeJson(`${DATA_PREFIX}/stars.json`, data, `Star ${itemId}`);
+  return { starred: !starred, count: data[itemId].length };
+}
+
 export async function incrementDownload(itemId: string): Promise<number> {
   const data = await readJson<Record<string, number>>(`${DATA_PREFIX}/downloads.json`, {});
   data[itemId] = (data[itemId] || 0) + 1;
@@ -130,4 +130,11 @@ export async function incrementDownload(itemId: string): Promise<number> {
 export async function getDownloadCount(itemId: string): Promise<number> {
   const data = await readJson<Record<string, number>>(`${DATA_PREFIX}/downloads.json`, {});
   return data[itemId] || 0;
+}
+
+export async function recordShare(itemId: string, userId: string): Promise<number> {
+  const data = await readJson<Record<string, number>>(`${DATA_PREFIX}/shares.json`, {});
+  data[itemId] = (data[itemId] || 0) + 1;
+  await writeJson(`${DATA_PREFIX}/shares.json`, data, `Share ${itemId} by ${userId}`);
+  return data[itemId];
 }

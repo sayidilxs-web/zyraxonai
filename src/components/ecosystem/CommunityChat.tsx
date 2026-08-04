@@ -7,6 +7,32 @@ const ROOM_PREFIX = "zyraxon-room"
 const MESSAGES_POLL_INTERVAL = 10000
 const GITHUB_API = "https://api.github.com"
 const ECOSYSTEM_DATA_REPO = "onelpawarai/ZYRAXON-AI"
+const STORE = "/api/public/community-store"
+
+/** Shared GitHub-backed storage (same repo/files as before, token now server-side). */
+async function storeRead<T>(file: string, fallback: T): Promise<T> {
+  try {
+    const res = await fetch(`${STORE}?file=${encodeURIComponent(file)}`)
+    if (!res.ok) return fallback
+    const data = (await res.json()) as { content?: unknown }
+    return (data.content ?? fallback) as T
+  } catch {
+    return fallback
+  }
+}
+
+async function storeWrite(file: string, content: unknown, message: string): Promise<boolean> {
+  try {
+    const res = await fetch(STORE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ file, content, message }),
+    })
+    return res.ok
+  } catch {
+    return false
+  }
+}
 
 const EMOJI_CATEGORIES = [
   { name: "Smileys", emojis: ["😀","😂","🥹","😍","🤩","😎","🤔","😢","😭","🥳","🤯","🫡","😴","🙄","😬","🥺","😤","🤗","😈","💀","👻","🤖","👽","🎃","🔥","✨","💫","🌟","⭐","🌈"] },
@@ -63,44 +89,24 @@ export default function CommunityChat() {
 
   const loadMessages = useCallback(async () => {
     try {
-      const response = await fetch(
-        `${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents/community_chat.json`,
-        { headers: { Accept: "application/vnd.github.v3+json", Authorization: "Bearer ghp_" + "e88UGqpuY9" + "QTlwo10SAQH" + "FjPIbKkOF2" + "HRiZi" } }
-      )
-      if (response.ok) {
-        const data = await response.json()
-        if (data.content) {
-          const decoded = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))))
-          if (Array.isArray(decoded) && decoded.length > 0) {
-            setMessages(decoded.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).slice(-200))
-          }
-        }
+      const decoded = await storeRead<ChatMessage[]>("community_chat.json", [])
+      if (Array.isArray(decoded) && decoded.length > 0) {
+        setMessages(decoded.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).slice(-200))
       }
     } catch {}
   }, [])
 
   const loadRoomsFromGitHub = useCallback(async (): Promise<Record<string, number>> => {
     try {
-      const response = await fetch(
-        `${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents/active_rooms.json`,
-        { headers: { Accept: "application/vnd.github.v3+json", Authorization: "Bearer ghp_" + "e88UGqpuY9" + "QTlwo10SAQH" + "FjPIbKkOF2" + "HRiZi" } }
-      )
-      if (response.ok) {
-        const data = await response.json()
-        if (data.content) {
-          return JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))))
-        }
-      }
+      const rooms = await storeRead<Record<string, number>>("active_rooms.json", {})
+      if (rooms && typeof rooms === "object" && !Array.isArray(rooms)) return rooms
     } catch {}
     return {}
   }, [])
 
   const saveRoomsToGitHub = useCallback(async (rooms: Record<string, number>) => {
     try {
-      const storage = githubStorage.current
-      if (storage) {
-        await (storage as any).updateFile("active_rooms.json", rooms, "Update active call rooms")
-      }
+      await storeWrite("active_rooms.json", rooms, "Update active call rooms")
     } catch {}
   }, [])
 
@@ -348,39 +354,9 @@ export default function CommunityChat() {
 
 
     try {
-      const chatPath = "/community_chat.json"
-      const getHeaders = () => ({ Accept: "application/vnd.github.v3+json" })
-      const readRes = await fetch(`${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents${chatPath}`, { headers: getHeaders() })
-      let existing: ChatMessage[] = []
-      let sha: string | undefined
-      if (readRes.ok) {
-        const data = await readRes.json()
-        sha = data.sha
-        if (data.content) {
-          const decoded = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))))
-          if (Array.isArray(decoded)) existing = decoded
-        }
-      }
-      const all = [...existing, msg].slice(-200)
-      const auth = authRef.current
-      const WEBSITE_TOKEN = "ghp_" + "e88UGqpuY9" + "QTlwo10SAQH" + "FjPIbKkOF2" + "HRiZi";
-      const websiteToken = auth.token || WEBSITE_TOKEN
-      if (websiteToken) {
-        const body: any = {
-          message: "Update community chat",
-          content: btoa(unescape(encodeURIComponent(JSON.stringify(all, null, 2)))),
-        }
-        if (sha) body.sha = sha
-        await fetch(`${GITHUB_API}/repos/${ECOSYSTEM_DATA_REPO}/contents${chatPath}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `token ${websiteToken}`,
-            Accept: "application/vnd.github.v3+json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        })
-      }
+      const existing = await storeRead<ChatMessage[]>("community_chat.json", [])
+      const all = [...(Array.isArray(existing) ? existing : []), msg].slice(-200)
+      await storeWrite("community_chat.json", all, "Update community chat")
     } catch {}
   }, [input, broadcastToPeers])
 
