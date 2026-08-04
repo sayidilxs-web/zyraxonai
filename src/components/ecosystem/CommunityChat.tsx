@@ -7,6 +7,32 @@ const ROOM_PREFIX = "zyraxon-room"
 const MESSAGES_POLL_INTERVAL = 10000
 const GITHUB_API = "https://api.github.com"
 const ECOSYSTEM_DATA_REPO = "onelpawarai/ZYRAXON-AI"
+const STORE = "/api/public/community-store"
+
+/** Shared GitHub-backed storage (same repo/files as before, token now server-side). */
+async function storeRead<T>(file: string, fallback: T): Promise<T> {
+  try {
+    const res = await fetch(`${STORE}?file=${encodeURIComponent(file)}`)
+    if (!res.ok) return fallback
+    const data = (await res.json()) as { content?: unknown }
+    return (data.content ?? fallback) as T
+  } catch {
+    return fallback
+  }
+}
+
+async function storeWrite(file: string, content: unknown, message: string): Promise<boolean> {
+  try {
+    const res = await fetch(STORE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ file, content, message }),
+    })
+    return res.ok
+  } catch {
+    return false
+  }
+}
 
 const EMOJI_CATEGORIES = [
   { name: "Smileys", emojis: ["😀","😂","🥹","😍","🤩","😎","🤔","😢","😭","🥳","🤯","🫡","😴","🙄","😬","🥺","😤","🤗","😈","💀","👻","🤖","👽","🎃","🔥","✨","💫","🌟","⭐","🌈"] },
