@@ -51,7 +51,10 @@ export const ItemDotMenu: React.FC<ItemDotMenuProps> = ({ item, align = 'right' 
 
   const copyCommand = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const cmd = item.installCommand || `zyraxon install ${item.id || item.name}`;
+    const id = item.id || item.name;
+    const cmd = item.installCommand
+      ? `Start-Process "${item.installCommand}"`
+      : `Start-Process "zyraxon://install/${encodeURIComponent(id)}"`;
     navigator.clipboard?.writeText(cmd).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);

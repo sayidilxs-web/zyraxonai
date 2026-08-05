@@ -192,7 +192,7 @@ export const ExtensionDotMenu: React.FC<DotMenuProps> = ({ ext, onOpenDetail, al
 
   const copyCommand = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard?.writeText(`zyraxon install ${ext.id}`);
+    navigator.clipboard?.writeText(`Start-Process "zyraxon://install/extension/${ext.id}"`);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
@@ -374,7 +374,7 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
   );
 
   const copyInstall = () => {
-    navigator.clipboard?.writeText(`zyraxon install ${ext.id}`);
+    navigator.clipboard?.writeText(`Start-Process "zyraxon://install/extension/${ext.id}"`);
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
   };

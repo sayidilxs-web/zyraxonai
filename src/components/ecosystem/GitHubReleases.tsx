@@ -83,7 +83,7 @@ const ReleaseCard: React.FC<{ r: GitHubReleaseItem }> = ({ r }) => {
 
   const copyCommand = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard?.writeText(`zyraxon install release ${r.repo} ${r.tagName}`).then(() => {
+    navigator.clipboard?.writeText(`Start-Process "zyraxon://install/release/${r.repo}/${r.tagName}"`).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     }).catch(() => {});
