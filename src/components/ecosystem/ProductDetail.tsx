@@ -64,7 +64,9 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
   const copyInstallCommand = async () => {
     if (!item.installCommand) return
     try {
-      await navigator.clipboard.writeText(item.installCommand)
+      // Wrap the install command in a Start-Process call so it works in PowerShell
+      const cmd = `Start-Process "${item.installCommand}"`
+      await navigator.clipboard.writeText(cmd)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {}
