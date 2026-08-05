@@ -3,6 +3,7 @@ import { EcosystemItem, getAuthState } from '../../lib/ecosystem'
 import { LikeButton } from './LikeButton'
 import { ShareButton } from './ShareButton'
 import { CommentSection } from './CommentSection'
+import { RatingStars } from './RatingStars'
 import { IconArrowLeft, IconExternalLink, IconCode, IconDownload, IconStar, IconCopy, IconCheck, IconChevronLeft, IconChevronRight, IconGlobe, IconMonitor, IconSmartphone, IconTerminal, IconCalendar, IconMaximize, IconX, IconLoader } from './Icons'
 
 interface ProductDetailProps {
@@ -643,6 +644,11 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
               }}>
                 <span style={{ color: '#8b949e' }}>Updated</span>
                 <span style={{ color: '#c9d1d9' }}>{formatDate(item.updatedAt)}</span>
+              </div>
+
+              <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #21262d' }}>
+                <h4 style={{ fontSize: '12px', fontWeight: 600, color: '#8b949e', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Rate this item</h4>
+                <RatingStars itemId={item.id} initialAverage={item.rating} />
               </div>
 
               <div style={{ marginTop: '16px' }}>

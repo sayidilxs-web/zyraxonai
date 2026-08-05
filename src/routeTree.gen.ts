@@ -15,6 +15,7 @@ import { Route as ShareIdRouteImport } from './routes/share/$id'
 import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as ApiSharesIndexRouteImport } from './routes/api/shares/index'
 import { Route as EcosystemItemIdRouteImport } from './routes/ecosystem/item/$id'
+import { Route as ApiPublicVscodeMarketplaceRouteImport } from './routes/api/public/vscode-marketplace'
 import { Route as ApiPublicSttRouteImport } from './routes/api/public/stt'
 import { Route as ApiPublicGithubDeviceRouteImport } from './routes/api/public/github-device'
 import { Route as ApiPublicDownloadsRouteImport } from './routes/api/public/downloads'
@@ -60,6 +61,12 @@ const EcosystemItemIdRoute = EcosystemItemIdRouteImport.update({
   path: '/ecosystem/item/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicVscodeMarketplaceRoute =
+  ApiPublicVscodeMarketplaceRouteImport.update({
+    id: '/api/public/vscode-marketplace',
+    path: '/api/public/vscode-marketplace',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicSttRoute = ApiPublicSttRouteImport.update({
   id: '/api/public/stt',
   path: '/api/public/stt',
@@ -143,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/api/public/downloads': typeof ApiPublicDownloadsRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/stt': typeof ApiPublicSttRoute
+  '/api/public/vscode-marketplace': typeof ApiPublicVscodeMarketplaceRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
   '/api/shares/': typeof ApiSharesIndexRoute
   '/api/public/download/$platform': typeof ApiPublicDownloadPlatformRoute
@@ -165,6 +173,7 @@ export interface FileRoutesByTo {
   '/api/public/downloads': typeof ApiPublicDownloadsRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/stt': typeof ApiPublicSttRoute
+  '/api/public/vscode-marketplace': typeof ApiPublicVscodeMarketplaceRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
   '/api/shares': typeof ApiSharesIndexRoute
   '/api/public/download/$platform': typeof ApiPublicDownloadPlatformRoute
@@ -188,6 +197,7 @@ export interface FileRoutesById {
   '/api/public/downloads': typeof ApiPublicDownloadsRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/stt': typeof ApiPublicSttRoute
+  '/api/public/vscode-marketplace': typeof ApiPublicVscodeMarketplaceRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
   '/api/shares/': typeof ApiSharesIndexRoute
   '/api/public/download/$platform': typeof ApiPublicDownloadPlatformRoute
@@ -212,6 +222,7 @@ export interface FileRouteTypes {
     | '/api/public/downloads'
     | '/api/public/github-device'
     | '/api/public/stt'
+    | '/api/public/vscode-marketplace'
     | '/ecosystem/item/$id'
     | '/api/shares/'
     | '/api/public/download/$platform'
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | '/api/public/downloads'
     | '/api/public/github-device'
     | '/api/public/stt'
+    | '/api/public/vscode-marketplace'
     | '/ecosystem/item/$id'
     | '/api/shares'
     | '/api/public/download/$platform'
@@ -256,6 +268,7 @@ export interface FileRouteTypes {
     | '/api/public/downloads'
     | '/api/public/github-device'
     | '/api/public/stt'
+    | '/api/public/vscode-marketplace'
     | '/ecosystem/item/$id'
     | '/api/shares/'
     | '/api/public/download/$platform'
@@ -279,6 +292,7 @@ export interface RootRouteChildren {
   ApiPublicDownloadsRoute: typeof ApiPublicDownloadsRoute
   ApiPublicGithubDeviceRoute: typeof ApiPublicGithubDeviceRoute
   ApiPublicSttRoute: typeof ApiPublicSttRoute
+  ApiPublicVscodeMarketplaceRoute: typeof ApiPublicVscodeMarketplaceRoute
   EcosystemItemIdRoute: typeof EcosystemItemIdRoute
   ApiSharesIndexRoute: typeof ApiSharesIndexRoute
   ApiPublicDownloadPlatformRoute: typeof ApiPublicDownloadPlatformRoute
@@ -333,6 +347,13 @@ declare module '@tanstack/react-router' {
       path: '/ecosystem/item/$id'
       fullPath: '/ecosystem/item/$id'
       preLoaderRoute: typeof EcosystemItemIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/vscode-marketplace': {
+      id: '/api/public/vscode-marketplace'
+      path: '/api/public/vscode-marketplace'
+      fullPath: '/api/public/vscode-marketplace'
+      preLoaderRoute: typeof ApiPublicVscodeMarketplaceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/stt': {
@@ -447,6 +468,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicDownloadsRoute: ApiPublicDownloadsRoute,
   ApiPublicGithubDeviceRoute: ApiPublicGithubDeviceRoute,
   ApiPublicSttRoute: ApiPublicSttRoute,
+  ApiPublicVscodeMarketplaceRoute: ApiPublicVscodeMarketplaceRoute,
   EcosystemItemIdRoute: EcosystemItemIdRoute,
   ApiSharesIndexRoute: ApiSharesIndexRoute,
   ApiPublicDownloadPlatformRoute: ApiPublicDownloadPlatformRoute,
