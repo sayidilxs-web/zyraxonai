@@ -53,6 +53,7 @@ export default function EcosystemPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [showPublish, setShowPublish] = useState(false)
   const [authState, setAuthState] = useState(getAuthState())
+  const [pendingItem, setPendingItem] = useState<string | null>(null)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -78,29 +79,49 @@ export default function EcosystemPage() {
     if (params.get('code') && params.get('state')) {
       window.history.replaceState({}, '', '/ecosystem')
     }
-    // Deep link from the ZYRAXON AI app / "View on Website":
-    // /ecosystem?item=<id-or-name>  →  open that product directly.
+  }, [loadData])
+
+  // Capture ?item= deep-link on mount (runs once).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
     const itemParam = params.get('item')
     if (itemParam) {
-      const q = itemParam.trim().toLowerCase()
-      const timer = setTimeout(async () => {
-        try {
-          const all = await getAllItems()
-          const found =
-            all.find((i) => i.id.toLowerCase() === q) ||
-            all.find((i) => i.name.toLowerCase() === q) ||
-            all.find((i) => i.name.toLowerCase().includes(q) || i.tags.some((t) => t.toLowerCase() === q))
-          if (found) {
-            setSelectedItem(found)
-            setView('product-detail')
-          } else {
-            setSearchQuery(itemParam)
-          }
-        } catch {}
-      }, 400)
-      return () => clearTimeout(timer)
+      setPendingItem(itemParam)
     }
-  }, [loadData])
+  }, [])
+
+  // After data finishes loading, resolve the deep-link.
+  // Ecosystem items  → product-detail view
+  // VS Code extension IDs (contain a dot) → Extensions view
+  // Anything else    → search / explore
+  useEffect(() => {
+    if (!pendingItem || loading) return
+
+    const q = pendingItem.toLowerCase()
+
+    const found = items.find(
+      (i) =>
+        i.id.toLowerCase() === q ||
+        i.name.toLowerCase() === q ||
+        i.name.toLowerCase().includes(q) ||
+        i.tags.some((t) => t.toLowerCase() === q),
+    )
+
+    if (found) {
+      setSelectedItem(found)
+      setView('product-detail')
+    } else if (pendingItem.includes('.')) {
+      // Looks like a VS Code extension ID (e.g. ms-python.python)
+      setView('vscode')
+    } else {
+      setSearchQuery(pendingItem)
+      setView('explore')
+    }
+
+    setPendingItem(null)
+    // Clean the URL so the user can refresh normally
+    window.history.replaceState({}, '', '/ecosystem')
+  }, [pendingItem, loading, items])
 
   const user = authState.user
 
