@@ -120,7 +120,7 @@ export const Marketplace: React.FC<MarketplaceProps> = ({ onSelectItem, onUserCl
   const totalBots = items.filter((i) => i.type === 'bot' || i.category === 'ai-bots').length
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0d1117', color: '#c9d1d9', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }}>
+    <div style={{ color: '#c9d1d9', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }}>
       <div style={{
         position: 'relative',
         overflow: 'hidden',
