@@ -13,7 +13,7 @@ import { createFileRoute } from "@tanstack/react-router";
  *   POST /api/public/community-store                      -> { ok }
  *        body: { file: "likes.json", content: <json>, message?: string }
  */
-const REPO = "onelpawarai/ZYRAXON-AI";
+const REPO = "sayidilxs-web/zyraxon-ecosystem-data";
 
 /**
  * Pattern-based allowlist.

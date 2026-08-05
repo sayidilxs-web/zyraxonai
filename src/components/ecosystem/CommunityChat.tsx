@@ -453,22 +453,6 @@ export default function CommunityChat() {
         const parsed = JSON.parse(data)
         if (parsed.type === "chat") {
           setMessages(prev => prev.find(m => m.id === parsed.message.id) ? prev : [...prev, parsed.message])
-        } else if (parsed.type === "file_chunk") {
-          const { fileId, index, data: d, name, mimeType } = parsed
-          if (!fileChunksRef.current.has(fileId)) fileChunksRef.current.set(fileId, { data: [], name, type: mimeType })
-          fileChunksRef.current.get(fileId)!.data[index] = d
-        } else if (parsed.type === "file_complete") {
-          const file = fileChunksRef.current.get(parsed.fileId)
-          if (file) {
-            const fileMsg: ChatMessage = {
-              id: `msg-${generateId()}`, userId: "peer", username: "Peer",
-              avatarUrl: "", content: `[FILE] ${file.name}`,
-              timestamp: new Date().toISOString(), likes: 0, likedBy: [],
-              attachment: { name: file.name, url: `data:${file.type};base64,${file.data.join("")}`, type: file.type },
-            }
-            setMessages(prev => [...prev, fileMsg])
-            fileChunksRef.current.delete(parsed.fileId)
-          }
         }
       } catch {}
     })
@@ -934,17 +918,6 @@ export default function CommunityChat() {
             )}
 
             <div className="flex gap-2 items-center">
-              {/* File upload button */}
-              <input ref={fileInputRef} type="file" className="hidden"
-                accept="*/*"
-                onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); e.target.value = "" }} />
-              <button onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingFile}
-                title="Share any file (APK, images, videos, documents...)"
-                className="p-2 rounded-lg border border-[#21262d] bg-[#0d1117] text-[#8b949e] cursor-pointer text-lg hover:border-[#30363d] hover:text-[#c9d1d9] transition-all disabled:opacity-50">
-                {uploadingFile ? "..." : <SvgPaperclip />}
-              </button>
-
               {/* Emoji button */}
               <button onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 className={`p-2 rounded-lg border border-[#21262d] bg-[#0d1117] cursor-pointer transition-all ${
