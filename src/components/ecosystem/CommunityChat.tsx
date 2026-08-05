@@ -13,14 +13,42 @@ const ROOM_PREFIX = "zyraxon-room"
 const MESSAGES_POLL_INTERVAL = 8000
 const STORE = "/api/public/community-store"
 
+/* ─── SVG Icons ─── */
+const SvgHash = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+const SvgRobot = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="16" r="1"/><path d="M12 11V7"/><path d="M9 7h6"/><line x1="12" y1="4" x2="12" y2="7"/></svg>
+const SvgPuzzle = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 01-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 10-3.214 3.214c.446.166.855.497.925.968a.979.979 0 01-.276.837l-1.61 1.611a2.404 2.404 0 01-1.705.707 2.402 2.402 0 01-1.704-.706l-1.568-1.568a1.026 1.026 0 00-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 11-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 00-.289-.877l-1.568-1.568A2.402 2.402 0 011.998 12c0-.617.236-1.234.706-1.704L4.315 8.685a.98.98 0 01.837-.276c.47.07.802.48.968.925a2.501 2.501 0 103.214-3.214c-.446-.166-.855-.497-.925-.968a.979.979 0 01.276-.837l1.61-1.611A2.404 2.404 0 0112 2c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 113.237 3.237c-.464.18-.894.527-.967 1.02z"/></svg>
+const SvgCart = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+const SvgMegaphone = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 11l18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 11-5.8-1.6"/></svg>
+const SvgGlobe = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+const SvgVideo = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+const SvgHeadphones = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+const SvgMic = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="1" width="6" height="11" rx="3"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+const SvgScreen = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+const SvgPaperclip = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+const SvgSend = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+const SvgSmile = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+const SvgX = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+const SvgMute = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 005.12 2.12M15 9.34V4a3 3 0 00-5.94-.6"/><path d="M17 16.95A7 7 0 015 12v-2m14 0v2c0 .55-.06 1.08-.17 1.58"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+const SvgHeart = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+const SvgPlus = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+const SvgVolume = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+
+const CHANNEL_ICON_MAP: Record<string, () => JSX.Element> = {
+  "general": SvgHash,
+  "ai-devs": SvgRobot,
+  "plugin-creators": SvgPuzzle,
+  "marketplace-support": SvgCart,
+  "announcements": SvgMegaphone,
+}
+
 /* ─── Channel definitions ─── */
-interface ChannelDef { id: string; name: string; icon: string; description: string }
+interface ChannelDef { id: string; name: string; description: string }
 const CHANNELS: ChannelDef[] = [
-  { id: "general", name: "General Chat", icon: "💬", description: "General discussion for all community members" },
-  { id: "ai-devs", name: "AI Developers", icon: "🤖", description: "AI development discussions" },
-  { id: "plugin-creators", name: "Plugin Creators", icon: "🧩", description: "Plugin creation and sharing" },
-  { id: "marketplace-support", name: "Marketplace Support", icon: "🛒", description: "Get help with marketplace issues" },
-  { id: "announcements", name: "Announcements", icon: "📢", description: "Official announcements — admin only" },
+  { id: "general", name: "General Chat", description: "General discussion for all community members" },
+  { id: "ai-devs", name: "AI Developers", description: "AI development discussions" },
+  { id: "plugin-creators", name: "Plugin Creators", description: "Plugin creation and sharing" },
+  { id: "marketplace-support", name: "Marketplace Support", description: "Get help with marketplace issues" },
+  { id: "announcements", name: "Announcements", description: "Official announcements" },
 ]
 
 /* ─── Online user type ─── */
@@ -50,20 +78,20 @@ function extractLinks(text: string): string[] {
   return matches ? [...new Set(matches)] : []
 }
 
-/** File type icon map */
+/* ─── File type icon map ─── */
 function getFileIcon(name: string): string {
   const ext = name.split(".").pop()?.toLowerCase() || ""
-  if (["jpg","jpeg","png","gif","webp","svg","bmp","ico"].includes(ext)) return "🖼️"
-  if (["mp4","webm","mov","avi","mkv"].includes(ext)) return "🎬"
-  if (["mp3","wav","ogg","flac","aac","m4a"].includes(ext)) return "🎵"
-  if (["apk"].includes(ext)) return "📱"
-  if (["zip","rar","7z","tar","gz","bz2"].includes(ext)) return "📦"
-  if (["pdf"].includes(ext)) return "📄"
-  if (["doc","docx"].includes(ext)) return "📝"
-  if (["xls","xlsx","csv"].includes(ext)) return "📊"
-  if (["js","ts","tsx","jsx","py","java","cpp","go","rs","rb","php"].includes(ext)) return "💻"
-  if (["json","yaml","yml","toml","xml"].includes(ext)) return "⚙️"
-  return "📎"
+  if (["jpg","jpeg","png","gif","webp","svg","bmp","ico"].includes(ext)) return "IMG"
+  if (["mp4","webm","mov","avi","mkv"].includes(ext)) return "VID"
+  if (["mp3","wav","ogg","flac","aac","m4a"].includes(ext)) return "AUD"
+  if (["apk"].includes(ext)) return "APK"
+  if (["zip","rar","7z","tar","gz","bz2"].includes(ext)) return "ZIP"
+  if (["pdf"].includes(ext)) return "PDF"
+  if (["doc","docx"].includes(ext)) return "DOC"
+  if (["xls","xlsx","csv"].includes(ext)) return "XLS"
+  if (["js","ts","tsx","jsx","py","java","cpp","go","rs","rb","php"].includes(ext)) return "SRC"
+  if (["json","yaml","yml","toml","xml"].includes(ext)) return "CFG"
+  return "FILE"
 }
 
 /** Storage helpers (server-side GitHub) */
@@ -199,6 +227,7 @@ export default function CommunityChat() {
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([])
   const [uploadingFile, setUploadingFile] = useState(false)
   const [callError, setCallError] = useState("")
+  const [showOnlinePanel, setShowOnlinePanel] = useState(true)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const localVideoRef = useRef<HTMLVideoElement>(null)
@@ -213,18 +242,37 @@ export default function CommunityChat() {
   const roomIdRef = useRef<string>("")
   const rtRef = useRef<CommunityRealtime | null>(null)
   const authRef = useRef(getAuthState())
+  /** Messages added locally that may not be on GitHub yet — prevents poll from dropping them */
+  const pendingLocalMsgsRef = useRef<Map<string, ChatMessage>>(new Map())
 
   const currentChannel = CHANNELS.find(c => c.id === activeChannel) || CHANNELS[0]
   const auth = authRef.current
 
   /* ─── Load messages for active channel ─── */
+  const lastChannelRef = useRef(activeChannel)
   const loadMessages = useCallback(async () => {
     try {
       const decoded = await storeRead<ChatMessage[]>(`chat_${activeChannel}.json`, [])
-      if (Array.isArray(decoded) && decoded.length > 0) {
-        setMessages(decoded.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).slice(-300))
+      const serverMsgs = (Array.isArray(decoded) && decoded.length > 0)
+        ? decoded.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).slice(-300)
+        : []
+      // If channel changed, replace entirely. Otherwise merge: keep local + add new server
+      if (lastChannelRef.current !== activeChannel) {
+        lastChannelRef.current = activeChannel
+        pendingLocalMsgsRef.current.clear()
+        setMessages(serverMsgs)
       } else {
-        setMessages([])
+        setMessages(prev => {
+          const serverIds = new Set(serverMsgs.map(m => m.id))
+          // Messages in local state but NOT on server yet (pending writes)
+          const pendingOnly = prev.filter(m => !serverIds.has(m.id))
+          // Merge: pending local + all server, deduplicated
+          const merged = new Map<string, ChatMessage>()
+          for (const m of [...pendingOnly, ...serverMsgs]) merged.set(m.id, m)
+          return Array.from(merged.values()).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+        })
+        // Clean pending ref for messages now on server
+        for (const m of serverMsgs) pendingLocalMsgsRef.current.delete(m.id)
       }
     } catch {}
   }, [activeChannel])
@@ -293,6 +341,7 @@ export default function CommunityChat() {
       timestamp: new Date().toISOString(), likes: 0, likedBy: [],
     }
     setMessages(prev => [...prev, msg])
+    pendingLocalMsgsRef.current.set(msg.id, msg)
     setInput("")
     setShowEmojiPicker(false)
     rtRef.current?.sendChat(msg)
@@ -340,6 +389,7 @@ export default function CommunityChat() {
         attachment: { name: file.name, url: attachmentUrl, type: file.type || "application/octet-stream" },
       }
       setMessages(prev => [...prev, fileMsg])
+      pendingLocalMsgsRef.current.set(fileMsg.id, fileMsg)
       try {
         const existing = await storeRead<ChatMessage[]>(`chat_${activeChannel}.json`, [])
         const all = [...(Array.isArray(existing) ? existing : []), fileMsg].slice(-300)
@@ -395,7 +445,7 @@ export default function CommunityChat() {
           if (file) {
             const fileMsg: ChatMessage = {
               id: `msg-${generateId()}`, userId: "peer", username: "Peer",
-              avatarUrl: "", content: `📎 ${file.name}`,
+              avatarUrl: "", content: `[FILE] ${file.name}`,
               timestamp: new Date().toISOString(), likes: 0, likedBy: [],
               attachment: { name: file.name, url: `data:${file.type};base64,${file.data.join("")}`, type: file.type },
             }
@@ -565,10 +615,10 @@ export default function CommunityChat() {
         {/* Community header */}
         <div className="px-3.5 py-3.5 border-b border-[#21262d]" style={{ background: "linear-gradient(135deg, rgba(31,111,235,0.1), rgba(137,87,229,0.08))" }}>
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-[#1f6feb] to-[#8957e5] flex items-center justify-center text-base">🌐</div>
+            <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-[#1f6feb] to-[#8957e5] flex items-center justify-center text-white"><SvgGlobe /></div>
             <div>
               <div className="font-bold text-sm text-[#e6edf3]">ZYRAXON Community</div>
-              <div className="text-[11px] text-[#8b949e]">128 members · {onlineUsers.filter(u => u.status === "online").length || 45} online</div>
+              <div className="text-[11px] text-[#8b949e]">{onlineUsers.length || (auth.user ? 1 : 0)} online</div>
             </div>
           </div>
         </div>
@@ -585,7 +635,7 @@ export default function CommunityChat() {
                   ? "bg-[rgba(88,166,255,0.12)] text-[#58a6ff]"
                   : "bg-transparent text-[#8b949e] hover:bg-[rgba(88,166,255,0.06)]"
               }`}>
-              <span className="text-[15px]">{ch.icon}</span>
+              <span className="text-[15px] flex-shrink-0">{(() => { const Icon = CHANNEL_ICON_MAP[ch.id]; return Icon ? <Icon /> : <SvgHash />; })()}</span>
               <span>{ch.name}</span>
             </button>
           ))}
@@ -594,7 +644,7 @@ export default function CommunityChat() {
           <div className="px-3.5 pt-4 pb-1 text-[11px] font-bold text-[#8b949e] uppercase tracking-wider">Voice Channels</div>
           <div className="px-3.5 py-2">
             <div className="rounded-lg border border-[#21262d] bg-[#0d1117] p-2.5">
-              <div className="text-[12px] text-[#8b949e] mb-2 font-medium">🔊 General Voice</div>
+              <div className="text-[12px] text-[#8b949e] mb-2 font-medium flex items-center gap-1.5"><SvgVolume /> General Voice</div>
               {callMode && (
                 <div className="flex items-center gap-2 py-1">
                   <div className="w-7 h-7 rounded-full bg-[#21262d] flex items-center justify-center text-[11px]">
@@ -602,7 +652,7 @@ export default function CommunityChat() {
                   </div>
                   <span className="text-[12px] text-[#c9d1d9]">{auth.user?.username || "You"}</span>
                   <div className="ml-auto flex gap-1">
-                    {isMuted && <span className="text-[10px] text-[#f85149]">🔇</span>}
+                    {isMuted && <span className="text-[#f85149]"><SvgMute /></span>}
                   </div>
                 </div>
               )}
@@ -618,7 +668,7 @@ export default function CommunityChat() {
           {/* Direct Messages */}
           <div className="px-3.5 pt-3 pb-1 text-[11px] font-bold text-[#8b949e] uppercase tracking-wider flex items-center justify-between">
             <span>Direct Messages</span>
-            <span className="text-[14px] cursor-pointer hover:text-[#c9d1d9]">+</span>
+            <span className="cursor-pointer hover:text-[#c9d1d9]"><SvgPlus /></span>
           </div>
           {onlineUsers.slice(0, 8).map(user => (
             <div key={user.id}
@@ -645,7 +695,7 @@ export default function CommunityChat() {
               className={`flex flex-col items-center gap-0.5 py-2 rounded-lg border-none cursor-pointer text-[18px] transition-all ${
                 callMode === "video" ? "bg-[#3fb950] text-white" : "bg-[#21262d] text-[#8b949e] hover:bg-[#30363d] hover:text-[#c9d1d9]"
               }`}>
-              <span>📹</span>
+              <SvgVideo />
               <span className="text-[9px] font-medium">Video</span>
             </button>
             <button onClick={() => callMode === "audio" ? leaveCall() : startCall("audio")}
@@ -653,7 +703,7 @@ export default function CommunityChat() {
               className={`flex flex-col items-center gap-0.5 py-2 rounded-lg border-none cursor-pointer text-[18px] transition-all ${
                 callMode === "audio" ? "bg-[#3fb950] text-white" : "bg-[#21262d] text-[#8b949e] hover:bg-[#30363d] hover:text-[#c9d1d9]"
               }`}>
-              <span>🎧</span>
+              <SvgHeadphones />
               <span className="text-[9px] font-medium">Audio</span>
             </button>
             <button onClick={() => callMode === "voice" ? leaveCall() : startCall("voice")}
@@ -661,7 +711,7 @@ export default function CommunityChat() {
               className={`flex flex-col items-center gap-0.5 py-2 rounded-lg border-none cursor-pointer text-[18px] transition-all ${
                 callMode === "voice" ? "bg-[#f85149] text-white" : "bg-[#21262d] text-[#8b949e] hover:bg-[#30363d] hover:text-[#c9d1d9]"
               }`}>
-              <span>🎤</span>
+              <SvgMic />
               <span className="text-[9px] font-medium">Voice</span>
             </button>
             <button onClick={() => callMode === "screen" ? leaveCall() : startCall("screen")}
@@ -669,7 +719,7 @@ export default function CommunityChat() {
               className={`flex flex-col items-center gap-0.5 py-2 rounded-lg border-none cursor-pointer text-[18px] transition-all ${
                 callMode === "screen" ? "bg-[#8957e5] text-white" : "bg-[#21262d] text-[#8b949e] hover:bg-[#30363d] hover:text-[#c9d1d9]"
               }`}>
-              <span>🖥️</span>
+              <SvgScreen />
               <span className="text-[9px] font-medium">Screen</span>
             </button>
           </div>
@@ -679,14 +729,14 @@ export default function CommunityChat() {
                 className={`flex-1 py-1.5 rounded-lg border-none cursor-pointer text-[12px] font-medium transition-all ${
                   isMuted ? "bg-[#f85149] text-white" : "bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]"
                 }`}>
-                {isMuted ? "🔇 Unmute" : "🎙️ Mute"}
+                {isMuted ? "Unmute" : "Mute"}
               </button>
               {(callMode === "video" || callMode === "audio") && (
                 <button onClick={toggleVideo}
                   className={`flex-1 py-1.5 rounded-lg border-none cursor-pointer text-[12px] font-medium transition-all ${
                     isVideoOff ? "bg-[#f85149] text-white" : "bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]"
                   }`}>
-                  {isVideoOff ? "📷 Cam On" : "📹 Cam Off"}
+                  {isVideoOff ? "Cam On" : "Cam Off"}
                 </button>
               )}
               <button onClick={leaveCall}
@@ -696,7 +746,7 @@ export default function CommunityChat() {
             </div>
           )}
           <div className="mt-2 text-center text-[11px] text-[#484f58]">
-            {callMode ? `🔴 ${callMode.toUpperCase()} · ${peers.length + 1}/${MAX_PEERS_PER_ROOM}` : "No active call"}
+            {callMode ? `${callMode.toUpperCase()} · ${peers.length + 1}/${MAX_PEERS_PER_ROOM}` : "No active call"}
           </div>
         </div>
       </div>
@@ -706,7 +756,7 @@ export default function CommunityChat() {
 
         {/* ─── Top bar ─── */}
         <div className="px-4 py-2.5 bg-[#161b22] border-b border-[#21262d] flex items-center gap-3">
-          <span className="text-lg">{currentChannel.icon}</span>
+          <span className="text-lg flex-shrink-0">{(() => { const Icon = CHANNEL_ICON_MAP[activeChannel]; return Icon ? <Icon /> : <SvgHash />; })()}</span>
           <div className="flex-1 min-w-0">
             <div className="font-bold text-[14px] text-[#e6edf3]"># {currentChannel.name}</div>
             <div className="text-[11px] text-[#8b949e]">{currentChannel.description}</div>
@@ -719,11 +769,23 @@ export default function CommunityChat() {
                 callMode === "voice" ? "bg-[#f85149] text-white" :
                 "bg-[#8957e5] text-white"
               }`}>
-                {callMode === "video" ? "📹" : callMode === "audio" ? "🎧" : callMode === "voice" ? "🎤" : "🖥️"}
+                {callMode === "video" ? "Video" : callMode === "audio" ? "Audio" : callMode === "voice" ? "Voice" : "Screen"}
                 {" "}{callMode} · {peers.length + 1} connected
               </span>
             </div>
           )}
+          {/* Three-dot toggle for online panel */}
+          <button
+            onClick={() => setShowOnlinePanel(v => !v)}
+            className="ml-2 p-1.5 rounded-lg bg-transparent border border-[#21262d] text-[#8b949e] cursor-pointer hover:bg-[#21262d] hover:text-[#c9d1d9] transition-colors"
+            title={showOnlinePanel ? "Hide online members" : "Show online members"}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <circle cx="8" cy="3" r="1.5"/>
+              <circle cx="8" cy="8" r="1.5"/>
+              <circle cx="8" cy="13" r="1.5"/>
+            </svg>
+          </button>
         </div>
 
         {/* ─── Call error ─── */}
@@ -738,7 +800,7 @@ export default function CommunityChat() {
               {callMode === "screen" && screenStream.current && (
                 <div className="relative min-w-[280px] h-[160px] rounded-xl overflow-hidden bg-black border-2 border-[#8957e5]">
                   <video ref={screenVideoRef} autoPlay playsInline muted className="w-full h-full object-contain" />
-                  <span className="absolute bottom-1.5 left-2 bg-black/70 backdrop-blur px-2 py-0.5 rounded-md text-[11px] text-[#c9d1d9]">🖥️ Screen Share</span>
+                  <span className="absolute bottom-1.5 left-2 bg-black/70 backdrop-blur px-2 py-0.5 rounded-md text-[11px] text-[#c9d1d9] flex items-center gap-1"><SvgScreen /> Screen Share</span>
                 </div>
               )}
               {callMode === "video" && (
@@ -768,7 +830,7 @@ export default function CommunityChat() {
         {!auth.isAuthenticated && (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center px-6">
-              <div className="text-5xl mb-4">🔒</div>
+              <div className="w-12 h-12 rounded-full bg-[#21262d] flex items-center justify-center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b949e" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
               <p className="text-[#8b949e] text-sm mb-2">Sign in to join the community chat</p>
               <p className="text-[#484f58] text-xs">Connect your GitHub account to start chatting</p>
             </div>
@@ -780,7 +842,7 @@ export default function CommunityChat() {
           <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-0.5">
             {messages.length === 0 && (
               <div className="flex-1 flex flex-col items-center justify-center text-center">
-                <div className="text-5xl mb-3">{currentChannel.icon}</div>
+                <div className="mb-3 text-[#1f6feb]">{(() => { const Icon = CHANNEL_ICON_MAP[activeChannel]; return Icon ? <Icon /> : <SvgHash />; })()}</div>
                 <div className="text-lg font-bold text-[#e6edf3] mb-1">Welcome to #{currentChannel.name}!</div>
                 <div className="text-[13px] text-[#8b949e]">This is the start of the conversation.</div>
               </div>
@@ -815,11 +877,19 @@ export default function CommunityChat() {
                     }`}>
                       <MessageContent content={msg.content} attachment={msg.attachment} />
                     </div>
-                    {msg.likes > 0 && (
-                      <div className={`text-[10px] text-[#484f58] mt-0.5 ${own ? "text-right" : "text-left"}`}>
-                        ❤️ {msg.likes}
-                      </div>
-                    )}
+                    {/* Like button */}
+                    <div className={`flex items-center gap-1 mt-0.5 ${own ? "justify-end" : "justify-start"}`}>
+                      <button
+                        onClick={() => {
+                          setMessages(prev => prev.map(m =>
+                            m.id === msg.id ? { ...m, likes: m.likes + 1, likedBy: [...(m.likedBy || []), auth.user?.id || "anon"] } : m
+                          ))
+                        }}
+                        className="bg-transparent border-none text-[#484f58] cursor-pointer flex items-center gap-0.5 hover:text-[#f85149] transition-colors text-[11px] py-0 px-1"
+                      >
+                        <SvgHeart /> {msg.likes > 0 ? msg.likes : ""}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )
@@ -855,15 +925,15 @@ export default function CommunityChat() {
                 disabled={uploadingFile}
                 title="Share any file (APK, images, videos, documents...)"
                 className="p-2 rounded-lg border border-[#21262d] bg-[#0d1117] text-[#8b949e] cursor-pointer text-lg hover:border-[#30363d] hover:text-[#c9d1d9] transition-all disabled:opacity-50">
-                {uploadingFile ? "⏳" : "📎"}
+                {uploadingFile ? "..." : <SvgPaperclip />}
               </button>
 
               {/* Emoji button */}
               <button onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className={`p-2 rounded-lg border border-[#21262d] bg-[#0d1117] cursor-pointer text-lg transition-all ${
+                className={`p-2 rounded-lg border border-[#21262d] bg-[#0d1117] cursor-pointer transition-all ${
                   showEmojiPicker ? "text-[#58a6ff] border-[#58a6ff]" : "text-[#8b949e] hover:text-[#c9d1d9] hover:border-[#30363d]"
                 }`}>
-                😊
+                <SvgSmile />
               </button>
 
               {/* Text input */}
@@ -881,7 +951,7 @@ export default function CommunityChat() {
                     ? "bg-gradient-to-br from-[#238636] to-[#2ea043] text-white hover:from-[#2ea043] hover:to-[#3fb950]"
                     : "bg-[#21262d] text-[#484f58] cursor-not-allowed"
                 }`}>
-                {sending ? "..." : "➤"}
+                {sending ? "..." : <SvgSend />}
               </button>
             </div>
           </div>
@@ -889,9 +959,11 @@ export default function CommunityChat() {
       </div>
 
       {/* ═══ RIGHT SIDEBAR (Online Members) ═══ */}
+      {showOnlinePanel && (
       <div className="w-[220px] bg-[#161b22] border-l border-[#21262d] flex-col overflow-hidden max-lg:hidden flex">
-        <div className="px-3.5 py-3 border-b border-[#21262d] text-[12px] font-bold text-[#8b949e] uppercase">
-          Online — {onlineUsers.filter(u => u.status === "online").length || 1}
+        <div className="px-3.5 py-3 border-b border-[#21262d] text-[12px] font-bold text-[#8b949e] uppercase flex items-center justify-between">
+          <span>অনলাইন — {onlineUsers.filter(u => u.id !== auth.user?.id).length + (auth.user ? 1 : 0)}</span>
+          <button onClick={() => setShowOnlinePanel(false)} className="bg-transparent border-none text-[#8b949e] cursor-pointer text-lg hover:text-[#c9d1d9] px-1 leading-none" title="Hide panel">✕</button>
         </div>
         <div className="flex-1 overflow-y-auto py-1.5">
           {/* Current user */}
@@ -931,6 +1003,7 @@ export default function CommunityChat() {
           )}
         </div>
       </div>
+      )}
     </div>
   )
 }
