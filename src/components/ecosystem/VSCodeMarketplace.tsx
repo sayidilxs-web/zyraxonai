@@ -137,7 +137,7 @@ function renderMarkdown(md: string, baseRepo: string | null): string {
   out = out.replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, '<ul>$1</ul>');
   out = out
     .split(/\n{2,}/)
-    .map((p) => (/^\s*<(h\d|ul|pre|hr|img|table|blockquote)/.test(p.trim()) || p.includes('\u0000BLOCK') ? p : `<p>${p.replace(/\n/g, '<br/>')}</p>`))
+    .map((p) => (/^\s*<(h\d|ul|ol|pre|hr|img|table|blockquote|p|div|center|details|a\b|span)/i.test(p.trim()) || p.includes('\u0000BLOCK') ? p : `<p>${p.replace(/\n/g, '<br/>')}</p>`))
     .join('\n');
   out = out.replace(/\u0000BLOCK(\d+)\u0000/g, (_m, i: string) => blocks[Number(i)] ?? '');
   return out;
