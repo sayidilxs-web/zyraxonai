@@ -1,10 +1,12 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /**
- * GitHub Releases browser for the ZYRAXON AI ecosystem.
- * Every release across the ZYRAXON GitHub repos is surfaced here,
- * searchable by name/repo/tag, with direct download buttons and
- * one-click "Open in ZYRAXON AI" deep links.
+ * GitHub Releases browser — GLOBAL & DEEP.
+ * Every release from the ENTIRE GitHub world (any app, bot, tool,
+ * extension) is searchable here by category. Clicking a release opens a
+ * rich detail view (like the VS Code extension details page) with the
+ * full release notes, every binary asset, one-click source-code
+ * download (clone), and the ZYRAXON AI deep link.
  */
 
 export interface GitHubAsset {
@@ -24,6 +26,10 @@ export interface GitHubReleaseItem {
   ownerAvatar: string | null;
   stars: number;
   language: string | null;
+  defaultBranch: string | null;
+  cloneUrl: string;
+  sourceZipUrl: string;
+  branchZipUrl: string;
   tagName: string;
   name: string;
   htmlUrl: string;
@@ -43,7 +49,7 @@ interface GitHubReleasesProps {
 
 const API = '/api/public/github-releases';
 const ZYRAXON_SCHEME = 'zyraxon://';
-const SUGGESTIONS = ['zyraxon', 'ai', 'chatgpt', 'browser', 'bot', 'vs-code', 'terminal', 'database', 'editor', 'game'];
+const SUGGESTIONS = ['ai', 'chatgpt', 'vs-code', 'browser', 'bot', 'terminal', 'database', 'editor', 'game', 'python', 'react', 'docker', 'machine-learning', 'api', 'cli', 'web'];
 
 function fmtSize(bytes: number): string {
   if (bytes >= 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
@@ -84,8 +90,32 @@ function launchZyraxon(url: string): void {
   }
 }
 
-const ReleaseCard: React.FC<{ r: GitHubReleaseItem }> = ({ r }) => {
+/** Render release notes (body) as simple markdown-ish text with code blocks. */
+function RenderBody({ body }: { body: string | null }) {
+  if (!body) return <p style={{ color: '#8b949e', fontSize: 13.5, fontStyle: 'italic' }}>No release notes provided.</p>;
+  const blocks = body.split(/\r?\n{2,}/);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 13.5, lineHeight: 1.6, color: '#c9d1d9', whiteSpace: 'pre-wrap' }}>
+      {blocks.map((b, i) => (
+        <p key={i} style={{ margin: 0 }}>{b}</p>
+      ))}
+    </div>
+  );
+}
+
+const StarIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 16 16" fill="#e3b341" style={{ flexShrink: 0 }}><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/></svg>
+);
+const DownloadIcon = ({ size = 13, color = '#58a6ff' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" fill={color} style={{ flexShrink: 0 }}><path d="M8 1a.75.75 0 0 1 .75.75v7.44l2.72-2.72a.75.75 0 0 1 1.06 1.06l-4 4a.75.75 0 0 1-1.06 0l-4-4a.75.75 0 1 1 1.06-1.06l2.72 2.72V1.75A.75.75 0 0 1 8 1zm-4.75 12.5a.75.75 0 0 0 0 1.5h9.5a.75.75 0 0 0 0-1.5h-9.5z"/></svg>
+);
+const GitIcon = ({ size = 13, color = '#8b949e' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" fill={color} style={{ flexShrink: 0 }}><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+);
+
+const ReleaseCard: React.FC<{ r: GitHubReleaseItem; onOpen: (r: GitHubReleaseItem) => void }> = ({ r, onOpen }) => {
   const [copied, setCopied] = useState(false);
+  const [copiedSrc, setCopiedSrc] = useState(false);
 
   const copyCommand = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -95,17 +125,28 @@ const ReleaseCard: React.FC<{ r: GitHubReleaseItem }> = ({ r }) => {
     }).catch(() => {});
   };
 
+  const copyClone = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard?.writeText(`git clone ${r.cloneUrl}`).then(() => {
+      setCopiedSrc(true);
+      setTimeout(() => setCopiedSrc(false), 1500);
+    }).catch(() => {});
+  };
+
   return (
-    <div style={{
-      background: 'linear-gradient(160deg, rgba(22,27,34,0.95), rgba(13,17,23,0.9))',
-      border: '1px solid #21262d',
-      borderRadius: 14,
-      padding: '16px 18px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 12,
-      transition: 'border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease',
-    }}
+    <div
+      onClick={() => onOpen(r)}
+      style={{
+        background: 'linear-gradient(160deg, rgba(22,27,34,0.95), rgba(13,17,23,0.9))',
+        border: '1px solid #21262d',
+        borderRadius: 14,
+        padding: '16px 18px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        cursor: 'pointer',
+        transition: 'border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease',
+      }}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = 'rgba(240,136,62,0.55)';
         e.currentTarget.style.transform = 'translateY(-3px)';
@@ -123,10 +164,9 @@ const ReleaseCard: React.FC<{ r: GitHubReleaseItem }> = ({ r }) => {
             {r.ownerAvatar && (
               <img src={r.ownerAvatar} alt="" style={{ width: 22, height: 22, borderRadius: '50%', border: '1px solid #30363d', flexShrink: 0 }} />
             )}
-            <a href={r.repoUrl} target="_blank" rel="noopener noreferrer"
-              style={{ fontSize: 13, fontWeight: 600, color: '#f0f6fc', textDecoration: 'none' }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#f0f6fc' }}>
               {r.owner ? `${r.owner}/` : ''}<span style={{ color: '#58a6ff' }}>{r.repo}</span>
-            </a>
+            </span>
             <span style={{
               fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
               background: r.prerelease ? 'rgba(240,136,62,0.15)' : 'rgba(63,185,80,0.15)',
@@ -144,12 +184,13 @@ const ReleaseCard: React.FC<{ r: GitHubReleaseItem }> = ({ r }) => {
             </span>
           </div>
         </div>
+        <span style={{ fontSize: 11, color: '#8b949e', whiteSpace: 'nowrap', opacity: 0.75 }}>Details →</span>
       </div>
 
       <div style={{ fontSize: 12, color: '#8b949e', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
         {r.stars > 0 && (
           <>
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="#e3b341" style={{ flexShrink: 0 }}><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25z"/></svg>
+            <StarIcon />
             <span style={{ fontWeight: 600, color: '#c9d1d9' }}>{r.stars >= 1000 ? `${(r.stars / 1000).toFixed(1)}k` : r.stars}</span>
           </>
         )}
@@ -173,44 +214,22 @@ const ReleaseCard: React.FC<{ r: GitHubReleaseItem }> = ({ r }) => {
         }}>{r.repoDescription}</p>
       )}
 
-      {r.assets.length > 0 ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 2 }}>
-          {r.assets.slice(0, 3).map((a) => (
-            <a
-              key={a.name}
-              href={a.downloadUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
-                background: 'rgba(13,17,23,0.8)', border: '1px solid #30363d', borderRadius: 10,
-                textDecoration: 'none', color: '#c9d1d9', fontSize: 12.5, transition: 'border-color 0.15s ease, background 0.15s ease',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#58a6ff'; e.currentTarget.style.background = 'rgba(56,139,253,0.1)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#30363d'; e.currentTarget.style.background = 'rgba(13,17,23,0.8)'; }}
-            >
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="#58a6ff" style={{ flexShrink: 0 }}>
-                <path d="M8 1a.75.75 0 0 1 .75.75v7.44l2.72-2.72a.75.75 0 0 1 1.06 1.06l-4 4a.75.75 0 0 1-1.06 0l-4-4a.75.75 0 1 1 1.06-1.06l2.72 2.72V1.75A.75.75 0 0 1 8 1zm-4.75 12.5a.75.75 0 0 0 0 1.5h9.5a.75.75 0 0 0 0-1.5h-9.5z"/>
-              </svg>
-              <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.name}</span>
-              <span style={{ fontSize: 11, color: '#8b949e', flexShrink: 0 }}>{fmtSize(a.size)}</span>
-            </a>
-          ))}
-          {r.assets.length > 3 && (
-            <span style={{ fontSize: 11, color: '#484f58', textAlign: 'center' }}>
-              +{r.assets.length - 3} more asset{r.assets.length - 3 > 1 ? 's' : ''} on GitHub
+      {r.assets.length > 0 && (
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 11, color: '#3fb950', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+            <DownloadIcon size={12} color="#3fb950" /> {r.assets.length} asset{r.assets.length > 1 ? 's' : ''}
+          </span>
+          {r.assets[0] && (
+            <span style={{ fontSize: 11, color: '#8b949e' }}>
+              {r.assets[0].name} · {fmtSize(r.assets[0].size)}
             </span>
           )}
-        </div>
-      ) : (
-        <div style={{ padding: '8px 0', fontSize: 12, color: '#484f58' }}>
-          No binary assets — source only.
         </div>
       )}
 
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 2 }}>
         <button
-          onClick={() => launchZyraxon(r.zyraxonUrl)}
+          onClick={(e) => { e.stopPropagation(); onOpen(r); }}
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px',
             background: 'linear-gradient(135deg,#8957e5,#6f42c1)', border: 'none', borderRadius: 10,
@@ -221,17 +240,19 @@ const ReleaseCard: React.FC<{ r: GitHubReleaseItem }> = ({ r }) => {
           onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
         >
           <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a.75.75 0 0 1 .75.75v5.5h5.5a.75.75 0 0 1 0 1.5h-5.5v5.5a.75.75 0 0 1-1.5 0v-5.5h-5.5a.75.75 0 0 1 0-1.5h5.5v-5.5A.75.75 0 0 1 8 1z"/></svg>
-          Open in ZYRAXON AI
+          View Details
         </button>
-        <a href={r.websiteUrl} target="_blank" rel="noopener noreferrer"
+        <button
+          onClick={copyClone}
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px',
-            background: 'rgba(22,27,34,0.8)', border: '1px solid #30363d', borderRadius: 10,
-            color: '#c9d1d9', fontSize: 12.5, textDecoration: 'none', fontFamily: 'inherit',
-          }}>
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="#58a6ff"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 2z"/></svg>
-          Website
-        </a>
+            background: 'rgba(46,160,67,0.15)', border: '1px solid rgba(46,160,67,0.45)', borderRadius: 10,
+            color: copiedSrc ? '#3fb950' : '#3fb950', fontSize: 12.5, cursor: 'pointer', fontFamily: 'inherit',
+          }}
+        >
+          <GitIcon size={13} color={copiedSrc ? '#3fb950' : '#3fb950'} />
+          {copiedSrc ? '✓ Clone copied' : 'Clone'}
+        </button>
         <button onClick={copyCommand}
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px',
@@ -241,6 +262,7 @@ const ReleaseCard: React.FC<{ r: GitHubReleaseItem }> = ({ r }) => {
           {copied ? '✓ Copied' : 'Copy cmd'}
         </button>
         <a href={r.htmlUrl} target="_blank" rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px',
             background: 'rgba(22,27,34,0.8)', border: '1px solid #30363d', borderRadius: 10,
@@ -253,6 +275,213 @@ const ReleaseCard: React.FC<{ r: GitHubReleaseItem }> = ({ r }) => {
   );
 };
 
+/* ─────────────── Detail view (like VS Code extension details) ─────────────── */
+
+const ReleaseDetail: React.FC<{ r: GitHubReleaseItem | null; onClose: () => void }> = ({ r, onClose }) => {
+  const [copied, setCopied] = useState(false);
+  const [copiedSrc, setCopiedSrc] = useState(false);
+  const [openInApp, setOpenInApp] = useState(false);
+
+  useEffect(() => {
+    if (!r) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [r, onClose]);
+
+  if (!r) return null;
+
+  const copyInstall = () => {
+    navigator.clipboard?.writeText(`Start-Process "zyraxon://install/release/${r.repoFullName}/${r.tagName}"`).then(() => {
+      setCopied(true); setTimeout(() => setCopied(false), 1500);
+    }).catch(() => {});
+  };
+  const copyClone = () => {
+    navigator.clipboard?.writeText(`git clone ${r.cloneUrl}`).then(() => {
+      setCopiedSrc(true); setTimeout(() => setCopiedSrc(false), 1500);
+    }).catch(() => {});
+  };
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(1,4,9,0.82)', backdropFilter: 'blur(6px)',
+      display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflowY: 'auto', padding: '32px 16px',
+    }} onClick={onClose}>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%', maxWidth: 860, background: 'linear-gradient(170deg,#161b22,#0d1117)', border: '1px solid #30363d',
+          borderRadius: 18, boxShadow: '0 30px 80px rgba(0,0,0,0.6)', overflow: 'hidden', position: 'relative',
+        }}
+      >
+        {/* Header */}
+        <div style={{
+          padding: '24px 28px', borderBottom: '1px solid #21262d',
+          background: 'radial-gradient(circle at 20% 0%, rgba(137,87,229,0.18), transparent 55%)',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                {r.ownerAvatar && <img src={r.ownerAvatar} alt="" style={{ width: 32, height: 32, borderRadius: '50%', border: '1px solid #30363d' }} />}
+                <a href={r.repoUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: 15, fontWeight: 700, color: '#f0f6fc', textDecoration: 'none' }}>
+                  {r.owner ? `${r.owner}/` : ''}<span style={{ color: '#58a6ff' }}>{r.repo}</span>
+                </a>
+                <span style={{
+                  fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20,
+                  background: r.prerelease ? 'rgba(240,136,62,0.15)' : 'rgba(63,185,80,0.15)',
+                  border: `1px solid ${r.prerelease ? 'rgba(240,136,62,0.4)' : 'rgba(63,185,80,0.4)'}`,
+                  color: r.prerelease ? '#f0883e' : '#3fb950', textTransform: 'uppercase', letterSpacing: '0.5px',
+                }}>{r.prerelease ? 'Pre-release' : 'Release'}</span>
+              </div>
+              <h2 style={{ margin: '12px 0 4px', fontSize: 24, fontWeight: 800, color: '#f0f6fc', lineHeight: 1.2 }}>
+                {r.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', color: '#8b949e', fontSize: 12.5 }}>
+                <span style={{ fontFamily: 'ui-monospace, monospace', color: '#e3b341' }}>{r.tagName}</span>
+                <span>·</span>
+                <span title={fmtDate(r.publishedAt)}>Released {timeAgo(r.publishedAt)}</span>
+                {r.stars > 0 && (<><span>·</span><span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><StarIcon /> {r.stars.toLocaleString()}</span></>)}
+                {r.language && (<><span>·</span><span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><span style={{ width: 9, height: 9, borderRadius: '50%', background: '#8957e5', display: 'inline-block' }} />{r.language}</span></>)}
+              </div>
+            </div>
+            <button onClick={onClose} style={{
+              background: 'rgba(22,27,34,0.9)', border: '1px solid #30363d', borderRadius: 10, color: '#8b949e',
+              width: 34, height: 34, cursor: 'pointer', fontSize: 16, lineHeight: 1, flexShrink: 0,
+            }} onMouseEnter={(e) => (e.currentTarget.style.color = '#f0f6fc')} onMouseLeave={(e) => (e.currentTarget.style.color = '#8b949e')}>
+              ✕
+            </button>
+          </div>
+          {r.repoDescription && <p style={{ margin: '12px 0 0', color: '#8b949e', fontSize: 13.5, lineHeight: 1.5 }}>{r.repoDescription}</p>}
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {/* Action buttons */}
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <button
+              onClick={() => { setOpenInApp(true); launchZyraxon(r.zyraxonUrl); }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', border: 'none', borderRadius: 11,
+                background: 'linear-gradient(135deg,#8957e5,#6f42c1)', color: '#fff', fontSize: 13.5, fontWeight: 700,
+                cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 6px 20px rgba(137,87,229,0.4)',
+              }}>
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a.75.75 0 0 1 .75.75v5.5h5.5a.75.75 0 0 1 0 1.5h-5.5v5.5a.75.75 0 0 1-1.5 0v-5.5h-5.5a.75.75 0 0 1 0-1.5h5.5v-5.5A.75.75 0 0 1 8 1z"/></svg>
+              {openInApp ? 'Opening ZYRAXON AI…' : 'Open in ZYRAXON AI'}
+            </button>
+            {r.downloadUrl && (
+              <a href={r.downloadUrl} target="_blank" rel="noopener noreferrer" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', border: 'none', borderRadius: 11,
+                background: 'linear-gradient(135deg,#238636,#1f7a37)', color: '#fff', fontSize: 13.5, fontWeight: 700,
+                textDecoration: 'none', fontFamily: 'inherit', boxShadow: '0 6px 20px rgba(35,134,54,0.35)',
+              }}>
+                <DownloadIcon size={15} color="#fff" /> Download
+              </a>
+            )}
+            <button onClick={copyInstall} style={{
+              display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 14px', borderRadius: 11,
+              background: 'rgba(22,27,34,0.9)', border: '1px solid #30363d', color: copied ? '#3fb950' : '#8b949e',
+              fontSize: 12.5, cursor: 'pointer', fontFamily: 'inherit',
+            }}>
+              {copied ? '✓ Copied' : 'Copy cmd'}
+            </button>
+            <button onClick={copyClone} style={{
+              display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 14px', borderRadius: 11,
+              background: 'rgba(46,160,67,0.12)', border: '1px solid rgba(46,160,67,0.45)', color: '#3fb950',
+              fontSize: 12.5, cursor: 'pointer', fontFamily: 'inherit',
+            }}>
+              <GitIcon size={13} color="#3fb950" /> {copiedSrc ? '✓ Clone copied' : 'Copy git clone'}
+            </button>
+          </div>
+
+          {/* Source code download */}
+          <div style={{ background: 'rgba(13,17,23,0.7)', border: '1px solid #21262d', borderRadius: 12, padding: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <GitIcon size={16} color="#58a6ff" />
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#e6edf3' }}>Source code</span>
+              <span style={{ fontSize: 11.5, color: '#8b949e' }}>— download this exact release's source or the latest branch</span>
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <a href={r.sourceZipUrl} target="_blank" rel="noopener noreferrer" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px', borderRadius: 9,
+                background: 'rgba(56,139,253,0.15)', border: '1px solid rgba(56,139,253,0.45)', color: '#58a6ff',
+                fontSize: 12, textDecoration: 'none', fontFamily: 'inherit', fontWeight: 600,
+              }}>
+                <DownloadIcon size={12} color="#58a6ff" /> Download release source (.zip)
+              </a>
+              <a href={r.branchZipUrl} target="_blank" rel="noopener noreferrer" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px', borderRadius: 9,
+                background: 'rgba(22,27,34,0.9)', border: '1px solid #30363d', color: '#c9d1d9',
+                fontSize: 12, textDecoration: 'none', fontFamily: 'inherit',
+              }}>
+                <DownloadIcon size={12} color="#c9d1d9" /> Latest {r.defaultBranch || 'main'} (.zip)
+              </a>
+              <code style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px', borderRadius: 9,
+                background: 'rgba(13,17,23,0.9)', border: '1px solid #30363d', color: '#8b949e',
+                fontSize: 11.5, fontFamily: 'ui-monospace, monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}>git clone {r.cloneUrl}</code>
+            </div>
+          </div>
+
+          {/* Release notes */}
+          <div>
+            <h3 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 700, color: '#e6edf3', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Release notes
+            </h3>
+            <RenderBody body={r.body} />
+          </div>
+
+          {/* Assets */}
+          {r.assets.length > 0 ? (
+            <div>
+              <h3 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 700, color: '#e6edf3', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Downloads ({r.assets.length})
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {r.assets.map((a) => (
+                  <a key={a.name} href={a.downloadUrl} target="_blank" rel="noopener noreferrer" style={{
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'rgba(13,17,23,0.8)',
+                    border: '1px solid #30363d', borderRadius: 10, textDecoration: 'none', color: '#c9d1d9', fontSize: 13,
+                    transition: 'border-color 0.15s ease, background 0.15s ease',
+                  }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#58a6ff'; e.currentTarget.style.background = 'rgba(56,139,253,0.1)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#30363d'; e.currentTarget.style.background = 'rgba(13,17,23,0.8)'; }}
+                  >
+                    <DownloadIcon size={15} color="#58a6ff" />
+                    <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'ui-monospace, monospace', fontSize: 12.5 }}>{a.name}</span>
+                    <span style={{ fontSize: 11.5, color: '#8b949e' }}>{fmtSize(a.size)}</span>
+                    {a.downloadCount > 0 && <span style={{ fontSize: 11.5, color: '#3fb950' }}>{a.downloadCount.toLocaleString()}↓</span>}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div style={{ fontSize: 12.5, color: '#484f58' }}>No binary assets in this release — use the source downloads above.</div>
+          )}
+
+          {/* Footer links */}
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', borderTop: '1px solid #21262d', paddingTop: 16 }}>
+            <a href={r.htmlUrl} target="_blank" rel="noopener noreferrer" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px', borderRadius: 9,
+              background: 'rgba(22,27,34,0.9)', border: '1px solid #30363d', color: '#8b949e', fontSize: 12, textDecoration: 'none', fontFamily: 'inherit',
+            }}><GitIcon size={13} /> View on GitHub</a>
+            <a href={r.repoUrl} target="_blank" rel="noopener noreferrer" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px', borderRadius: 9,
+              background: 'rgba(22,27,34,0.9)', border: '1px solid #30363d', color: '#8b949e', fontSize: 12, textDecoration: 'none', fontFamily: 'inherit',
+            }}>Repository</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ─────────────── Main browser ─────────────── */
+
 export const GitHubReleases: React.FC<GitHubReleasesProps> = ({ compact = false }) => {
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
@@ -260,7 +489,27 @@ export const GitHubReleases: React.FC<GitHubReleasesProps> = ({ compact = false 
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [depth, setDepth] = useState(30);
+  const [selected, setSelected] = useState<GitHubReleaseItem | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const perPage = 60;
+
+  const fetchPage = useCallback(async (d: number) => {
+    setLoading(true); setError(null);
+    const params = new URLSearchParams({ perPage: String(perPage), depth: String(d), perRepo: '10' });
+    if (debounced) params.set('q', debounced);
+    try {
+      const res = await fetch(`${API}?${params}`);
+      const data = await res.json();
+      if (!res.ok) { setError(data.message ?? 'Releases unavailable'); setItems([]); return; }
+      setItems(data.items ?? []);
+      setTotal(data.total ?? 0);
+      setHasMore(data.hasMore ?? false);
+    } catch {
+      setError('Could not reach GitHub releases'); setItems([]);
+    } finally { setLoading(false); }
+  }, [debounced]);
 
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
@@ -269,24 +518,16 @@ export const GitHubReleases: React.FC<GitHubReleasesProps> = ({ compact = false 
   }, [query]);
 
   useEffect(() => {
-    let alive = true;
-    setLoading(true); setError(null);
-    const params = new URLSearchParams({ perPage: '24' });
-    if (debounced) params.set('q', debounced);
-    (async () => {
-      try {
-        const res = await fetch(`${API}?${params}`);
-        const data = await res.json();
-        if (!alive) return;
-        if (!res.ok) { setError(data.message ?? 'Releases unavailable'); setItems([]); return; }
-        setItems(data.items ?? []);
-        setTotal(data.total ?? 0);
-      } catch {
-        if (alive) { setError('Could not reach GitHub releases'); setItems([]); }
-      } finally { if (alive) setLoading(false); }
-    })();
-    return () => { alive = false; };
-  }, [debounced]);
+    setDepth(30);
+    fetchPage(30);
+    return () => { /* noop */ };
+  }, [fetchPage]);
+
+  const loadMore = () => {
+    const next = Math.min(100, depth + 10);
+    setDepth(next);
+    fetchPage(next);
+  };
 
   const shown = useMemo(() => (compact ? items.slice(0, 4) : items), [compact, items]);
 
@@ -301,7 +542,7 @@ export const GitHubReleases: React.FC<GitHubReleasesProps> = ({ compact = false 
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search releases by name, repo, tag…"
+              placeholder="Search releases across ALL of GitHub — try a category…"
               style={{
                 width: '100%', padding: '9px 12px 9px 36px', background: 'rgba(13,17,23,0.9)',
                 border: '1px solid #30363d', borderRadius: 10, color: '#c9d1d9', fontSize: 14,
@@ -311,7 +552,7 @@ export const GitHubReleases: React.FC<GitHubReleasesProps> = ({ compact = false 
               onBlur={(e) => { e.currentTarget.style.borderColor = '#30363d'; e.currentTarget.style.boxShadow = 'none'; }}
             />
           </div>
-          <span style={{ fontSize: 12.5, color: '#8b949e' }}>{total.toLocaleString()} release{total !== 1 ? 's' : ''}</span>
+          <span style={{ fontSize: 12.5, color: '#8b949e' }}>{total.toLocaleString()} release{total !== 1 ? 's' : ''} found</span>
         </div>
       )}
 
@@ -355,19 +596,36 @@ export const GitHubReleases: React.FC<GitHubReleasesProps> = ({ compact = false 
           textAlign: 'center', padding: '48px 20px', background: 'rgba(22,27,34,0.7)',
           borderRadius: 14, border: '1px solid #21262d', color: '#8b949e', fontSize: 14,
         }}>
-          No releases found{debounced ? ` for “${debounced}”` : ''}.
+          No releases found{debounced ? ` for “${debounced}”` : ''}. Try another category or check the spelling.
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 14 }}>
-          {shown.map((r) => <ReleaseCard key={`${r.repo}-${r.tagName}-${r.id}`} r={r} />)}
+          {shown.map((r) => <ReleaseCard key={`${r.repoFullName}-${r.tagName}-${r.id}`} r={r} onOpen={setSelected} />)}
+        </div>
+      )}
+
+      {!compact && hasMore && !loading && (
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <button onClick={loadMore} style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 24px', borderRadius: 11,
+            background: 'rgba(22,27,34,0.9)', border: '1px solid #30363d', color: '#c9d1d9', fontSize: 13,
+            cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600,
+          }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#8957e5'; e.currentTarget.style.background = 'rgba(137,87,229,0.12)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#30363d'; e.currentTarget.style.background = 'rgba(22,27,34,0.9)'; }}
+          >
+            Load more releases ({Math.min(depth + 10, 100)}/100 repos depth)
+          </button>
         </div>
       )}
 
       {compact && items.length > 4 && (
         <div style={{ fontSize: 12.5, color: '#58a6ff', textAlign: 'center' }}>
-          Showing the latest {Math.min(4, items.length)} of {total} releases — browse all to search & download more.
+          Showing the latest {Math.min(4, items.length)} of {total} releases — browse all to search, download & clone.
         </div>
       )}
+
+      <ReleaseDetail r={selected} onClose={() => setSelected(null)} />
 
       <style>{`@keyframes zxrPulse { 0%,100% { opacity: .4 } 50% { opacity: .8 } }`}</style>
     </div>
