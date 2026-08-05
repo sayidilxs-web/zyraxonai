@@ -77,11 +77,15 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
       // Hand the install off to the ZYRAXON AI desktop app via its
       // registered deep-link protocol (never a third-party editor).
       onInstall?.(item)
-      const deepLink = `zyraxon://install/${encodeURIComponent(item.id || item.name)}`
+      const deepLink = `zyraxon://install/extension/${encodeURIComponent(item.id || item.name)}`
+      const fallbackUrl = `https://zyraxonai.lovable.app/ecosystem?item=${encodeURIComponent(item.id || item.name)}`
       try {
         window.location.href = deepLink
+        window.setTimeout(() => {
+          window.location.assign(fallbackUrl)
+        }, 700)
       } catch {
-        // no-op — app not installed
+        window.location.assign(fallbackUrl)
       }
     } else if (actionConfig.action === 'demo' && item.liveDemo) {
       window.open(item.liveDemo, '_blank')
