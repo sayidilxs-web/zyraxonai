@@ -148,6 +148,13 @@ export default function EcosystemPage() {
                 </div>
               </section>
               {featuredItems.length > 0 && <section><h2 style={sectionTitle}>Featured</h2>{renderGrid(featuredItems)}</section>}
+              <section>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <h2 style={{ ...sectionTitle, marginBottom: 0 }}>VS Code Marketplace</h2>
+                  <button onClick={() => setView('vscode')} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#58a6ff', cursor: 'pointer', fontSize: 13 }}>Browse all →</button>
+                </div>
+                <VSCodeMarketplace />
+              </section>
               <section><h2 style={sectionTitle}>Recent Activity</h2><RecentActivityWidget activities={activities} /></section>
             </div>
           ) : view === 'categories' ? (
