@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CommentSection } from './CommentSection';
 import { RatingStars } from './RatingStars';
 import { LikeButton } from './LikeButton';
+import { ShareButton } from './ShareButton';
 
 /**
  * GitHub Releases browser — GLOBAL & DEEP.
@@ -476,7 +477,8 @@ const ReleaseDetail: React.FC<{ r: GitHubReleaseItem | null; onClose: () => void
               display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px', borderRadius: 9,
               background: 'rgba(22,27,34,0.9)', border: '1px solid #30363d', color: '#8b949e', fontSize: 12, textDecoration: 'none', fontFamily: 'inherit',
             }}>Repository</a>
-            <div style={{ marginLeft: 'auto' }}>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <ShareButton itemId={`github-release-${r.id}`} itemName={r.name} itemUrl={`https://zyraxonai.lovable.app/ecosystem/item/${r.repo}`} />
               <LikeButton itemId={`github-release-${r.id}`} initialLikeCount={0} />
             </div>
           </div>
