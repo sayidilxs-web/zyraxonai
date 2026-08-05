@@ -18,6 +18,7 @@ import { UserProfile } from '../../components/ecosystem/UserProfile'
 import { ProductDetail } from '../../components/ecosystem/ProductDetail'
 import { DetailModal } from '../../components/ecosystem/DetailModal'
 import { Marketplace } from '../../components/ecosystem/Marketplace'
+import { VSCodeMarketplace } from '../../components/ecosystem/VSCodeMarketplace'
 import CommunityChat from '../../components/ecosystem/CommunityChat'
 import { PublishModal } from '../../components/ecosystem/PublishModal'
 
