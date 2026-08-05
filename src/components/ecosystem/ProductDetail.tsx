@@ -3,6 +3,7 @@ import { EcosystemItem, getAuthState } from '../../lib/ecosystem'
 import { LikeButton } from './LikeButton'
 import { ShareButton } from './ShareButton'
 import { CommentSection } from './CommentSection'
+import { RatingStars } from './RatingStars'
 import { IconArrowLeft, IconExternalLink, IconCode, IconDownload, IconStar, IconCopy, IconCheck, IconChevronLeft, IconChevronRight, IconGlobe, IconMonitor, IconSmartphone, IconTerminal, IconCalendar, IconMaximize, IconX, IconLoader } from './Icons'
 
 interface ProductDetailProps {
