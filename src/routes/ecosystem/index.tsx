@@ -159,6 +159,8 @@ export default function EcosystemPage() {
             </div>
           ) : view === 'marketplace' ? (
             <Marketplace onSelectItem={openItem} onUserClick={handleViewUser} />
+          ) : view === 'vscode' ? (
+            <VSCodeMarketplace />
           ) : view === 'community' ? (
             <CommunityChat />
           ) : view === 'profile' && user ? (
