@@ -13,7 +13,7 @@ import { createFileRoute } from "@tanstack/react-router";
  *   POST /api/public/community-store                      -> { ok }
  *        body: { file: "likes.json", content: <json>, message?: string }
  */
-const REPO = "sayidilxs-web/zyraxon-ecosystem-data";
+const REPO = "onelpawarai/ZYRAXON-AI";
 
 /**
  * Pattern-based allowlist.
@@ -120,7 +120,17 @@ export const Route = createFileRoute("/api/public/community-store")({
           return Response.json({ message: "Missing content" }, { status: 400, headers: HEADERS });
         }
 
-        const payload = JSON.stringify(input.content, null, 2);
+        // 24-hour retention: auto-delete messages older than 24h from chat files
+        let finalContent = input.content;
+        if (/^chat_[a-z0-9_-]+\.json$/.test(file) && Array.isArray(input.content)) {
+          const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+          finalContent = input.content.filter((msg: any) => {
+            if (!msg || !msg.timestamp) return true;
+            return new Date(msg.timestamp).getTime() > cutoff;
+          });
+        }
+
+        const payload = JSON.stringify(finalContent, null, 2);
         if (payload.length > 5_000_000) {
           return Response.json({ message: "Payload too large" }, { status: 413, headers: HEADERS });
         }
