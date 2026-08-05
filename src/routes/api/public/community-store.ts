@@ -15,17 +15,26 @@ import { createFileRoute } from "@tanstack/react-router";
  */
 const REPO = "onelpawarai/ZYRAXON-AI";
 
-const ALLOWED = new Set([
-  "community_chat.json",
-  "active_rooms.json",
-  "marketplace/data/likes.json",
-  "marketplace/data/user_likes.json",
-  "marketplace/data/comments.json",
-  "marketplace/data/ratings.json",
-  "marketplace/data/downloads.json",
-  "marketplace/data/stars.json",
-  "marketplace/data/shares.json",
-]);
+/**
+ * Pattern-based allowlist.
+ * Covers: channel chat files, online users, call rooms, file uploads,
+ * community chat (legacy), and all marketplace data files.
+ */
+function isAllowed(file: string): boolean {
+  // Exact matches
+  if (
+    file === "community_chat.json" ||
+    file === "active_rooms.json" ||
+    file === "online_users.json"
+  ) return true
+  // Channel chat: chat_{channelId}.json
+  if (/^chat_[a-z0-9_-]+\.json$/.test(file)) return true
+  // File uploads: chat_files/{channelId}/{fileId}.json
+  if (/^chat_files\/[a-z0-9_-]+\/file-[a-z0-9]+\.json$/.test(file)) return true
+  // Marketplace data files
+  if (/^marketplace\/data\/[a-z_]+\.json$/.test(file)) return true
+  return false
+}
 
 const HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -78,7 +87,7 @@ export const Route = createFileRoute("/api/public/community-store")({
 
       GET: async ({ request }) => {
         const file = new URL(request.url).searchParams.get("file") || "";
-        if (!ALLOWED.has(file)) {
+        if (!isAllowed(file)) {
           return Response.json({ message: "Unknown file" }, { status: 400, headers: HEADERS });
         }
         const token = process.env["GITHUB_PERSONAL_ACCESS_TOKEN"];
@@ -104,7 +113,7 @@ export const Route = createFileRoute("/api/public/community-store")({
         }
 
         const file = input.file || "";
-        if (!ALLOWED.has(file)) {
+        if (!isAllowed(file)) {
           return Response.json({ message: "Unknown file" }, { status: 400, headers: HEADERS });
         }
         if (input.content === undefined) {
