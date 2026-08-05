@@ -100,7 +100,10 @@ function normalize(e: GalleryExtension) {
     readmeUrl: asset(v, "Microsoft.VisualStudio.Services.Content.Details"),
     vsix: asset(v, "Microsoft.VisualStudio.Services.VSIXPackage"),
     marketplaceUrl: `https://marketplace.visualstudio.com/items?itemName=${id}`,
-    installUri: `vscode:extension/${id}`,
+    // Deep-link into the ZYRAXON AI desktop app instead of VS Code.
+    installUri: `zyraxon://install/extension/${id}`,
+    // Public product page on the ZYRAXON AI website.
+    websiteUrl: `https://zyraxonai.lovable.app/ecosystem?item=${encodeURIComponent(id)}`,
     brandingColor: prop(v, "Microsoft.VisualStudio.Services.Branding.Color"),
     brandingTheme: prop(v, "Microsoft.VisualStudio.Services.Branding.Theme"),
   };

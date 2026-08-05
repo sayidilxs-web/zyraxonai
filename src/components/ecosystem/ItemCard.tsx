@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react'
 import { EcosystemItem, getAuthState, getGitHubStorage } from '../../lib/ecosystem'
 import { IconStar, IconDownload, IconMessageSquare, IconHeart, IconHeartOutline, IconCheck, IconCopy, IconExternalLink, IconRocket } from './Icons'
 import { ShareButton } from './ShareButton'
+import { ItemDotMenu } from './ItemDotMenu'
 
 interface ItemCardProps {
   item: EcosystemItem
@@ -259,6 +260,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         }}>
           {item.type}
         </span>
+        <ItemDotMenu item={item} align="right" />
       </div>
 
       <div style={{

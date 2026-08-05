@@ -72,7 +72,15 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
 
   const handleAction = () => {
     if (actionConfig.action === 'install' || actionConfig.action === 'download') {
+      // Hand the install off to the ZYRAXON AI desktop app via its
+      // registered deep-link protocol (never a third-party editor).
       onInstall?.(item)
+      const deepLink = `zyraxon://install/${encodeURIComponent(item.id || item.name)}`
+      try {
+        window.location.href = deepLink
+      } catch {
+        // no-op — app not installed
+      }
     } else if (actionConfig.action === 'demo' && item.liveDemo) {
       window.open(item.liveDemo, '_blank')
     } else if (item.githubRepo) {
@@ -137,6 +145,31 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
         <div style={{ flex: 1 }} />
 
         <ShareButton itemId={item.id} itemName={item.name} />
+
+        <a
+          href={`https://zyraxonai.lovable.app/ecosystem?item=${encodeURIComponent(item.id || item.name)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '6px 12px',
+            background: 'transparent',
+            border: '1px solid rgba(137, 87, 229, 0.4)',
+            borderRadius: '8px',
+            color: '#8957e5',
+            fontSize: '13px',
+            fontWeight: '500',
+            textDecoration: 'none',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#8957e5'; e.currentTarget.style.background = 'rgba(137,87,229,0.1)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(137, 87, 229, 0.4)'; e.currentTarget.style.background = 'transparent' }}
+        >
+          <IconExternalLink size={14} />
+          View on Website
+        </a>
 
         {item.githubRepo && (
           <a

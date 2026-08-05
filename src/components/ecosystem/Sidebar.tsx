@@ -19,7 +19,8 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   { id: 'home', label: 'Home', icon: IconHome },
   { id: 'marketplace', label: 'Marketplace', icon: IconMarketplace },
-  { id: 'vscode', label: 'VS Code Extensions', icon: IconPackage },
+  { id: 'vscode', label: 'Extensions', icon: IconPackage },
+  { id: 'github', label: 'GitHub Releases', icon: IconDownload },
   { id: 'community', label: 'Community', icon: IconCommunity },
   { id: 'explore', label: 'Explore', icon: IconSearch },
   { id: 'categories', label: 'Categories', icon: IconCategories },
