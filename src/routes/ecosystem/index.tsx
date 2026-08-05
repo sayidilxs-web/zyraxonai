@@ -54,6 +54,7 @@ export default function EcosystemPage() {
   const [showPublish, setShowPublish] = useState(false)
   const [authState, setAuthState] = useState(getAuthState())
   const [pendingItem, setPendingItem] = useState<string | null>(null)
+  const [vsCodeDeepLink, setVsCodeDeepLink] = useState<string | null>(null)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -112,6 +113,7 @@ export default function EcosystemPage() {
       setView('product-detail')
     } else if (pendingItem.includes('.')) {
       // Looks like a VS Code extension ID (e.g. ms-python.python)
+      setVsCodeDeepLink(pendingItem)
       setView('vscode')
     } else {
       setSearchQuery(pendingItem)
@@ -122,6 +124,13 @@ export default function EcosystemPage() {
     // Clean the URL so the user can refresh normally
     window.history.replaceState({}, '', '/ecosystem')
   }, [pendingItem, loading, items])
+
+  // Reset VS Code deep link when navigating away from Extensions view
+  useEffect(() => {
+    if (view !== 'vscode' && vsCodeDeepLink) {
+      setVsCodeDeepLink(null)
+    }
+  }, [view])
 
   const user = authState.user
 
@@ -226,7 +235,7 @@ export default function EcosystemPage() {
             <Marketplace onSelectItem={openItem} onUserClick={handleViewUser} />
           ) : view === 'vscode' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <ZyraxonMarketplace />
+              <ZyraxonMarketplace deepLinkId={vsCodeDeepLink} />
             </div>
           ) : view === 'github' ? (
             <GitHubReleases />
