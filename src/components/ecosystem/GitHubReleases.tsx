@@ -376,13 +376,21 @@ const ReleaseDetail: React.FC<{ r: GitHubReleaseItem | null; onClose: () => void
               <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a.75.75 0 0 1 .75.75v5.5h5.5a.75.75 0 0 1 0 1.5h-5.5v5.5a.75.75 0 0 1-1.5 0v-5.5h-5.5a.75.75 0 0 1 0-1.5h5.5v-5.5A.75.75 0 0 1 8 1z"/></svg>
               {openInApp ? 'Opening ZYRAXON AI…' : 'Open in ZYRAXON AI'}
             </button>
-            {r.downloadUrl && (
+            {r.downloadUrl ? (
               <a href={r.downloadUrl} target="_blank" rel="noopener noreferrer" style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', border: 'none', borderRadius: 11,
                 background: 'linear-gradient(135deg,#238636,#1f7a37)', color: '#fff', fontSize: 13.5, fontWeight: 700,
                 textDecoration: 'none', fontFamily: 'inherit', boxShadow: '0 6px 20px rgba(35,134,54,0.35)',
               }}>
-                <DownloadIcon size={15} color="#fff" /> Download
+                <DownloadIcon size={15} color="#fff" /> Download Asset
+              </a>
+            ) : (
+              <a href={r.htmlUrl} target="_blank" rel="noopener noreferrer" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', border: 'none', borderRadius: 11,
+                background: 'linear-gradient(135deg,#238636,#1f7a37)', color: '#fff', fontSize: 13.5, fontWeight: 700,
+                textDecoration: 'none', fontFamily: 'inherit', boxShadow: '0 6px 20px rgba(35,134,54,0.35)',
+              }}>
+                <DownloadIcon size={15} color="#fff" /> View on GitHub
               </a>
             )}
             <button onClick={copyInstall} style={{

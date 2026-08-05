@@ -54,8 +54,6 @@ export default function EcosystemPage() {
   const [authState, setAuthState] = useState(getAuthState())
   const [pendingItem, setPendingItem] = useState<string | null>(null)
   const [vsCodeDeepLink, setVsCodeDeepLink] = useState<string | null>(null)
-  // Track which views have been visited — visited views stay mounted (cached)
-  const [visitedViews, setVisitedViews] = useState<Set<string>>(new Set(['home']))
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -162,7 +160,6 @@ export default function EcosystemPage() {
 
   const handleLogout = () => { clearAuthState(); clearGitHubStorage(); setAuthState(getAuthState()) }
   const navigateTo = (v: string) => {
-    setVisitedViews(prev => { const next = new Set(prev); next.add(v); return next })
     setView(v as ViewMode); setSelectedItem(null); setActiveCategory(null); setSearchQuery('')
   }
   const openItem = (item: EcosystemItem) => { setSelectedItem(item); setView('product-detail') }
@@ -193,11 +190,9 @@ export default function EcosystemPage() {
               <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
               <div style={{ color: '#8b949e', fontSize: 14 }}>Loading ecosystem...</div>
             </div>
-          ) : view === 'product-detail' && selectedItem ? (
-            <ProductDetail item={selectedItem} onClose={() => { setSelectedItem(null); setView('home') }} />
           ) : (
             <>
-              {/* ── Home (always mounted once visited) ── */}
+              {/* ── Home ── */}
               <div style={{ display: view === 'home' ? 'flex' : 'none', flexDirection: 'column', gap: 32 }}>
                 <StatsCard stats={stats} />
                 <section>
@@ -230,35 +225,27 @@ export default function EcosystemPage() {
                 <section><h2 style={sectionTitle}>Recent Activity</h2><RecentActivityWidget activities={activities} /></section>
               </div>
               {/* ── Categories ── */}
-              {visitedViews.has('categories') && (
-                <div style={{ display: view === 'categories' ? 'flex' : 'none', flexDirection: 'column', gap: 20 }}>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    <button onClick={() => setActiveCategory(null)} style={{ padding: '6px 14px', borderRadius: 20, border: '1px solid', borderColor: !activeCategory ? '#58a6ff' : '#30363d', background: !activeCategory ? 'rgba(56,139,253,0.1)' : '#161b22', color: !activeCategory ? '#58a6ff' : '#8b949e', fontSize: 13, cursor: 'pointer' }}>All</button>
-                    {categories.map((cat) => <button key={cat.id} onClick={() => setActiveCategory(cat.id)} style={{ padding: '6px 14px', borderRadius: 20, border: '1px solid', borderColor: activeCategory === cat.id ? '#58a6ff' : '#30363d', background: activeCategory === cat.id ? 'rgba(56,139,253,0.1)' : '#161b22', color: activeCategory === cat.id ? '#58a6ff' : '#8b949e', fontSize: 13, cursor: 'pointer' }}>{cat.icon} {cat.name}</button>)}
-                  </div>
-                  {renderGrid(sortedItems)}
+              <div style={{ display: view === 'categories' ? 'flex' : 'none', flexDirection: 'column', gap: 20 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  <button onClick={() => setActiveCategory(null)} style={{ padding: '6px 14px', borderRadius: 20, border: '1px solid', borderColor: !activeCategory ? '#58a6ff' : '#30363d', background: !activeCategory ? 'rgba(56,139,253,0.1)' : '#161b22', color: !activeCategory ? '#58a6ff' : '#8b949e', fontSize: 13, cursor: 'pointer' }}>All</button>
+                  {categories.map((cat) => <button key={cat.id} onClick={() => setActiveCategory(cat.id)} style={{ padding: '6px 14px', borderRadius: 20, border: '1px solid', borderColor: activeCategory === cat.id ? '#58a6ff' : '#30363d', background: activeCategory === cat.id ? 'rgba(56,139,253,0.1)' : '#161b22', color: activeCategory === cat.id ? '#58a6ff' : '#8b949e', fontSize: 13, cursor: 'pointer' }}>{cat.icon} {cat.name}</button>)}
                 </div>
-              )}
+                {renderGrid(sortedItems)}
+              </div>
               {/* ── Marketplace ── */}
-              {visitedViews.has('marketplace') && (
-                <div style={{ display: view === 'marketplace' ? 'block' : 'none' }}>
-                  <Marketplace onSelectItem={openItem} onUserClick={handleViewUser} />
-                </div>
-              )}
+              <div style={{ display: view === 'marketplace' ? 'block' : 'none' }}>
+                <Marketplace onSelectItem={openItem} onUserClick={handleViewUser} />
+              </div>
               {/* ── Extensions (VS Code) ── */}
-              {visitedViews.has('vscode') && (
-                <div style={{ display: view === 'vscode' ? 'flex' : 'none', flexDirection: 'column', gap: 16 }}>
-                  <ZyraxonMarketplace deepLinkId={vsCodeDeepLink} />
-                </div>
-              )}
+              <div style={{ display: view === 'vscode' ? 'flex' : 'none', flexDirection: 'column', gap: 16 }}>
+                <ZyraxonMarketplace deepLinkId={vsCodeDeepLink} />
+              </div>
               {/* ── GitHub Releases ── */}
-              {visitedViews.has('github') && (
-                <div style={{ display: view === 'github' ? 'block' : 'none' }}>
-                  <GitHubReleases />
-                </div>
-              )}
+              <div style={{ display: view === 'github' ? 'block' : 'none' }}>
+                <GitHubReleases />
+              </div>
               {/* ── Profile ── */}
-              {visitedViews.has('profile') && user && (
+              {user && (
                 <div style={{ display: view === 'profile' ? 'block' : 'none' }}>
                   <UserProfile user={user} isOwnProfile />
                 </div>
@@ -274,6 +261,7 @@ export default function EcosystemPage() {
           )}
         </div>
       </main>
+      {view === 'product-detail' && selectedItem && <ProductDetail item={selectedItem} onClose={() => { setSelectedItem(null); setView('home') }} />}
       {selectedItem && view !== 'product-detail' && <DetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />}
       <PublishModal isOpen={showPublish} onClose={() => setShowPublish(false)} onPublished={() => { loadData(); setShowPublish(false) }} />
     </div>
