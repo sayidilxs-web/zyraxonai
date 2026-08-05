@@ -82,13 +82,31 @@ const Verified = () => (
   </svg>
 );
 
-/* ---------- tiny, escaped markdown renderer for READMEs ---------- */
-function escapeHtml(s: string) {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+/* ---------- tiny markdown renderer with a safe HTML allowlist ---------- */
+const ALLOWED_TAGS = new Set([
+  'p', 'br', 'hr', 'em', 'i', 'strong', 'b', 'u', 'a', 'img', 'code', 'pre', 'kbd', 'blockquote',
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'div', 'span', 'center', 'small', 'sub', 'sup',
+  'table', 'thead', 'tbody', 'tr', 'th', 'td', 'details', 'summary', 'picture', 'source',
+]);
+
+function sanitizeHtml(s: string) {
+  return s
+    // drop dangerous elements entirely (with their content)
+    .replace(/<(script|style|iframe|object|embed|form|link|meta)[\s\S]*?<\/\1>/gi, '')
+    .replace(/<(script|style|iframe|object|embed|form|link|meta)\b[^>]*\/?>/gi, '')
+    // strip inline event handlers and javascript: urls
+    .replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+    .replace(/(href|src)\s*=\s*("|')\s*javascript:[^"']*\2/gi, '$1="#"')
+    // escape any tag that is not on the allowlist
+    .replace(/<\/?([a-zA-Z][\w-]*)\b[^>]*>/g, (m, tag: string) =>
+      ALLOWED_TAGS.has(tag.toLowerCase()) ? m : m.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'))
+    // escape stray angle brackets that are not part of a tag
+    .replace(/<(?![/a-zA-Z!])/g, '&lt;');
 }
 
 function renderMarkdown(md: string, baseRepo: string | null): string {
-  let out = escapeHtml(md);
+  let out = sanitizeHtml(md);
+
   const blocks: string[] = [];
   out = out.replace(/```[\w-]*\n?([\s\S]*?)```/g, (_m, code: string) => {
     blocks.push(`<pre><code>${code.replace(/\n$/, '')}</code></pre>`);
