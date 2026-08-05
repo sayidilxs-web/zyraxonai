@@ -117,8 +117,9 @@ export interface ChatMessage {
   likedBy: string[];
   attachment?: {
     name: string;
-    url: string;
+    url?: string;
     type?: string;
+    fileId?: string;
   };
 }
 
