@@ -478,7 +478,7 @@ const ReleaseDetail: React.FC<{ r: GitHubReleaseItem | null; onClose: () => void
               background: 'rgba(22,27,34,0.9)', border: '1px solid #30363d', color: '#8b949e', fontSize: 12, textDecoration: 'none', fontFamily: 'inherit',
             }}>Repository</a>
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <ShareButton itemId={`github-release-${r.id}`} itemName={r.name} itemUrl={`https://zyraxonai.lovable.app/ecosystem/item/${r.repo}`} />
+              <ShareButton itemId={`github-release-${r.id}`} itemName={r.name} itemUrl={`https://zyraxonai.lovable.app/ecosystem?item=${encodeURIComponent(r.repo)}`} />
               <LikeButton itemId={`github-release-${r.id}`} initialLikeCount={0} />
             </div>
           </div>

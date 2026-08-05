@@ -405,7 +405,6 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
             </span>
             <span>|</span>
             <span>{fmt(ext.installs)} installs</span>
-            {ext.ratingCount > 0 && (<><span>|</span><span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Stars value={ext.rating} />({ext.ratingCount})</span></>)}
             <span>|</span><span>v{ext.version}</span>
           </div>
           <p style={{ margin: '0 0 14px', fontSize: 14, color: '#b1bac4', lineHeight: 1.5 }}>{ext.description}</p>
@@ -486,7 +485,7 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
           </div>
           <div style={panel}>
             <h4 style={panelTitle}>Share</h4>
-            <ShareButton itemId={`vscode-ext-${ext.id}`} itemName={ext.displayName} />
+            <ShareButton itemId={`vscode-ext-${ext.id}`} itemName={ext.displayName} itemUrl={`https://zyraxonai.lovable.app/ecosystem?item=${encodeURIComponent(ext.id)}`} />
           </div>
           <div style={panel}>
             <h4 style={panelTitle}>Comments</h4>
