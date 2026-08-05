@@ -18,7 +18,8 @@ import { UserProfile } from '../../components/ecosystem/UserProfile'
 import { ProductDetail } from '../../components/ecosystem/ProductDetail'
 import { DetailModal } from '../../components/ecosystem/DetailModal'
 import { Marketplace } from '../../components/ecosystem/Marketplace'
-import { VSCodeMarketplace } from '../../components/ecosystem/VSCodeMarketplace'
+import { ZyraxonMarketplace } from '../../components/ecosystem/ZyraxonMarketplace'
+import GitHubReleases from '../../components/ecosystem/GitHubReleases'
 import CommunityChat from '../../components/ecosystem/CommunityChat'
 import { PublishModal } from '../../components/ecosystem/PublishModal'
 
@@ -76,6 +77,28 @@ export default function EcosystemPage() {
     const params = new URLSearchParams(window.location.search)
     if (params.get('code') && params.get('state')) {
       window.history.replaceState({}, '', '/ecosystem')
+    }
+    // Deep link from the ZYRAXON AI app / "View on Website":
+    // /ecosystem?item=<id-or-name>  →  open that product directly.
+    const itemParam = params.get('item')
+    if (itemParam) {
+      const q = itemParam.trim().toLowerCase()
+      const timer = setTimeout(async () => {
+        try {
+          const all = await getAllItems()
+          const found =
+            all.find((i) => i.id.toLowerCase() === q) ||
+            all.find((i) => i.name.toLowerCase() === q) ||
+            all.find((i) => i.name.toLowerCase().includes(q) || i.tags.some((t) => t.toLowerCase() === q))
+          if (found) {
+            setSelectedItem(found)
+            setView('product-detail')
+          } else {
+            setSearchQuery(itemParam)
+          }
+        } catch {}
+      }, 400)
+      return () => clearTimeout(timer)
     }
   }, [loadData])
 
@@ -150,10 +173,23 @@ export default function EcosystemPage() {
               {featuredItems.length > 0 && <section><h2 style={sectionTitle}>Featured</h2>{renderGrid(featuredItems)}</section>}
               <section>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <h2 style={{ ...sectionTitle, marginBottom: 0 }}>VS Code Marketplace</h2>
-                  <button onClick={() => setView('vscode')} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#58a6ff', cursor: 'pointer', fontSize: 13 }}>Browse all →</button>
+                  <h2 style={{ ...sectionTitle, marginBottom: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 9, height: 9, borderRadius: 3, background: 'linear-gradient(135deg,#8957e5,#58a6ff)', display: 'inline-block', boxShadow: '0 0 12px rgba(137,87,229,0.8)' }} />
+                    ZYRAXON AI Extensions
+                  </h2>
+                  <button onClick={() => setView('vscode')} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #30363d', background: '#161b22', color: '#58a6ff', cursor: 'pointer', fontSize: 13 }}>Browse all →</button>
                 </div>
-                <VSCodeMarketplace />
+                <ZyraxonMarketplace />
+              </section>
+              <section>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <h2 style={{ ...sectionTitle, marginBottom: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 9, height: 9, borderRadius: 3, background: 'linear-gradient(135deg,#f0883e,#da3633)', display: 'inline-block', boxShadow: '0 0 12px rgba(240,136,62,0.8)' }} />
+                    GitHub Releases
+                  </h2>
+                  <button onClick={() => setView('github')} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #30363d', background: '#161b22', color: '#58a6ff', cursor: 'pointer', fontSize: 13 }}>Browse all →</button>
+                </div>
+                <GitHubReleases compact />
               </section>
               <section><h2 style={sectionTitle}>Recent Activity</h2><RecentActivityWidget activities={activities} /></section>
             </div>
@@ -168,7 +204,11 @@ export default function EcosystemPage() {
           ) : view === 'marketplace' ? (
             <Marketplace onSelectItem={openItem} onUserClick={handleViewUser} />
           ) : view === 'vscode' ? (
-            <VSCodeMarketplace />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <ZyraxonMarketplace />
+            </div>
+          ) : view === 'github' ? (
+            <GitHubReleases />
           ) : view === 'community' ? (
             <CommunityChat />
           ) : view === 'profile' && user ? (

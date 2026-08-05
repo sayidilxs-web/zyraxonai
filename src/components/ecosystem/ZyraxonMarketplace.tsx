@@ -1,12 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /**
- * Visual Studio Marketplace browser — real extensions from the official
- * gallery, rendered the way VS Code's marketplace renders them.
+ * ZYRAXON AI Extension Marketplace
+ * -------------------------------------------------------------
+ * A modern, rebranded extension browser for the ZYRAXON AI
+ * ecosystem. Extensions are rendered the way they look inside
+ * the ZYRAXON app, and every install is handed to the ZYRAXON AI
+ * desktop app via the `zyraxon://` deep-link protocol — never to
+ * a third-party editor.
+ *
  * All data comes from /api/public/vscode-marketplace (server-side proxy).
  */
 
-export interface VSExtension {
+export interface ZyraxonExtension {
   id: string;
   name: string;
   displayName: string;
@@ -32,10 +38,13 @@ export interface VSExtension {
   vsix: string | null;
   marketplaceUrl: string;
   installUri: string;
+  websiteUrl: string;
   brandingColor: string | null;
 }
 
 const API = '/api/public/vscode-marketplace';
+const WEBSITE_BASE = 'https://zyraxonai.lovable.app/ecosystem';
+const ZYRAXON_SCHEME = 'zyraxon://';
 
 const CATEGORIES = [
   'All', 'Programming Languages', 'Snippets', 'Linters', 'Themes', 'Debuggers',
@@ -62,6 +71,29 @@ function fmt(n: number): string {
 function fmtDate(iso: string): string {
   try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); }
   catch { return iso; }
+}
+
+/** Build the public website product URL for an extension. */
+function websiteItemUrl(id: string): string {
+  return `${WEBSITE_BASE}?item=${encodeURIComponent(id)}`;
+}
+
+/** Build the ZYRAXON app deep link for an extension. */
+function zyraxonInstallUrl(id: string): string {
+  return `${ZYRAXON_SCHEME}install/extension/${id}`;
+}
+
+/**
+ * Launch the ZYRAXON AI desktop app via its registered deep-link
+ * protocol. If the app is not installed the browser navigation is
+ * a silent no-op, so we fall back to the website product page.
+ */
+function launchZyraxon(id: string): void {
+  try {
+    window.location.href = zyraxonInstallUrl(id);
+  } catch {
+    // no-op — app not installed
+  }
 }
 
 const Stars: React.FC<{ value: number; size?: number }> = ({ value, size = 12 }) => (
@@ -91,22 +123,17 @@ const ALLOWED_TAGS = new Set([
 
 function sanitizeHtml(s: string) {
   return s
-    // drop dangerous elements entirely (with their content)
     .replace(/<(script|style|iframe|object|embed|form|link|meta)[\s\S]*?<\/\1>/gi, '')
     .replace(/<(script|style|iframe|object|embed|form|link|meta)\b[^>]*\/?>/gi, '')
-    // strip inline event handlers and javascript: urls
     .replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '')
     .replace(/(href|src)\s*=\s*("|')\s*javascript:[^"']*\2/gi, '$1="#"')
-    // escape any tag that is not on the allowlist
     .replace(/<\/?([a-zA-Z][\w-]*)\b[^>]*>/g, (m, tag: string) =>
       ALLOWED_TAGS.has(tag.toLowerCase()) ? m : m.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'))
-    // escape stray angle brackets that are not part of a tag
     .replace(/<(?![/a-zA-Z!])/g, '&lt;');
 }
 
 function renderMarkdown(md: string, baseRepo: string | null): string {
   let out = sanitizeHtml(md);
-
   const blocks: string[] = [];
   out = out.replace(/```[\w-]*\n?([\s\S]*?)```/g, (_m, code: string) => {
     blocks.push(`<pre><code>${code.replace(/\n$/, '')}</code></pre>`);
@@ -143,26 +170,132 @@ function renderMarkdown(md: string, baseRepo: string | null): string {
   return out;
 }
 
+/* ------------------------------ three-dot menu ------------------------------ */
+interface DotMenuProps {
+  ext: ZyraxonExtension;
+  onOpenDetail: () => void;
+  align?: 'left' | 'right';
+}
+
+export const ExtensionDotMenu: React.FC<DotMenuProps> = ({ ext, onOpenDetail, align = 'right' }) => {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    if (open) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const copyCommand = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard?.writeText(`zyraxon install ${ext.id}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  const item: React.CSSProperties = {
+    display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 12px',
+    background: 'none', border: 'none', color: '#c9d1d9', fontSize: 13, cursor: 'pointer',
+    fontFamily: 'inherit', borderRadius: 8, textAlign: 'left', textDecoration: 'none',
+    transition: 'background 0.12s ease',
+  };
+
+  return (
+    <div ref={ref} style={{ position: 'relative', display: 'inline-flex' }} onClick={(e) => e.stopPropagation()}>
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+        style={{
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          width: 30, height: 30, borderRadius: 8, border: '1px solid #30363d',
+          background: open ? 'rgba(88,166,255,0.15)' : 'rgba(22,27,34,0.8)',
+          color: open ? '#58a6ff' : '#8b949e', cursor: 'pointer', fontFamily: 'inherit',
+          transition: 'all 0.15s ease',
+        }}
+        aria-label="More actions"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm-4 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm8 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
+        </svg>
+      </button>
+      {open && (
+        <div style={{
+          position: 'absolute', top: 36, right: align === 'right' ? 0 : 'auto', left: align === 'left' ? 0 : 'auto',
+          minWidth: 220, background: 'rgba(22,27,34,0.98)', border: '1px solid #30363d',
+          borderRadius: 12, padding: 6, zIndex: 60, boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(16px)',
+        }}>
+          <a href={websiteItemUrl(ext.id)} target="_blank" rel="noopener noreferrer"
+            style={item} onMouseEnter={(e) => (e.currentTarget.style.background = '#21262d')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}>
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="#58a6ff"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 2z"/></svg>
+            View on Website
+          </a>
+          <button onClick={(e) => { e.stopPropagation(); launchZyraxon(ext.id); setOpen(false); }}
+            style={item} onMouseEnter={(e) => (e.currentTarget.style.background = '#21262d')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}>
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="#8957e5"><path d="M1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0zm6.5 3.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5zM4.75 7.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5zm6.5 0a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5zM8 4.75a1.75 1.75 0 0 0-1.61 1.146l.002.002a2.94 2.94 0 0 0-.13.352h3.476a2.94 2.94 0 0 0-.13-.352A1.75 1.75 0 0 0 8 4.75z"/></svg>
+            Open in ZYRAXON AI
+          </button>
+          <button onClick={copyCommand}
+            style={item} onMouseEnter={(e) => (e.currentTarget.style.background = '#21262d')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}>
+            {copied ? (
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="#3fb950"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/></svg>
+            ) : (
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="#8b949e"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25v-7.5zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25h-7.5z"/></svg>
+            )}
+            {copied ? 'Copied!' : 'Copy install command'}
+          </button>
+          {ext.repository && (
+            <a href={ext.repository} target="_blank" rel="noopener noreferrer"
+              style={item} onMouseEnter={(e) => (e.currentTarget.style.background = '#21262d')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}>
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="#8b949e"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8z"/></svg>
+              GitHub Repository
+            </a>
+          )}
+          <button onClick={() => { setOpen(false); onOpenDetail(); }}
+            style={item} onMouseEnter={(e) => (e.currentTarget.style.background = '#21262d')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}>
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="#8b949e"><path d="M8 1.5a2 2 0 0 1 2 2v1h-4v-1a2 2 0 0 1 2-2zM3.5 5h9A1.5 1.5 0 0 1 14 6.5v7a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5v-7A1.5 1.5 0 0 1 3.5 5z"/></svg>
+            Details
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 /* ---------------------------- extension row ---------------------------- */
-const Row: React.FC<{ ext: VSExtension; onOpen: () => void }> = ({ ext, onOpen }) => {
+const Row: React.FC<{ ext: ZyraxonExtension; onOpen: () => void }> = ({ ext, onOpen }) => {
   const [hover, setHover] = useState(false);
+  const brand = ext.brandingColor ?? '#8957e5';
   return (
     <div
       onClick={onOpen}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-        display: 'flex', gap: 14, padding: 14, cursor: 'pointer',
-        background: hover ? '#1c2128' : '#161b22',
-        border: `1px solid ${hover ? '#30363d' : '#21262d'}`,
-        borderRadius: 10, transition: 'background 0.12s ease, border-color 0.12s ease',
+        display: 'flex', gap: 14, padding: 14, cursor: 'pointer', position: 'relative',
+        background: hover ? 'linear-gradient(135deg, rgba(137,87,229,0.12), rgba(22,27,34,0.9) 55%)' : 'rgba(22,27,34,0.85)',
+        border: `1px solid ${hover ? 'rgba(137,87,229,0.5)' : '#21262d'}`,
+        borderRadius: 12, transition: 'all 0.15s ease',
+        boxShadow: hover ? '0 8px 30px rgba(0,0,0,0.35)' : 'none',
+        alignItems: 'flex-start',
       }}
     >
       <img
-        src={ext.icon ?? 'https://cdn.vsassets.io/v/M190_20210811.1/_content/Header/default_icon.png'}
+        src={ext.icon ?? ''}
         alt=""
         width={48} height={48} loading="lazy"
-        style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'contain', background: '#0d1117', flexShrink: 0 }}
+        style={{
+          width: 48, height: 48, borderRadius: 10, objectFit: 'contain', background: '#0d1117',
+          flexShrink: 0, border: `1px solid ${brand}44`,
+        }}
       />
       <div style={{ minWidth: 0, flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
@@ -189,13 +322,14 @@ const Row: React.FC<{ ext: VSExtension; onOpen: () => void }> = ({ ext, onOpen }
           )}
         </div>
       </div>
+      <ExtensionDotMenu ext={ext} onOpenDetail={onOpen} />
     </div>
   );
 };
 
 /* ------------------------------ detail view ------------------------------ */
 const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) => {
-  const [ext, setExt] = useState<VSExtension | null>(null);
+  const [ext, setExt] = useState<ZyraxonExtension | null>(null);
   const [readme, setReadme] = useState<string | null>(null);
   const [tab, setTab] = useState<'details' | 'changelog' | 'resources'>('details');
   const [changelog, setChangelog] = useState<string | null>(null);
@@ -232,7 +366,7 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
     [tab, readme, changelog, ext],
   );
 
-  if (loading) return <div style={{ padding: 60, textAlign: 'center', color: '#8b949e' }}>Loading extension…</div>;
+  if (loading) return <div style={{ padding: 60, textAlign: 'center', color: '#8b949e' }}>Loading…</div>;
   if (!ext) return (
     <div style={{ padding: 60, textAlign: 'center', color: '#8b949e' }}>
       Extension not found. <button onClick={onBack} style={linkBtn}>Go back</button>
@@ -240,22 +374,25 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
   );
 
   const copyInstall = () => {
-    navigator.clipboard?.writeText(`code --install-extension ${ext.id}`);
+    navigator.clipboard?.writeText(`zyraxon install ${ext.id}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
   };
+
+  const brand = ext.brandingColor ?? '#8957e5';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <button onClick={onBack} style={{ ...linkBtn, alignSelf: 'flex-start' }}>← Back to Marketplace</button>
 
       <div style={{
-        display: 'flex', gap: 20, padding: 20, borderRadius: 12,
-        background: ext.brandingColor ? `linear-gradient(135deg, ${ext.brandingColor}55, #161b22 70%)` : '#161b22',
-        border: '1px solid #21262d', flexWrap: 'wrap',
+        display: 'flex', gap: 20, padding: 24, borderRadius: 16, flexWrap: 'wrap', position: 'relative', overflow: 'hidden',
+        background: `linear-gradient(135deg, ${brand}33, rgba(13,17,23,0.92) 55%)`,
+        border: `1px solid ${brand}44`,
+        boxShadow: `0 12px 40px rgba(0,0,0,0.4), inset 0 0 60px ${brand}11`,
       }}>
         <img src={ext.icon ?? ''} alt="" width={112} height={112}
-          style={{ width: 112, height: 112, borderRadius: 12, objectFit: 'contain', background: '#0d1117' }} />
+          style={{ width: 112, height: 112, borderRadius: 14, objectFit: 'contain', background: '#0d1117', border: `1px solid ${brand}44` }} />
         <div style={{ flex: 1, minWidth: 260 }}>
           <h1 style={{ fontSize: 24, fontWeight: 700, color: '#e6edf3', margin: 0 }}>{ext.displayName}</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '6px 0 10px', fontSize: 13, color: '#8b949e', flexWrap: 'wrap' }}>
@@ -268,17 +405,23 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
             <span>|</span><span>v{ext.version}</span>
           </div>
           <p style={{ margin: '0 0 14px', fontSize: 14, color: '#b1bac4', lineHeight: 1.5 }}>{ext.description}</p>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <a href={ext.installUri} style={primaryBtn}>Install</a>
-            {ext.vsix && <a href={ext.vsix} style={ghostBtn} download>Download VSIX</a>}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <button onClick={() => launchZyraxon(ext.id)} style={primaryBtn}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a.75.75 0 0 1 .75.75v5.5h5.5a.75.75 0 0 1 0 1.5h-5.5v5.5a.75.75 0 0 1-1.5 0v-5.5h-5.5a.75.75 0 0 1 0-1.5h5.5v-5.5A.75.75 0 0 1 8 1z"/></svg>
+                Install in ZYRAXON AI
+              </span>
+            </button>
+            <a href={ext.websiteUrl} target="_blank" rel="noopener noreferrer" style={ghostBtn}>View on Website</a>
+            {ext.vsix && <a href={ext.vsix} style={ghostBtn} download>Download Package</a>}
             <button onClick={copyInstall} style={ghostBtn}>{copied ? 'Copied!' : 'Copy install command'}</button>
-            <a href={ext.marketplaceUrl} target="_blank" rel="noopener noreferrer" style={ghostBtn}>Open in Marketplace</a>
             {ext.repository && <a href={ext.repository} target="_blank" rel="noopener noreferrer" style={ghostBtn}>Repository</a>}
+            <ExtensionDotMenu ext={ext} onOpenDetail={() => {}} />
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 280px', gap: 20 }} className="vsx-detail-grid">
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 280px', gap: 20 }} className="zxm-detail-grid">
         <div>
           <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #21262d', marginBottom: 16 }}>
             {([['details', 'Details'], ['changelog', 'Changelog'], ['resources', 'Resources']] as const).map(([key, label]) => (
@@ -288,20 +431,20 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
                   padding: '8px 14px', background: 'none', border: 'none', cursor: 'pointer',
                   fontFamily: 'inherit', fontSize: 13, fontWeight: tab === key ? 600 : 400,
                   color: tab === key ? '#e6edf3' : '#8b949e',
-                  borderBottom: `2px solid ${tab === key ? '#58a6ff' : 'transparent'}`,
+                  borderBottom: `2px solid ${tab === key ? brand : 'transparent'}`,
                 }}>{label}</button>
             ))}
           </div>
           {tab === 'resources' ? (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {[['Marketplace', ext.marketplaceUrl], ['Repository', ext.repository], ['Homepage', ext.homepage], ['License', ext.license], ['Download VSIX', ext.vsix]]
+              {[['Website', ext.websiteUrl], ['Repository', ext.repository], ['Homepage', ext.homepage], ['License', ext.license], ['Download Package', ext.vsix]]
                 .filter(([, href]) => !!href)
                 .map(([label, href]) => (
                   <li key={label as string}><a href={href as string} target="_blank" rel="noopener noreferrer" style={{ color: '#58a6ff', fontSize: 13 }}>{label}</a></li>
                 ))}
             </ul>
           ) : (
-            <div className="vsx-markdown" dangerouslySetInnerHTML={{ __html: html || '<p style="color:#8b949e">No content provided.</p>' }} />
+            <div className="zxm-markdown" dangerouslySetInnerHTML={{ __html: html || '<p style="color:#8b949e">No content provided.</p>' }} />
           )}
         </div>
 
@@ -336,13 +479,13 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
 };
 
 /* ------------------------------- main view ------------------------------- */
-export const VSCodeMarketplace: React.FC = () => {
+export const ZyraxonMarketplace: React.FC = () => {
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [sort, setSort] = useState('installs');
   const [category, setCategory] = useState('All');
   const [page, setPage] = useState(1);
-  const [items, setItems] = useState<VSExtension[]>([]);
+  const [items, setItems] = useState<ZyraxonExtension[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -371,7 +514,7 @@ export const VSCodeMarketplace: React.FC = () => {
         setItems(data.items ?? []);
         setTotal(data.total ?? 0);
       } catch {
-        if (alive) { setError('Could not reach the Visual Studio Marketplace'); setItems([]); }
+        if (alive) { setError('Could not reach the marketplace'); setItems([]); }
       } finally { if (alive) setLoading(false); }
     })();
     return () => { alive = false; };
@@ -385,9 +528,15 @@ export const VSCodeMarketplace: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <Styles />
       <div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#e6edf3', margin: 0 }}>VS Code Marketplace</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#e6edf3', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{
+            width: 10, height: 10, borderRadius: 3, display: 'inline-block',
+            background: 'linear-gradient(135deg, #8957e5, #58a6ff)', boxShadow: '0 0 14px rgba(137,87,229,0.8)',
+          }} />
+          ZYRAXON AI Extension Marketplace
+        </h2>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: '#8b949e' }}>
-          Live extensions from the official Visual Studio Marketplace — {total.toLocaleString()} results.
+          Hand-picked extensions for the ZYRAXON AI ecosystem — {total.toLocaleString()} results.
         </p>
       </div>
 
@@ -395,12 +544,14 @@ export const VSCodeMarketplace: React.FC = () => {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search extensions in Marketplace"
+          placeholder="Search extensions…"
           style={{
-            flex: '1 1 260px', minWidth: 200, padding: '9px 12px', background: '#0d1117',
-            border: '1px solid #30363d', borderRadius: 8, color: '#c9d1d9', fontSize: 14,
-            fontFamily: 'inherit', outline: 'none',
+            flex: '1 1 260px', minWidth: 200, padding: '9px 12px', background: 'rgba(13,17,23,0.9)',
+            border: '1px solid #30363d', borderRadius: 10, color: '#c9d1d9', fontSize: 14,
+            fontFamily: 'inherit', outline: 'none', transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
           }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = '#8957e5'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(137,87,229,0.15)'; }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = '#30363d'; e.currentTarget.style.boxShadow = 'none'; }}
         />
         <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} style={selectStyle}>
           {SORTS.map((s) => <option key={s.id} value={s.id}>Sort by: {s.label}</option>)}
@@ -415,7 +566,7 @@ export const VSCodeMarketplace: React.FC = () => {
       {loading ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 12 }}>
           {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} style={{ height: 108, borderRadius: 10, background: '#161b22', border: '1px solid #21262d', opacity: 0.6 }} />
+            <div key={i} style={{ height: 108, borderRadius: 12, background: 'rgba(22,27,34,0.7)', border: '1px solid #21262d', opacity: 0.5, animation: `zxmPulse 1.4s ease-in-out ${i * 0.1}s infinite` }} />
           ))}
         </div>
       ) : (
@@ -438,42 +589,46 @@ export const VSCodeMarketplace: React.FC = () => {
 
 const Styles = () => (
   <style>{`
-    .vsx-markdown { color: #b1bac4; font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
-    .vsx-markdown h1, .vsx-markdown h2, .vsx-markdown h3, .vsx-markdown h4 { color: #e6edf3; margin: 22px 0 10px; line-height: 1.3; }
-    .vsx-markdown h1 { font-size: 22px; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
-    .vsx-markdown h2 { font-size: 18px; border-bottom: 1px solid #21262d; padding-bottom: 6px; }
-    .vsx-markdown h3 { font-size: 15px; }
-    .vsx-markdown p { margin: 10px 0; }
-    .vsx-markdown a { color: #58a6ff; text-decoration: none; }
-    .vsx-markdown a:hover { text-decoration: underline; }
-    .vsx-markdown img { max-width: 100%; border-radius: 6px; }
-    .vsx-markdown code { background: #21262d; padding: 2px 5px; border-radius: 4px; font-size: 12.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-    .vsx-markdown pre { background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 12px; overflow-x: auto; }
-    .vsx-markdown pre code { background: none; padding: 0; }
-    .vsx-markdown ul { padding-left: 20px; margin: 10px 0; }
-    .vsx-markdown li { margin: 4px 0; }
-    .vsx-markdown hr { border: none; border-top: 1px solid #21262d; margin: 18px 0; }
-    @media (max-width: 860px) { .vsx-detail-grid { grid-template-columns: minmax(0,1fr) !important; } }
+    @keyframes zxmPulse { 0%,100% { opacity: .4 } 50% { opacity: .8 } }
+    .zxm-markdown { color: #b1bac4; font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
+    .zxm-markdown h1, .zxm-markdown h2, .zxm-markdown h3, .zxm-markdown h4 { color: #e6edf3; margin: 22px 0 10px; line-height: 1.3; }
+    .zxm-markdown h1 { font-size: 22px; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
+    .zxm-markdown h2 { font-size: 18px; border-bottom: 1px solid #21262d; padding-bottom: 6px; }
+    .zxm-markdown h3 { font-size: 15px; }
+    .zxm-markdown p { margin: 10px 0; }
+    .zxm-markdown a { color: #58a6ff; text-decoration: none; }
+    .zxm-markdown a:hover { text-decoration: underline; }
+    .zxm-markdown img { max-width: 100%; border-radius: 6px; }
+    .zxm-markdown code { background: #21262d; padding: 2px 5px; border-radius: 4px; font-size: 12.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .zxm-markdown pre { background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 12px; overflow-x: auto; }
+    .zxm-markdown pre code { background: none; padding: 0; }
+    .zxm-markdown ul { padding-left: 20px; margin: 10px 0; }
+    .zxm-markdown li { margin: 4px 0; }
+    .zxm-markdown hr { border: none; border-top: 1px solid #21262d; margin: 18px 0; }
+    @media (max-width: 860px) { .zxm-detail-grid { grid-template-columns: minmax(0,1fr) !important; } }
   `}</style>
 );
 
 const selectStyle: React.CSSProperties = {
-  padding: '9px 10px', background: '#0d1117', border: '1px solid #30363d',
-  borderRadius: 8, color: '#c9d1d9', fontSize: 13, fontFamily: 'inherit', outline: 'none', cursor: 'pointer',
+  padding: '9px 10px', background: 'rgba(13,17,23,0.9)', border: '1px solid #30363d',
+  borderRadius: 10, color: '#c9d1d9', fontSize: 13, fontFamily: 'inherit', outline: 'none', cursor: 'pointer',
 };
 const primaryBtn: React.CSSProperties = {
-  padding: '8px 18px', background: '#1f6feb', border: 'none', borderRadius: 8, color: '#fff',
-  fontSize: 13, fontWeight: 600, cursor: 'pointer', textDecoration: 'none', fontFamily: 'inherit', display: 'inline-block',
+  padding: '8px 18px', background: 'linear-gradient(135deg, #8957e5, #6f42c1)', border: 'none',
+  borderRadius: 10, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+  textDecoration: 'none', fontFamily: 'inherit', display: 'inline-block',
+  boxShadow: '0 4px 18px rgba(137,87,229,0.4)', transition: 'transform 0.12s ease, box-shadow 0.12s ease',
 };
 const ghostBtn: React.CSSProperties = {
-  padding: '8px 14px', background: '#21262d', border: '1px solid #30363d', borderRadius: 8,
+  padding: '8px 14px', background: 'rgba(22,27,34,0.8)', border: '1px solid #30363d', borderRadius: 10,
   color: '#c9d1d9', fontSize: 13, cursor: 'pointer', textDecoration: 'none', fontFamily: 'inherit', display: 'inline-block',
+  transition: 'border-color 0.15s ease',
 };
 const linkBtn: React.CSSProperties = {
   background: 'none', border: 'none', color: '#58a6ff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', padding: 0,
 };
-const panel: React.CSSProperties = { background: '#161b22', border: '1px solid #21262d', borderRadius: 12, padding: 14 };
+const panel: React.CSSProperties = { background: 'rgba(22,27,34,0.85)', border: '1px solid #21262d', borderRadius: 14, padding: 14 };
 const panelTitle: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: '#8b949e', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: '0.5px' };
 const chip: React.CSSProperties = { fontSize: 11, color: '#8b949e', background: '#0d1117', border: '1px solid #21262d', borderRadius: 20, padding: '3px 9px' };
 
-export default VSCodeMarketplace;
+export default ZyraxonMarketplace;

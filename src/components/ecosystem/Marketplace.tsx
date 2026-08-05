@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { EcosystemItem, getAllItems, getAuthState, getGitHubStorage } from '../../lib/ecosystem'
 import { ShareButton } from './ShareButton'
+import { ItemDotMenu } from './ItemDotMenu'
 
 interface MarketplaceProps {
   onSelectItem?: (item: EcosystemItem) => void
@@ -121,26 +122,32 @@ export const Marketplace: React.FC<MarketplaceProps> = ({ onSelectItem, onUserCl
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#c9d1d9', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }}>
       <div style={{
-        background: 'linear-gradient(135deg, #161b22 0%, #0d1117 50%, #1a1e2e 100%)',
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'radial-gradient(1200px 400px at 15% -10%, rgba(137,87,229,0.22), transparent 60%), radial-gradient(1000px 400px at 90% -20%, rgba(88,166,255,0.18), transparent 55%), linear-gradient(160deg, #161b22 0%, #0d1117 55%, #1a1025 100%)',
         borderBottom: '1px solid #21262d',
-        padding: '40px 0 32px',
+        padding: '44px 0 34px',
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: '700', color: '#f0f6fc', marginBottom: '8px' }}>
-            🛒 ZYRAXON Marketplace
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 12px', borderRadius: 20, background: 'rgba(137,87,229,0.15)', border: '1px solid rgba(137,87,229,0.35)', color: '#a371f7', fontSize: 12, fontWeight: 600, marginBottom: 16, letterSpacing: '0.3px' }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#8957e5', boxShadow: '0 0 10px rgba(137,87,229,0.9)' }} />
+            ZYRAXON AI ECOSYSTEM
+          </div>
+          <h1 style={{ fontSize: '34px', fontWeight: '800', color: '#f0f6fc', marginBottom: '8px', letterSpacing: '-0.5px', background: 'linear-gradient(120deg, #f0f6fc 30%, #b39bf0 90%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            ZYRAXON Marketplace
           </h1>
           <p style={{ fontSize: '16px', color: '#8b949e', marginBottom: '24px' }}>
-            Discover plugins, templates, bots, and more for your projects
+            Discover plugins, templates, bots, and more — install straight into ZYRAXON AI
           </p>
-          <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '36px', flexWrap: 'wrap' }}>
             {[
-              { label: 'Total Items', value: totalItems },
-              { label: 'Plugins', value: totalPlugins },
-              { label: 'Templates', value: totalTemplates },
-              { label: 'Bots', value: totalBots },
+              { label: 'Total Items', value: totalItems, color: '#58a6ff' },
+              { label: 'Plugins', value: totalPlugins, color: '#3fb950' },
+              { label: 'Templates', value: totalTemplates, color: '#a371f7' },
+              { label: 'Bots', value: totalBots, color: '#f0883e' },
             ].map((stat) => (
               <div key={stat.label} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '24px', fontWeight: '700', color: '#58a6ff' }}>{stat.value}</div>
+                <div style={{ fontSize: '26px', fontWeight: '800', color: stat.color, fontVariantNumeric: 'tabular-nums' }}>{stat.value}</div>
                 <div style={{ fontSize: '12px', color: '#8b949e' }}>{stat.label}</div>
               </div>
             ))}
@@ -317,8 +324,11 @@ export const Marketplace: React.FC<MarketplaceProps> = ({ onSelectItem, onUserCl
                       }}>
                         {item.type}
                       </span>
-                      <span style={{ fontSize: '11px', color: '#484f58' }}>
-                        v{item.version}
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '11px', color: '#484f58' }}>
+                          v{item.version}
+                        </span>
+                        <ItemDotMenu item={item} align="right" />
                       </span>
                     </div>
 
