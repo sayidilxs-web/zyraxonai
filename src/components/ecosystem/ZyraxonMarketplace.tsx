@@ -1,4 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CommentSection } from './CommentSection';
+import { RatingStars } from './RatingStars';
+import { LikeButton } from './LikeButton';
+import { ShareButton } from './ShareButton';
 
 /**
  * ZYRAXON AI Extension Marketplace
@@ -471,6 +475,22 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
                 <span style={{ color: '#c9d1d9', textAlign: 'right', wordBreak: 'break-all' }}>{v}</span>
               </div>
             ))}
+          </div>
+          <div style={panel}>
+            <h4 style={panelTitle}>Rate this extension</h4>
+            <RatingStars itemId={`vscode-ext-${ext.id}`} initialAverage={ext.rating} />
+          </div>
+          <div style={panel}>
+            <h4 style={panelTitle}>Like</h4>
+            <LikeButton itemId={`vscode-ext-${ext.id}`} initialLikeCount={0} />
+          </div>
+          <div style={panel}>
+            <h4 style={panelTitle}>Share</h4>
+            <ShareButton itemId={`vscode-ext-${ext.id}`} itemName={ext.displayName} />
+          </div>
+          <div style={panel}>
+            <h4 style={panelTitle}>Comments</h4>
+            <CommentSection itemId={`vscode-ext-${ext.id}`} comments={[]} />
           </div>
         </aside>
       </div>
