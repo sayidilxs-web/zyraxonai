@@ -391,7 +391,6 @@ export default function CommunityChat() {
       dataChannels.current.forEach(dc => { try { dc.send(JSON.stringify(complete)) } catch {} })
 
       // Store file data in separate GitHub file (keeps chat JSON small)
-      const fileId = `file-${generateId()}`
       try {
         await storeWrite(`chat_files/${activeChannel}/${fileId}.json`, {
           name: file.name, type: file.type, data: base64
