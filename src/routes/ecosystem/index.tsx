@@ -20,7 +20,6 @@ import { DetailModal } from '../../components/ecosystem/DetailModal'
 import { Marketplace } from '../../components/ecosystem/Marketplace'
 import { ZyraxonMarketplace } from '../../components/ecosystem/ZyraxonMarketplace'
 import GitHubReleases from '../../components/ecosystem/GitHubReleases'
-import CommunityChat from '../../components/ecosystem/CommunityChat'
 import { PublishModal } from '../../components/ecosystem/PublishModal'
 
 export const Route = createFileRoute('/ecosystem/')({
@@ -55,6 +54,8 @@ export default function EcosystemPage() {
   const [authState, setAuthState] = useState(getAuthState())
   const [pendingItem, setPendingItem] = useState<string | null>(null)
   const [vsCodeDeepLink, setVsCodeDeepLink] = useState<string | null>(null)
+  // Track which views have been visited — visited views stay mounted (cached)
+  const [visitedViews, setVisitedViews] = useState<Set<string>>(new Set(['home']))
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -160,7 +161,10 @@ export default function EcosystemPage() {
   }
 
   const handleLogout = () => { clearAuthState(); clearGitHubStorage(); setAuthState(getAuthState()) }
-  const navigateTo = (v: string) => { setView(v as ViewMode); setSelectedItem(null); setActiveCategory(null); setSearchQuery('') }
+  const navigateTo = (v: string) => {
+    setVisitedViews(prev => { const next = new Set(prev); next.add(v); return next })
+    setView(v as ViewMode); setSelectedItem(null); setActiveCategory(null); setSearchQuery('')
+  }
   const openItem = (item: EcosystemItem) => { setSelectedItem(item); setView('product-detail') }
   const handleViewUser = () => { setView('profile') }
 
@@ -191,60 +195,82 @@ export default function EcosystemPage() {
             </div>
           ) : view === 'product-detail' && selectedItem ? (
             <ProductDetail item={selectedItem} onClose={() => { setSelectedItem(null); setView('home') }} />
-          ) : view === 'home' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-              <StatsCard stats={stats} />
-              <section>
-                <h2 style={sectionTitle}>Categories</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
-                  {categories.map((cat) => <CategoryCard key={cat.id} category={cat} onClick={() => { setActiveCategory(cat.id); setView('categories') }} />)}
-                </div>
-              </section>
-              {featuredItems.length > 0 && <section><h2 style={sectionTitle}>Featured</h2>{renderGrid(featuredItems)}</section>}
-              <section>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <h2 style={{ ...sectionTitle, marginBottom: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ width: 9, height: 9, borderRadius: 3, background: 'linear-gradient(135deg,#8957e5,#58a6ff)', display: 'inline-block', boxShadow: '0 0 12px rgba(137,87,229,0.8)' }} />
-                    ZYRAXON AI Extensions
-                  </h2>
-                  <button onClick={() => setView('vscode')} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #30363d', background: '#161b22', color: '#58a6ff', cursor: 'pointer', fontSize: 13 }}>Browse all →</button>
-                </div>
-                <ZyraxonMarketplace />
-              </section>
-              <section>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <h2 style={{ ...sectionTitle, marginBottom: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ width: 9, height: 9, borderRadius: 3, background: 'linear-gradient(135deg,#f0883e,#da3633)', display: 'inline-block', boxShadow: '0 0 12px rgba(240,136,62,0.8)' }} />
-                    GitHub Releases
-                  </h2>
-                  <button onClick={() => setView('github')} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #30363d', background: '#161b22', color: '#58a6ff', cursor: 'pointer', fontSize: 13 }}>Browse all →</button>
-                </div>
-                <GitHubReleases compact />
-              </section>
-              <section><h2 style={sectionTitle}>Recent Activity</h2><RecentActivityWidget activities={activities} /></section>
-            </div>
-          ) : view === 'categories' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                <button onClick={() => setActiveCategory(null)} style={{ padding: '6px 14px', borderRadius: 20, border: '1px solid', borderColor: !activeCategory ? '#58a6ff' : '#30363d', background: !activeCategory ? 'rgba(56,139,253,0.1)' : '#161b22', color: !activeCategory ? '#58a6ff' : '#8b949e', fontSize: 13, cursor: 'pointer' }}>All</button>
-                {categories.map((cat) => <button key={cat.id} onClick={() => setActiveCategory(cat.id)} style={{ padding: '6px 14px', borderRadius: 20, border: '1px solid', borderColor: activeCategory === cat.id ? '#58a6ff' : '#30363d', background: activeCategory === cat.id ? 'rgba(56,139,253,0.1)' : '#161b22', color: activeCategory === cat.id ? '#58a6ff' : '#8b949e', fontSize: 13, cursor: 'pointer' }}>{cat.icon} {cat.name}</button>)}
-              </div>
-              {renderGrid(sortedItems)}
-            </div>
-          ) : view === 'marketplace' ? (
-            <Marketplace onSelectItem={openItem} onUserClick={handleViewUser} />
-          ) : view === 'vscode' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <ZyraxonMarketplace deepLinkId={vsCodeDeepLink} />
-            </div>
-          ) : view === 'github' ? (
-            <GitHubReleases />
-          ) : view === 'community' ? (
-            <CommunityChat />
-          ) : view === 'profile' && user ? (
-            <UserProfile user={user} isOwnProfile />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}><h2 style={sectionTitle}>{viewTitle}</h2>{renderGrid(sortedItems)}</div>
+            <>
+              {/* ── Home (always mounted once visited) ── */}
+              <div style={{ display: view === 'home' ? 'flex' : 'none', flexDirection: 'column', gap: 32 }}>
+                <StatsCard stats={stats} />
+                <section>
+                  <h2 style={sectionTitle}>Categories</h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
+                    {categories.map((cat) => <CategoryCard key={cat.id} category={cat} onClick={() => { setActiveCategory(cat.id); navigateTo('categories') }} />)}
+                  </div>
+                </section>
+                {featuredItems.length > 0 && <section><h2 style={sectionTitle}>Featured</h2>{renderGrid(featuredItems)}</section>}
+                <section>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <h2 style={{ ...sectionTitle, marginBottom: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ width: 9, height: 9, borderRadius: 3, background: 'linear-gradient(135deg,#8957e5,#58a6ff)', display: 'inline-block', boxShadow: '0 0 12px rgba(137,87,229,0.8)' }} />
+                      ZYRAXON AI Extensions
+                    </h2>
+                    <button onClick={() => navigateTo('vscode')} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #30363d', background: '#161b22', color: '#58a6ff', cursor: 'pointer', fontSize: 13 }}>Browse all →</button>
+                  </div>
+                  <ZyraxonMarketplace />
+                </section>
+                <section>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <h2 style={{ ...sectionTitle, marginBottom: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ width: 9, height: 9, borderRadius: 3, background: 'linear-gradient(135deg,#f0883e,#da3633)', display: 'inline-block', boxShadow: '0 0 12px rgba(240,136,62,0.8)' }} />
+                      GitHub Releases
+                    </h2>
+                    <button onClick={() => navigateTo('github')} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #30363d', background: '#161b22', color: '#58a6ff', cursor: 'pointer', fontSize: 13 }}>Browse all →</button>
+                  </div>
+                  <GitHubReleases compact />
+                </section>
+                <section><h2 style={sectionTitle}>Recent Activity</h2><RecentActivityWidget activities={activities} /></section>
+              </div>
+              {/* ── Categories ── */}
+              {visitedViews.has('categories') && (
+                <div style={{ display: view === 'categories' ? 'flex' : 'none', flexDirection: 'column', gap: 20 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    <button onClick={() => setActiveCategory(null)} style={{ padding: '6px 14px', borderRadius: 20, border: '1px solid', borderColor: !activeCategory ? '#58a6ff' : '#30363d', background: !activeCategory ? 'rgba(56,139,253,0.1)' : '#161b22', color: !activeCategory ? '#58a6ff' : '#8b949e', fontSize: 13, cursor: 'pointer' }}>All</button>
+                    {categories.map((cat) => <button key={cat.id} onClick={() => setActiveCategory(cat.id)} style={{ padding: '6px 14px', borderRadius: 20, border: '1px solid', borderColor: activeCategory === cat.id ? '#58a6ff' : '#30363d', background: activeCategory === cat.id ? 'rgba(56,139,253,0.1)' : '#161b22', color: activeCategory === cat.id ? '#58a6ff' : '#8b949e', fontSize: 13, cursor: 'pointer' }}>{cat.icon} {cat.name}</button>)}
+                  </div>
+                  {renderGrid(sortedItems)}
+                </div>
+              )}
+              {/* ── Marketplace ── */}
+              {visitedViews.has('marketplace') && (
+                <div style={{ display: view === 'marketplace' ? 'block' : 'none' }}>
+                  <Marketplace onSelectItem={openItem} onUserClick={handleViewUser} />
+                </div>
+              )}
+              {/* ── Extensions (VS Code) ── */}
+              {visitedViews.has('vscode') && (
+                <div style={{ display: view === 'vscode' ? 'flex' : 'none', flexDirection: 'column', gap: 16 }}>
+                  <ZyraxonMarketplace deepLinkId={vsCodeDeepLink} />
+                </div>
+              )}
+              {/* ── GitHub Releases ── */}
+              {visitedViews.has('github') && (
+                <div style={{ display: view === 'github' ? 'block' : 'none' }}>
+                  <GitHubReleases />
+                </div>
+              )}
+              {/* ── Profile ── */}
+              {visitedViews.has('profile') && user && (
+                <div style={{ display: view === 'profile' ? 'block' : 'none' }}>
+                  <UserProfile user={user} isOwnProfile />
+                </div>
+              )}
+              {/* ── Generic views (explore, top-rated, trending, new, my-*) ── */}
+              {view !== 'home' && view !== 'categories' && view !== 'marketplace' && view !== 'vscode' && view !== 'github' && view !== 'profile' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  <h2 style={sectionTitle}>{viewTitle}</h2>
+                  {renderGrid(sortedItems)}
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>

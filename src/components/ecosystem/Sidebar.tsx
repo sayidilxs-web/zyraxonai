@@ -21,7 +21,6 @@ const mainNavItems: NavItem[] = [
   { id: 'marketplace', label: 'Marketplace', icon: IconMarketplace },
   { id: 'vscode', label: 'Extensions', icon: IconPackage },
   { id: 'github', label: 'GitHub Releases', icon: IconDownload },
-  { id: 'community', label: 'Community', icon: IconCommunity },
   { id: 'explore', label: 'Explore', icon: IconSearch },
   { id: 'categories', label: 'Categories', icon: IconCategories },
   { id: 'top-rated', label: 'Top Rated', icon: IconStar },
