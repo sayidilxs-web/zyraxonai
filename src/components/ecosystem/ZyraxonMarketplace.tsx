@@ -479,7 +479,7 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
 };
 
 /* ------------------------------- main view ------------------------------- */
-export const ZyraxonMarketplace: React.FC = () => {
+export const ZyraxonMarketplace: React.FC<{ deepLinkId?: string | null }> = ({ deepLinkId }) => {
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [sort, setSort] = useState('installs');
@@ -491,6 +491,15 @@ export const ZyraxonMarketplace: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const deepLinkConsumed = useRef(false);
+
+  // Auto-open a specific extension when deep-linked (e.g. ?item=ms-python.python)
+  useEffect(() => {
+    if (deepLinkId && !selected && !deepLinkConsumed.current) {
+      deepLinkConsumed.current = true;
+      setSelected(deepLinkId);
+    }
+  }, [deepLinkId]);
   const pageSize = 24;
 
   useEffect(() => {
