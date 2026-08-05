@@ -253,9 +253,23 @@ export default function CommunityChat() {
   const loadMessages = useCallback(async () => {
     try {
       const decoded = await storeRead<ChatMessage[]>(`chat_${activeChannel}.json`, [])
-      const serverMsgs = (Array.isArray(decoded) && decoded.length > 0)
+      let serverMsgs = (Array.isArray(decoded) && decoded.length > 0)
         ? decoded.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).slice(-300)
         : []
+      // Load file attachments from separate files
+      serverMsgs = await Promise.all(serverMsgs.map(async (msg) => {
+        if (msg.attachment?.fileId && !msg.attachment.url) {
+          try {
+            const fileData = await storeRead<{ name: string; type: string; data: string }>(
+              `chat_files/${activeChannel}/${msg.attachment.fileId}.json`, null as any
+            )
+            if (fileData?.data) {
+              return { ...msg, attachment: { ...msg.attachment, url: `data:${fileData.type};base64,${fileData.data}` } }
+            }
+          } catch {}
+        }
+        return msg
+      }))
       // If channel changed, replace entirely. Otherwise merge: keep local + add new server
       if (lastChannelRef.current !== activeChannel) {
         lastChannelRef.current = activeChannel
@@ -264,14 +278,11 @@ export default function CommunityChat() {
       } else {
         setMessages(prev => {
           const serverIds = new Set(serverMsgs.map(m => m.id))
-          // Messages in local state but NOT on server yet (pending writes)
           const pendingOnly = prev.filter(m => !serverIds.has(m.id))
-          // Merge: pending local + all server, deduplicated
           const merged = new Map<string, ChatMessage>()
           for (const m of [...pendingOnly, ...serverMsgs]) merged.set(m.id, m)
           return Array.from(merged.values()).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
         })
-        // Clean pending ref for messages now on server
         for (const m of serverMsgs) pendingLocalMsgsRef.current.delete(m.id)
       }
     } catch {}
@@ -379,14 +390,21 @@ export default function CommunityChat() {
       rtRef.current?.sendChat(complete as any)
       dataChannels.current.forEach(dc => { try { dc.send(JSON.stringify(complete)) } catch {} })
 
-      // File message with attachment
-      const attachmentUrl = dataUrl
+      // Store file data in separate GitHub file (keeps chat JSON small)
+      const fileId = `file-${generateId()}`
+      try {
+        await storeWrite(`chat_files/${activeChannel}/${fileId}.json`, {
+          name: file.name, type: file.type, data: base64
+        }, `File upload: ${file.name}`)
+      } catch {}
+
+      // File message with reference to separate file
       const fileMsg: ChatMessage = {
         id: `msg-${generateId()}`, userId: auth.user!.id, username: auth.user!.username,
         avatarUrl: auth.user!.avatarUrl || "",
         content: `Shared ${getFileIcon(file.name)} ${file.name}`,
         timestamp: new Date().toISOString(), likes: 0, likedBy: [],
-        attachment: { name: file.name, url: attachmentUrl, type: file.type || "application/octet-stream" },
+        attachment: { name: file.name, type: file.type || "application/octet-stream", fileId },
       }
       setMessages(prev => [...prev, fileMsg])
       pendingLocalMsgsRef.current.set(fileMsg.id, fileMsg)
