@@ -1,4 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CommentSection } from './CommentSection';
+import { RatingStars } from './RatingStars';
+import { LikeButton } from './LikeButton';
 
 /**
  * GitHub Releases browser — GLOBAL & DEEP.
@@ -464,7 +467,7 @@ const ReleaseDetail: React.FC<{ r: GitHubReleaseItem | null; onClose: () => void
           )}
 
           {/* Footer links */}
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', borderTop: '1px solid #21262d', paddingTop: 16 }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', borderTop: '1px solid #21262d', paddingTop: 16, alignItems: 'center' }}>
             <a href={r.htmlUrl} target="_blank" rel="noopener noreferrer" style={{
               display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px', borderRadius: 9,
               background: 'rgba(22,27,34,0.9)', border: '1px solid #30363d', color: '#8b949e', fontSize: 12, textDecoration: 'none', fontFamily: 'inherit',
@@ -473,6 +476,21 @@ const ReleaseDetail: React.FC<{ r: GitHubReleaseItem | null; onClose: () => void
               display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px', borderRadius: 9,
               background: 'rgba(22,27,34,0.9)', border: '1px solid #30363d', color: '#8b949e', fontSize: 12, textDecoration: 'none', fontFamily: 'inherit',
             }}>Repository</a>
+            <div style={{ marginLeft: 'auto' }}>
+              <LikeButton itemId={`github-release-${r.id}`} initialLikeCount={0} />
+            </div>
+          </div>
+
+          {/* Rating */}
+          <div style={{ borderTop: '1px solid #21262d', paddingTop: 16 }}>
+            <h3 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 700, color: '#e6edf3', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Rating</h3>
+            <RatingStars itemId={`github-release-${r.id}`} initialAverage={0} />
+          </div>
+
+          {/* Comments */}
+          <div style={{ borderTop: '1px solid #21262d', paddingTop: 16 }}>
+            <h3 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 700, color: '#e6edf3', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Comments</h3>
+            <CommentSection itemId={`github-release-${r.id}`} comments={[]} />
           </div>
         </div>
       </div>
