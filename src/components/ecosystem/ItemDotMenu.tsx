@@ -82,7 +82,7 @@ export const ItemDotMenu: React.FC<ItemDotMenuProps> = ({ item, align = 'right' 
         onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); setShareOpen(false); }}
         style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          width: 30, height: 30, borderRadius: 8, border: '1px solid #30363d',
+          width: 30, height: 30, borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)',
           background: open ? 'rgba(88,166,255,0.15)' : 'rgba(22,27,34,0.8)',
           color: open ? '#58a6ff' : '#8b949e', cursor: 'pointer', fontFamily: 'inherit',
           transition: 'all 0.15s ease',
@@ -96,7 +96,7 @@ export const ItemDotMenu: React.FC<ItemDotMenuProps> = ({ item, align = 'right' 
       {open && (
         <div style={{
           position: 'absolute', top: 36, right: align === 'right' ? 0 : 'auto', left: align === 'left' ? 0 : 'auto',
-          minWidth: 230, background: 'rgba(22,27,34,0.98)', border: '1px solid #30363d',
+          minWidth: 230, background: 'rgba(22,27,34,0.98)', border: '1px solid rgba(255,255,255,0.12)',
           borderRadius: 12, padding: 6, zIndex: 70, boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
           backdropFilter: 'blur(16px)',
         }}>

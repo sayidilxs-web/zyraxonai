@@ -145,8 +145,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, isOwnProfile = f
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '8px 12px',
-    background: '#0d1117',
-    border: '1px solid #30363d',
+    background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
+    border: '1px solid rgba(255,255,255,0.12)',
     borderRadius: '8px',
     color: '#c9d1d9',
     fontSize: '14px',
@@ -164,8 +164,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, isOwnProfile = f
 
   return (
     <div style={{
-      background: '#161b22',
-      border: '1px solid #21262d',
+      background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255,255,255,0.08)',
       borderRadius: '12px',
       overflow: 'hidden',
       maxWidth: '960px',
@@ -198,7 +198,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, isOwnProfile = f
             borderRadius: '50%',
             border: '4px solid #161b22',
             overflow: 'hidden',
-            background: '#21262d',
+            background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
             flexShrink: 0,
             position: 'relative',
             zIndex: 1,
@@ -281,7 +281,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, isOwnProfile = f
                       gap: '6px',
                       padding: '8px 16px',
                       background: 'transparent',
-                      border: '1px solid #30363d',
+                      border: '1px solid rgba(255,255,255,0.12)',
                       borderRadius: '8px',
                       color: '#c9d1d9',
                       fontSize: '13px',
@@ -304,7 +304,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, isOwnProfile = f
                     gap: '6px',
                     padding: '8px 16px',
                     background: 'transparent',
-                    border: '1px solid #30363d',
+                    border: '1px solid rgba(255,255,255,0.12)',
                     borderRadius: '8px',
                     color: '#c9d1d9',
                     fontSize: '13px',
@@ -353,8 +353,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, isOwnProfile = f
           gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '16px',
           padding: '16px 0',
-          borderTop: '1px solid #21262d',
-          borderBottom: '1px solid #21262d',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
           marginBottom: '24px',
         }}>
           <div style={{ textAlign: 'center' }}>
@@ -374,8 +374,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, isOwnProfile = f
         {editMode && (
           <div style={{
             padding: '20px',
-            background: '#0d1117',
-            border: '1px solid #21262d',
+            background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
+            border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: '12px',
             marginBottom: '24px',
           }}>
@@ -452,8 +452,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, isOwnProfile = f
                     disabled={!newSkill.trim()}
                     style={{
                       padding: '8px 14px',
-                      background: '#21262d',
-                      border: '1px solid #30363d',
+                      background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
+                      border: '1px solid rgba(255,255,255,0.12)',
                       borderRadius: '8px',
                       color: '#c9d1d9',
                       fontSize: '13px',
@@ -474,7 +474,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, isOwnProfile = f
         <div style={{
           display: 'flex',
           gap: '4px',
-          borderBottom: '1px solid #21262d',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
           marginBottom: '24px',
         }}>
           {(['items', 'likes', 'about'] as ProfileTab[]).map((tab) => (

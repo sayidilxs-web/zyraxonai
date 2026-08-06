@@ -43,7 +43,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = 'S
         alignItems: 'center',
         gap: '10px',
         padding: '10px 16px',
-        background: '#161b22',
+        background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)',
         border: `1px solid ${focused ? '#58a6ff' : '#21262d'}`,
         borderRadius: '10px',
         transition: 'all 0.2s ease',
@@ -96,16 +96,16 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = 'S
           }}>
             <kbd style={{
               padding: '2px 6px',
-              background: '#21262d',
-              border: '1px solid #30363d',
+              background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
+              border: '1px solid rgba(255,255,255,0.12)',
               borderRadius: '4px',
               fontSize: '11px',
               fontFamily: 'inherit',
             }}>Ctrl</kbd>
             <kbd style={{
               padding: '2px 6px',
-              background: '#21262d',
-              border: '1px solid #30363d',
+              background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
+              border: '1px solid rgba(255,255,255,0.12)',
               borderRadius: '4px',
               fontSize: '11px',
               fontFamily: 'inherit',

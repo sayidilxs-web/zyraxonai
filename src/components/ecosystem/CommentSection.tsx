@@ -58,10 +58,10 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ itemId, comments
       <h3 style={{ fontSize: 15, fontWeight: 600, color: '#c9d1d9', marginBottom: 16 }}>Comments ({comments.length})</h3>
       {auth.isAuthenticated && auth.user ? (
         <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
-          <img src={auth.user.avatarUrl || `https://github.com/${auth.user.username}.png`} alt="" style={{ width: 36, height: 36, borderRadius: '50%', background: '#21262d' }} />
+          <img src={auth.user.avatarUrl || `https://github.com/${auth.user.username}.png`} alt="" style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)' }} />
           <div style={{ flex: 1 }}>
             <textarea value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Write a comment..." rows={3}
-              style={{ width: '100%', background: '#0d1117', border: '1px solid #30363d', borderRadius: 8, padding: '10px 12px', color: '#c9d1d9', fontSize: 14, fontFamily: 'inherit', resize: 'vertical', outline: 'none' }}
+              style={{ width: '100%', background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '10px 12px', color: '#c9d1d9', fontSize: 14, fontFamily: 'inherit', resize: 'vertical', outline: 'none' }}
               onFocus={e => { e.currentTarget.style.borderColor = '#58a6ff'; }}
               onBlur={e => { e.currentTarget.style.borderColor = '#30363d'; }} />
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
@@ -78,7 +78,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ itemId, comments
           <p style={{ color: '#8b949e', fontSize: 13, textAlign: 'center', padding: '24px 0' }}>No comments yet. Be the first!</p>
         ) : comments.map(c => (
           <div key={c.id} style={{ display: 'flex', gap: 12 }}>
-            <img src={c.avatarUrl || `https://github.com/${c.username}.png`} alt="" style={{ width: 32, height: 32, borderRadius: '50%', background: '#21262d', flexShrink: 0 }} />
+            <img src={c.avatarUrl || `https://github.com/${c.username}.png`} alt="" style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)', flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                 <span style={{ fontSize: 13, fontWeight: 600, color: '#c9d1d9' }}>{c.username}</span>

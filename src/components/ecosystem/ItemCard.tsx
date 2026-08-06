@@ -161,8 +161,8 @@ export const ItemCard: React.FC<ItemCardProps> = ({
     <div
       onClick={handleCardClick}
       style={{
-        background: '#161b22',
-        border: '1px solid #21262d',
+        background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255,255,255,0.08)',
         borderRadius: '12px',
         padding: '16px',
         cursor: onClick ? 'pointer' : 'default',
@@ -192,7 +192,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
               borderRadius: '10px',
               overflow: 'hidden',
               flexShrink: 0,
-              background: '#21262d',
+              background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
             }}>
               <img
                 src={item.icon}
@@ -307,7 +307,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
               key={tag}
               style={{
                 padding: '2px 8px',
-                background: '#21262d',
+                background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
                 borderRadius: '10px',
                 fontSize: '11px',
                 color: '#8b949e',
@@ -319,7 +319,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           {item.tags.length > 3 && (
             <span style={{
               padding: '2px 8px',
-              background: '#21262d',
+              background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
               borderRadius: '10px',
               fontSize: '11px',
               color: '#484f58',
