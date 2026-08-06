@@ -33,7 +33,7 @@ const SvgHeart = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="cur
 const SvgPlus = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 const SvgVolume = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
 
-const CHANNEL_ICON_MAP: Record<string, () => JSX.Element> = {
+const CHANNEL_ICON_MAP: Record<string, () => React.ReactElement> = {
   "general": SvgHash,
   "ai-devs": SvgRobot,
   "plugin-creators": SvgPuzzle,

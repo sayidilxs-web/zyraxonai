@@ -85,7 +85,7 @@ export type ViewMode =
   | "home" | "explore" | "categories" | "top-rated" | "trending"
   | "new" | "my-plugins" | "my-downloads" | "my-favorites"
   | "profile" | "community" | "marketplace" | "product-detail"
-  | "settings" | "ai-settings" | "vscode";
+  | "settings" | "ai-settings" | "vscode" | "github";
 
 export interface User {
   id: string;

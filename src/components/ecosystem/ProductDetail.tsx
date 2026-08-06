@@ -122,7 +122,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
         display: 'flex',
         alignItems: 'center',
         gap: '12px',
-        backdropFilter: 'blur(8px)',
       }}>
         <button
           onClick={onClose}
