@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>ZYRAXON STT Bridge</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0a0a0f;
+    --fg: #e6e6f0;
+    --muted: #7a7a92;
+    --accent: #22d3ee;
+    --accent2: #a855f7;
+    --err: #f87171;
+    --ok: #34d399;
+    --card: #12121c;
+    --border: #1f1f2e;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 24px 20px 64px; }
+  h1 {
+    font-size: 20px; margin: 0 0 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    letter-spacing: 0.3px;
+  }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  button, select {
+    background: var(--card); color: var(--fg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 14px; font-size: 14px; cursor: pointer;
+    transition: all .15s ease;
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: linear-gradient(90deg, var(--accent), var(--accent2)); color: #0a0a0f; font-weight: 600; border: none; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  .status {
+    padding: 6px 10px; border-radius: 999px;
+    font-size: 12px; border: 1px solid var(--border);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .listening .dot { background: var(--ok); box-shadow: 0 0 8px var(--ok); animation: pulse 1s infinite; }
+  .error .dot { background: var(--err); }
+  @keyframes pulse { 50% { opacity: .4; } }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-top: 16px;
+    min-height: 140px; white-space: pre-wrap; word-wrap: break-word;
+    font-size: 15px; line-height: 1.55;
+  }
+  .interim { color: var(--muted); font-style: italic; }
+  .final { color: var(--fg); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  .err-msg { color: var(--err); font-size: 13px; margin-top: 8px; min-height: 18px; }
+  code { background: #000; padding: 2px 6px; border-radius: 4px; color: var(--accent); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ZYRAXON STT Bridge</h1>
+  <div class="sub">
+    Real-time speech-to-text via Chromium's Web Speech API. Zero server cost.
+    Designed to be embedded in the ZYRAXON-AI Electron app.
+  </div>
+
+  <div class="row">
+    <button id="startBtn" class="primary">🎙 Start</button>
+    <button id="stopBtn" disabled>⏹ Stop</button>
+    <button id="clearBtn">🗑 Clear</button>
+    <select id="lang">
+      <option value="">Auto (browser default)</option>
+      <option value="bn-BD">Bengali (Bangladesh)</option>
+      <option value="bn-IN">Bengali (India)</option>
+      <option value="en-US">English (US)</option>
+      <option value="en-GB">English (UK)</option>
+      <option value="hi-IN">Hindi</option>
+      <option value="ur-PK">Urdu</option>
+      <option value="ar-SA">Arabic</option>
+      <option value="es-ES">Spanish</option>
+      <option value="fr-FR">French</option>
+      <option value="de-DE">German</option>
+      <option value="ja-JP">Japanese</option>
+      <option value="ko-KR">Korean</option>
+      <option value="zh-CN">Chinese (Simplified)</option>
+      <option value="ru-RU">Russian</option>
+      <option value="pt-BR">Portuguese (Brazil)</option>
+      <option value="tr-TR">Turkish</option>
+      <option value="id-ID">Indonesian</option>
+    </select>
+    <span id="status" class="status"><span class="dot"></span><span id="statusText">idle</span></span>
+  </div>
+
+  <div class="label">Final transcript</div>
+  <div id="finalBox" class="card final"></div>
+
+  <div class="label" style="margin-top:12px">Live (interim)</div>
+  <div id="interimBox" class="card interim"></div>
+
+  <div id="err" class="err-msg"></div>
+
+  <details style="margin-top:20px; color: var(--muted); font-size: 12px;">
+    <summary style="cursor:pointer">Integration notes</summary>
+    <p>URL params: <code>?autostart=1</code> <code>&amp;lang=bn-BD</code> <code>&amp;continuous=1</code></p>
+    <p>Events posted to <code>window.parent</code> AND <code>window.opener</code>:
+       <code>{type:'stt', kind:'final'|'interim'|'status'|'error', text, lang}</code></p>
+    <p>Globals for Electron <code>executeJavaScript</code>: <code>window.__stt.start()</code>,
+       <code>window.__stt.stop()</code>, <code>window.__stt.getFinal()</code>,
+       <code>window.__stt.getInterim()</code>, <code>window.__stt.onResult=fn</code></p>
+  </details>
+</div>
+
+<script>
+(function () {
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const langSel = document.getElementById('lang');
+  const finalBox = document.getElementById('finalBox');
+  const interimBox = document.getElementById('interimBox');
+  const statusEl = document.getElementById('status');
+  const statusText = document.getElementById('statusText');
+  const errEl = document.getElementById('err');
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  const params = new URLSearchParams(location.search);
+  const initLang = params.get('lang');
+  const continuous = params.get('continuous') !== '0';
+  const interimOn = params.get('interim') !== '0';
+  const autostart = params.get('autostart') === '1';
+  // Force backend mode with ?backend=1; auto-fallback otherwise.
+  const forceBackend = params.get('backend') === '1';
+  const backendEndpoint = params.get('endpoint') || '/api/public/stt';
+  const chunkMs = Math.max(1500, parseInt(params.get('chunk')||'4000',10) || 4000);
+
+  if (!SR && !forceBackend) {
+    // No webkit SR → automatically switch to backend fallback below.
+  }
+
+  if (initLang) {
+    langSel.value = initLang;
+    if (langSel.value !== initLang) {
+      const opt = document.createElement('option');
+      opt.value = initLang; opt.textContent = initLang + ' (custom)';
+      langSel.appendChild(opt); langSel.value = initLang;
+    }
+  }
+
+  let rec = null;
+  let listening = false;
+  let finalText = '';
+  let interimText = '';
+  let manualStop = false;
+  let usingBackend = forceBackend || !SR;
+  let mediaStream = null;
+  let mediaRec = null;
+  let backendTimer = null;
+
+  function setStatus(state, text) {
+    statusEl.className = 'status ' + (state || '');
+    statusText.textContent = text;
+  }
+
+  function emit(kind, text) {
+    const msg = { type: 'stt', kind, text: text || '', lang: langSel.value || '' };
+    try { window.parent && window.parent !== window && window.parent.postMessage(msg, '*'); } catch (_) {}
+    try { window.opener && window.opener.postMessage(msg, '*'); } catch (_) {}
+    if (typeof window.__stt.onResult === 'function') {
+      try { window.__stt.onResult(msg); } catch (_) {}
+    }
+    // Also expose latest event for polling
+    window.__stt.lastEvent = msg;
+  }
+
+  function build() {
+    rec = new SR();
+    rec.continuous = continuous;
+    rec.interimResults = interimOn;
+    rec.maxAlternatives = 1;
+    if (langSel.value) rec.lang = langSel.value;
+
+    rec.onstart = () => {
+      listening = true;
+      manualStop = false;
+      setStatus('listening', 'listening…');
+      errEl.textContent = '';
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      emit('status', 'listening');
+    };
+
+    rec.onresult = (e) => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const res = e.results[i];
+        const txt = res[0].transcript;
+        if (res.isFinal) {
+          finalText += (finalText && !finalText.endsWith(' ') ? ' ' : '') + txt.trim();
+          emit('final', txt.trim());
+        } else {
+          interim += txt;
+        }
+      }
+      interimText = interim;
+      finalBox.textContent = finalText;
+      interimBox.textContent = interim;
+      if (interim) emit('interim', interim);
+    };
+
+    rec.onerror = (e) => {
+      const msg = e.error || 'unknown';
+      errEl.textContent = 'Error: ' + msg;
+      setStatus('error', 'error: ' + msg);
+      emit('error', msg);
+      if (msg === 'not-allowed' || msg === 'service-not-allowed') {
+        manualStop = true; // don't auto-restart on permission failure
+        return;
+      }
+      // network / audio-capture / no-speech / language-not-supported → fall back
+      if (['network','audio-capture','language-not-supported','bad-grammar','aborted'].indexOf(msg) !== -1) {
+        errEl.textContent = 'Web Speech failed ('+msg+'). Falling back to server STT…';
+        manualStop = true;
+        try { rec.stop(); } catch(_){}
+        usingBackend = true;
+        setTimeout(startBackend, 200);
+      }
+    };
+
+    rec.onend = () => {
+      listening = false;
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      emit('status', 'ended');
+      if (continuous && !manualStop) {
+        setStatus('listening', 'restarting…');
+        try { rec.start(); } catch (_) { setStatus('', 'idle'); }
+      } else {
+        setStatus('', 'idle');
+      }
+    };
+  }
+
+  /* ---------- Backend STT fallback (MediaRecorder → /api/public/stt) ---------- */
+  async function startBackend() {
+    if (listening) return;
+    try {
+      if (!mediaStream) {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      }
+      const mimeCandidates = [
+        'audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus',''
+      ];
+      let mime = '';
+      for (const m of mimeCandidates) {
+        if (!m || (window.MediaRecorder && MediaRecorder.isTypeSupported(m))) { mime = m; break; }
+      }
+      mediaRec = new MediaRecorder(mediaStream, mime ? { mimeType: mime } : undefined);
+      let chunks = [];
+      mediaRec.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
+      mediaRec.onstop = async () => {
+        if (!chunks.length) return;
+        const blob = new Blob(chunks, { type: mediaRec.mimeType || 'audio/webm' });
+        chunks = [];
+        await sendBackendChunk(blob);
+        // Continue capturing next chunk if still listening
+        if (listening && !manualStop) {
+          try { mediaRec.start(); } catch(_) {}
+          backendTimer = setTimeout(() => { try { mediaRec.state==='recording' && mediaRec.stop(); } catch(_){} }, chunkMs);
+        } else {
+          setStatus('', 'idle');
+          startBtn.disabled = false; stopBtn.disabled = true;
+          emit('status', 'ended');
+        }
+      };
+      listening = true; manualStop = false;
+      startBtn.disabled = true; stopBtn.disabled = false;
+      setStatus('listening', 'listening (server)…');
+      errEl.textContent = '';
+      emit('status', 'listening-backend');
+      mediaRec.start();
+      backendTimer = setTimeout(() => { try { mediaRec.state==='recording' && mediaRec.stop(); } catch(_){} }, chunkMs);
+    } catch (err) {
+      errEl.textContent = 'Backend STT failed: ' + (err && err.message ? err.message : err);
+      setStatus('error', 'mic error');
+      emit('error', String(err && err.message || err));
+    }
+  }
+
+  async function sendBackendChunk(blob) {
+    try {
+      const fd = new FormData();
+      fd.append('file', blob, 'chunk.' + (blob.type.includes('mp4')?'mp4':blob.type.includes('ogg')?'ogg':'webm'));
+      if (langSel.value) fd.append('language', langSel.value.split('-')[0]);
+      const r = await fetch(backendEndpoint, { method: 'POST', body: fd });
+      const data = await r.json().catch(()=>({success:false,error:'bad json'}));
+      if (data && data.success && data.text) {
+        const txt = String(data.text).trim();
+        if (txt) {
+          finalText += (finalText && !finalText.endsWith(' ') ? ' ' : '') + txt;
+          finalBox.textContent = finalText;
+          emit('final', txt);
+        }
+      } else if (data && data.error) {
+        errEl.textContent = 'Server: ' + data.error;
+        emit('error', data.error);
+      }
+    } catch (err) {
+      errEl.textContent = 'Network error: ' + (err && err.message ? err.message : err);
+      emit('error', String(err && err.message || err));
+    }
+  }
+
+  function stopBackend() {
+    manualStop = true;
+    listening = false;
+    if (backendTimer) { clearTimeout(backendTimer); backendTimer = null; }
+    try { mediaRec && mediaRec.state === 'recording' && mediaRec.stop(); } catch(_) {}
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(t=>{ try{t.stop();}catch(_){} });
+      mediaStream = null;
+    }
+    startBtn.disabled = false; stopBtn.disabled = true;
+    setStatus('', 'idle');
+  }
+
+  function start() {
+    if (listening) return;
+    if (usingBackend || !SR) { startBackend(); return; }
+    if (!rec) build();
+    if (langSel.value) rec.lang = langSel.value;
+    try {
+      rec.start();
+    } catch (err) {
+      errEl.textContent = 'Start failed: ' + (err && err.message ? err.message : err);
+      // Try backend as fallback
+      usingBackend = true;
+      startBackend();
+    }
+  }
+
+  function stop() {
+    manualStop = true;
+    if (usingBackend) { stopBackend(); return; }
+    if (rec && listening) {
+      try { rec.stop(); } catch (_) {}
+    }
+  }
+
+  function clearAll() {
+    finalText = ''; interimText = '';
+    finalBox.textContent = ''; interimBox.textContent = '';
+    errEl.textContent = '';
+    emit('cleared', '');
+  }
+
+  startBtn.addEventListener('click', start);
+  stopBtn.addEventListener('click', stop);
+  clearBtn.addEventListener('click', clearAll);
+  langSel.addEventListener('change', () => {
+    if (rec) rec.lang = langSel.value;
+    if (listening) { manualStop = true; rec.stop(); setTimeout(start, 250); manualStop = false; }
+  });
+
+  // Public API for Electron / parent
+  window.__stt = {
+    start, stop, clear: clearAll,
+    getFinal: () => finalText,
+    getInterim: () => interimText,
+    setLang: (l) => { langSel.value = l; if (rec) rec.lang = l; },
+    isListening: () => listening,
+    onResult: null,
+    lastEvent: null,
+  };
+
+  // Listen for commands from parent (postMessage bridge)
+  window.addEventListener('message', (ev) => {
+    const d = ev.data;
+    if (!d || d.type !== 'stt-cmd') return;
+    if (d.action === 'start') start();
+    else if (d.action === 'stop') stop();
+    else if (d.action === 'clear') clearAll();
+    else if (d.action === 'setLang' && d.lang) window.__stt.setLang(d.lang);
+  });
+
+  setStatus('', 'idle');
+  emit('status', 'ready');
+
+  if (autostart) {
+    // small delay so mic permission prompt lands after page paints
+    setTimeout(start, 300);
+  }
+})();
+</script>
+</body>
+</html>
