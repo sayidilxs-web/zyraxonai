@@ -74,13 +74,13 @@ const SkeletonActivity: React.FC = () => (
     alignItems: 'center',
     gap: '12px',
     padding: '12px 0',
-    borderBottom: '1px solid #21262d',
+    borderBottom: '1px solid rgba(255,255,255,0.08)',
   }}>
     <div style={{
       width: '36px',
       height: '36px',
       borderRadius: '8px',
-      background: '#21262d',
+      background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
       flexShrink: 0,
     }} />
     <div style={{ flex: 1 }}>
@@ -88,21 +88,21 @@ const SkeletonActivity: React.FC = () => (
         width: '70%',
         height: '14px',
         borderRadius: '4px',
-        background: '#21262d',
+        background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
         marginBottom: '6px',
       }} />
       <div style={{
         width: '40%',
         height: '12px',
         borderRadius: '4px',
-        background: '#21262d',
+        background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
       }} />
     </div>
     <div style={{
       width: '50px',
       height: '12px',
       borderRadius: '4px',
-      background: '#21262d',
+      background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
     }} />
   </div>
 )
@@ -111,8 +111,8 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({ activities, load
   if (loading) {
     return (
       <div style={{
-        background: '#161b22',
-        border: '1px solid #21262d',
+        background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255,255,255,0.08)',
         borderRadius: '12px',
         padding: '16px',
       }}>
@@ -133,8 +133,8 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({ activities, load
 
   return (
     <div style={{
-      background: '#161b22',
-      border: '1px solid #21262d',
+      background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255,255,255,0.08)',
       borderRadius: '12px',
       padding: '16px',
     }}>
@@ -167,7 +167,7 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({ activities, load
                   alignItems: 'center',
                   gap: '12px',
                   padding: '10px 0',
-                  borderBottom: '1px solid #21262d',
+                  borderBottom: '1px solid rgba(255,255,255,0.08)',
                 }}
               >
                 {activity.authorAvatar ? (

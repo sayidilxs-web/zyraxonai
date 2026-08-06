@@ -64,8 +64,8 @@ const defaultForm = {
 type Step = 'form' | 'preview' | 'publishing' | 'done'
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '10px 12px', background: '#0d1117',
-  border: '1px solid #21262d', borderRadius: '8px', color: '#c9d1d9',
+  width: '100%', padding: '10px 12px', background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
+  border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', color: '#c9d1d9',
   fontSize: '14px', fontFamily: 'inherit', outline: 'none',
   transition: 'border-color 0.2s ease',
 }
@@ -82,7 +82,7 @@ const rowStyle: React.CSSProperties = {
 const dropZoneBase: React.CSSProperties = {
   border: '2px dashed #30363d', borderRadius: '8px', padding: '16px',
   textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s ease',
-  background: '#0d1117',
+  background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
 }
 
 function FileDropZone({
@@ -250,14 +250,14 @@ export const PublishModal: React.FC<PublishModalProps> = ({
       <div
         onClick={e => e.stopPropagation()}
         style={{
-          background: '#161b22', border: '1px solid #21262d', borderRadius: '16px',
+          background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px',
           width: '100%', maxWidth: '680px', maxHeight: '90vh', overflow: 'hidden',
           display: 'flex', flexDirection: 'column', boxShadow: '0 24px 48px rgba(0,0,0,0.5)',
         }}
       >
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '16px 20px', borderBottom: '1px solid #21262d',
+          padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ fontSize: '20px' }}>📦</span>
@@ -271,7 +271,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
           {step !== 'publishing' && (
             <button onClick={handleClose} style={{
               width: '32px', height: '32px', borderRadius: '8px', background: 'transparent',
-              border: '1px solid #21262d', color: '#8b949e', cursor: 'pointer',
+              border: '1px solid rgba(255,255,255,0.08)', color: '#8b949e', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px',
               fontFamily: 'inherit', outline: 'none', transition: 'all 0.15s ease',
             }}
@@ -355,7 +355,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid #21262d', paddingTop: '16px' }}>
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
                 <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#f0f6fc', margin: '0 0 12px 0' }}>
                   Files & Assets
                 </h3>
@@ -377,7 +377,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                   <label style={labelStyle}>Screenshots (max 5)</label>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '8px' }}>
                     {screenshots.map((ss, idx) => (
-                      <div key={idx} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid #21262d' }}>
+                      <div key={idx} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
                         <img src={URL.createObjectURL(ss)} alt="" style={{ width: '100%', height: '80px', objectFit: 'cover' }} />
                         <button onClick={() => removeScreenshot(idx)}
                           style={{ position: 'absolute', top: '4px', right: '4px', width: '20px', height: '20px', borderRadius: '50%', background: '#da3633', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -399,7 +399,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '8px' }}>
                 <button onClick={handleClose} style={{
                   padding: '10px 20px', borderRadius: '8px', background: 'transparent',
-                  border: '1px solid #30363d', color: '#8b949e', cursor: 'pointer',
+                  border: '1px solid rgba(255,255,255,0.12)', color: '#8b949e', cursor: 'pointer',
                   fontSize: '14px', fontWeight: '500', fontFamily: 'inherit', outline: 'none',
                   transition: 'all 0.15s ease',
                 }}
@@ -423,11 +423,11 @@ export const PublishModal: React.FC<PublishModalProps> = ({
           {step === 'preview' && (
             <div>
               <div style={{
-                background: '#0d1117', border: '1px solid #21262d',
+                background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: '12px', padding: '20px', marginBottom: '20px',
               }}>
                 {coverImage && (
-                  <div style={{ borderRadius: '8px', overflow: 'hidden', marginBottom: '16px', border: '1px solid #21262d' }}>
+                  <div style={{ borderRadius: '8px', overflow: 'hidden', marginBottom: '16px', border: '1px solid rgba(255,255,255,0.08)' }}>
                     <img src={URL.createObjectURL(coverImage)} alt={form.name} style={{ width: '100%', display: 'block' }} />
                   </div>
                 )}
@@ -443,7 +443,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                 <p style={{ fontSize: '14px', color: '#8b949e', lineHeight: '1.6', margin: '0 0 12px 0' }}>{form.description}</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
                   {form.tags.split(',').filter(Boolean).map(t => (
-                    <span key={t} style={{ padding: '3px 10px', background: '#21262d', borderRadius: '12px', fontSize: '12px', color: '#8b949e' }}>{t.trim()}</span>
+                    <span key={t} style={{ padding: '3px 10px', background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)', borderRadius: '12px', fontSize: '12px', color: '#8b949e' }}>{t.trim()}</span>
                   ))}
                 </div>
                 <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: '#484f58' }}>
@@ -455,7 +455,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                 {screenshots.length > 0 && (
                   <div style={{ display: 'flex', gap: '8px', marginTop: '12px', overflowX: 'auto' }}>
                     {screenshots.map((ss, i) => (
-                      <img key={i} src={URL.createObjectURL(ss)} alt="" style={{ height: '80px', borderRadius: '6px', border: '1px solid #21262d' }} />
+                      <img key={i} src={URL.createObjectURL(ss)} alt="" style={{ height: '80px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.08)' }} />
                     ))}
                   </div>
                 )}
@@ -463,7 +463,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                 <button onClick={() => setStep('form')} style={{
                   padding: '10px 20px', borderRadius: '8px', background: 'transparent',
-                  border: '1px solid #30363d', color: '#8b949e', cursor: 'pointer',
+                  border: '1px solid rgba(255,255,255,0.12)', color: '#8b949e', cursor: 'pointer',
                   fontSize: '14px', fontWeight: '500', fontFamily: 'inherit', outline: 'none',
                 }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = '#484f58'; e.currentTarget.style.color = '#c9d1d9' }}

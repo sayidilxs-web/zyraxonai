@@ -28,8 +28,8 @@ function PlatformBadge({ platform }: { platform: string }) {
       alignItems: 'center',
       gap: '4px',
       padding: '3px 8px',
-      background: '#21262d',
-      border: '1px solid #30363d',
+      background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
+      border: '1px solid rgba(255,255,255,0.12)',
       borderRadius: '6px',
       fontSize: '11px',
       color: '#8b949e',
@@ -108,7 +108,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: '#0d1117',
+      background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
       zIndex: 999,
       overflow: 'auto',
     }}>
@@ -116,13 +116,12 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
         position: 'sticky',
         top: 0,
         zIndex: 10,
-        background: '#161b22',
-        borderBottom: '1px solid #21262d',
+        background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
         padding: '12px 24px',
         display: 'flex',
         alignItems: 'center',
         gap: '12px',
-        backdropFilter: 'blur(8px)',
       }}>
         <button
           onClick={onClose}
@@ -132,7 +131,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
             gap: '6px',
             padding: '6px 12px',
             background: 'transparent',
-            border: '1px solid #30363d',
+            border: '1px solid rgba(255,255,255,0.12)',
             borderRadius: '8px',
             color: '#c9d1d9',
             fontSize: '13px',
@@ -188,7 +187,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
               gap: '6px',
               padding: '6px 12px',
               background: 'transparent',
-              border: '1px solid #30363d',
+              border: '1px solid rgba(255,255,255,0.12)',
               borderRadius: '8px',
               color: '#8b949e',
               fontSize: '13px',
@@ -268,7 +267,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
                 borderRadius: '16px',
                 overflow: 'hidden',
                 border: '3px solid #21262d',
-                background: '#161b22',
+                background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)',
                 flexShrink: 0,
               }}>
                 <img src={item.logo} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -302,8 +301,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
               </span>
               <span style={{
                 padding: '4px 10px',
-                background: '#21262d',
-                border: '1px solid #30363d',
+                background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
+                border: '1px solid rgba(255,255,255,0.12)',
                 borderRadius: '6px',
                 fontSize: '12px',
                 color: '#8b949e',
@@ -329,8 +328,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
               {item.license && (
                 <span style={{
                   padding: '4px 10px',
-                  background: '#21262d',
-                  border: '1px solid #30363d',
+                  background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
+                  border: '1px solid rgba(255,255,255,0.12)',
                   borderRadius: '6px',
                   fontSize: '12px',
                   color: '#8b949e',
@@ -363,8 +362,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
                 {item.tags.map((tag) => (
                   <span key={tag} style={{
                     padding: '3px 10px',
-                    background: '#21262d',
-                    border: '1px solid #30363d',
+                    background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
+                    border: '1px solid rgba(255,255,255,0.12)',
                     borderRadius: '12px',
                     fontSize: '12px',
                     color: '#8b949e',
@@ -383,8 +382,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
                   alignItems: 'center',
                   gap: '8px',
                   padding: '12px 16px',
-                  background: '#0d1117',
-                  border: '1px solid #21262d',
+                  background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
+                  border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: '8px',
                 }}>
                   <code style={{
@@ -431,8 +430,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
                   <div style={{
                     borderRadius: '12px',
                     overflow: 'hidden',
-                    border: '1px solid #21262d',
-                    background: '#0d1117',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
                     aspectRatio: '16/9',
                   }}>
                     <img
@@ -454,7 +453,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
                           height: '36px',
                           borderRadius: '50%',
                           background: 'rgba(22, 27, 34, 0.9)',
-                          border: '1px solid #30363d',
+                          border: '1px solid rgba(255,255,255,0.12)',
                           color: '#c9d1d9',
                           cursor: 'pointer',
                           display: 'flex',
@@ -476,7 +475,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
                           height: '36px',
                           borderRadius: '50%',
                           background: 'rgba(22, 27, 34, 0.9)',
-                          border: '1px solid #30363d',
+                          border: '1px solid rgba(255,255,255,0.12)',
                           color: '#c9d1d9',
                           cursor: 'pointer',
                           display: 'flex',
@@ -548,9 +547,9 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
                   <div style={{
                     borderRadius: '12px',
                     overflow: 'hidden',
-                    border: '1px solid #21262d',
+                    border: '1px solid rgba(255,255,255,0.08)',
                     aspectRatio: '16/9',
-                    background: '#0d1117',
+                    background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
                   }}>
                     <iframe
                       src={item.liveDemo}
@@ -571,8 +570,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
 
           <div style={{ position: 'sticky', top: '72px', alignSelf: 'start' }}>
             <div style={{
-              background: '#161b22',
-              border: '1px solid #21262d',
+              background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: '12px',
               padding: '20px',
               marginBottom: '16px',
@@ -583,7 +582,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
                   height: '40px',
                   borderRadius: '50%',
                   overflow: 'hidden',
-                  background: '#21262d',
+                  background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
                   flexShrink: 0,
                 }}>
                   {item.authorAvatar ? (
@@ -617,8 +616,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
               }}>
                 <div style={{
                   padding: '10px',
-                  background: '#0d1117',
-                  border: '1px solid #21262d',
+                  background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
+                  border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: '8px',
                   textAlign: 'center',
                 }}>
@@ -630,8 +629,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
                 </div>
                 <div style={{
                   padding: '10px',
-                  background: '#0d1117',
-                  border: '1px solid #21262d',
+                  background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
+                  border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: '8px',
                   textAlign: 'center',
                 }}>
@@ -640,8 +639,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
                 </div>
                 <div style={{
                   padding: '10px',
-                  background: '#0d1117',
-                  border: '1px solid #21262d',
+                  background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
+                  border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: '8px',
                   textAlign: 'center',
                 }}>
@@ -650,8 +649,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
                 </div>
                 <div style={{
                   padding: '10px',
-                  background: '#0d1117',
-                  border: '1px solid #21262d',
+                  background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
+                  border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: '8px',
                   textAlign: 'center',
                 }}>
@@ -666,7 +665,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '8px 0',
-                  borderTop: '1px solid #21262d',
+                  borderTop: '1px solid rgba(255,255,255,0.08)',
                   fontSize: '13px',
                 }}>
                   <span style={{ color: '#8b949e' }}>File Size</span>
@@ -678,14 +677,14 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '8px 0',
-                borderTop: '1px solid #21262d',
+                borderTop: '1px solid rgba(255,255,255,0.08)',
                 fontSize: '13px',
               }}>
                 <span style={{ color: '#8b949e' }}>Updated</span>
                 <span style={{ color: '#c9d1d9' }}>{formatDate(item.updatedAt)}</span>
               </div>
 
-              <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #21262d' }}>
+              <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                 <h4 style={{ fontSize: '12px', fontWeight: 600, color: '#8b949e', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Rate this item</h4>
                 <RatingStars itemId={item.id} initialAverage={item.rating} />
               </div>
@@ -697,8 +696,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
 
             {item.socialLinks && Object.keys(item.socialLinks).length > 0 && (
               <div style={{
-                background: '#161b22',
-                border: '1px solid #21262d',
+                background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: '12px',
                 padding: '16px',
               }}>

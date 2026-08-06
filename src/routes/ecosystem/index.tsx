@@ -175,12 +175,14 @@ export default function EcosystemPage() {
   const viewTitle = ({ 'top-rated': 'Top Rated', trending: 'Trending', new: 'New Arrivals', 'my-plugins': 'My Plugins', 'my-downloads': 'My Downloads', 'my-favorites': 'My Favorites', explore: 'Explore', home: 'Home' } as Record<string, string>)[view] || 'Explore'
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0d1117', color: '#c9d1d9', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+    <div className="zx-glass-root" style={{ position: 'relative', display: 'flex', minHeight: '100vh', color: '#c9d1d9', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+      <div className="zx-aurora" aria-hidden="true" />
       <Sidebar currentView={view} onViewChange={navigateTo} />
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <header style={{ position: 'sticky', top: 0, zIndex: 50, display: 'flex', alignItems: 'center', gap: 16, padding: '12px 24px', background: 'rgba(13,17,23,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #21262d' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, position: 'relative', zIndex: 1 }}>
+        <header style={{ position: 'sticky', top: 0, zIndex: 50, display: 'flex', alignItems: 'center', gap: 16, padding: '12px 24px', background: 'rgba(13,17,23,0.5)', backdropFilter: 'blur(28px) saturate(160%)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+
           <div style={{ flex: 1, maxWidth: 560 }}><SearchBar onSearch={setSearchQuery} /></div>
-          {view === 'product-detail' && <button onClick={() => { setSelectedItem(null); setView('home') }} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#c9d1d9', cursor: 'pointer', fontSize: 13 }}>← Back</button>}
+          {view === 'product-detail' && <button onClick={() => { setSelectedItem(null); setView('home') }} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)', color: '#c9d1d9', cursor: 'pointer', fontSize: 13 }}>← Back</button>}
           <LoginButton onLogout={handleLogout} onNavigate={navigateTo} />
         </header>
         <div style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
@@ -208,7 +210,7 @@ export default function EcosystemPage() {
                       <span style={{ width: 9, height: 9, borderRadius: 3, background: 'linear-gradient(135deg,#8957e5,#58a6ff)', display: 'inline-block', boxShadow: '0 0 12px rgba(137,87,229,0.8)' }} />
                       ZYRAXON AI Extensions
                     </h2>
-                    <button onClick={() => navigateTo('vscode')} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #30363d', background: '#161b22', color: '#58a6ff', cursor: 'pointer', fontSize: 13 }}>Browse all →</button>
+                    <button onClick={() => navigateTo('vscode')} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)', color: '#58a6ff', cursor: 'pointer', fontSize: 13 }}>Browse all →</button>
                   </div>
                   <ZyraxonMarketplace />
                 </section>
@@ -218,7 +220,7 @@ export default function EcosystemPage() {
                       <span style={{ width: 9, height: 9, borderRadius: 3, background: 'linear-gradient(135deg,#f0883e,#da3633)', display: 'inline-block', boxShadow: '0 0 12px rgba(240,136,62,0.8)' }} />
                       GitHub Releases
                     </h2>
-                    <button onClick={() => navigateTo('github')} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #30363d', background: '#161b22', color: '#58a6ff', cursor: 'pointer', fontSize: 13 }}>Browse all →</button>
+                    <button onClick={() => navigateTo('github')} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)', color: '#58a6ff', cursor: 'pointer', fontSize: 13 }}>Browse all →</button>
                   </div>
                   <GitHubReleases compact />
                 </section>

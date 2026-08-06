@@ -214,7 +214,7 @@ export const ExtensionDotMenu: React.FC<DotMenuProps> = ({ ext, onOpenDetail, al
         onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
         style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          width: 30, height: 30, borderRadius: 8, border: '1px solid #30363d',
+          width: 30, height: 30, borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)',
           background: open ? 'rgba(88,166,255,0.15)' : 'rgba(22,27,34,0.8)',
           color: open ? '#58a6ff' : '#8b949e', cursor: 'pointer', fontFamily: 'inherit',
           transition: 'all 0.15s ease',
@@ -228,7 +228,7 @@ export const ExtensionDotMenu: React.FC<DotMenuProps> = ({ ext, onOpenDetail, al
       {open && (
         <div style={{
           position: 'absolute', top: 36, right: align === 'right' ? 0 : 'auto', left: align === 'left' ? 0 : 'auto',
-          minWidth: 220, background: 'rgba(22,27,34,0.98)', border: '1px solid #30363d',
+          minWidth: 220, background: 'rgba(22,27,34,0.98)', border: '1px solid rgba(255,255,255,0.12)',
           borderRadius: 12, padding: 6, zIndex: 60, boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
           backdropFilter: 'blur(16px)',
         }}>
@@ -297,7 +297,7 @@ const Row: React.FC<{ ext: ZyraxonExtension; onOpen: () => void }> = ({ ext, onO
         alt=""
         width={48} height={48} loading="lazy"
         style={{
-          width: 48, height: 48, borderRadius: 10, objectFit: 'contain', background: '#0d1117',
+          width: 48, height: 48, borderRadius: 10, objectFit: 'contain', background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
           flexShrink: 0, border: `1px solid ${brand}44`,
         }}
       />
@@ -396,7 +396,7 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
         boxShadow: `0 12px 40px rgba(0,0,0,0.4), inset 0 0 60px ${brand}11`,
       }}>
         <img src={ext.icon ?? ''} alt="" width={112} height={112}
-          style={{ width: 112, height: 112, borderRadius: 14, objectFit: 'contain', background: '#0d1117', border: `1px solid ${brand}44` }} />
+          style={{ width: 112, height: 112, borderRadius: 14, objectFit: 'contain', background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)', border: `1px solid ${brand}44` }} />
         <div style={{ flex: 1, minWidth: 260 }}>
           <h1 style={{ fontSize: 24, fontWeight: 700, color: '#e6edf3', margin: 0 }}>{ext.displayName}</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '6px 0 10px', fontSize: 13, color: '#8b949e', flexWrap: 'wrap' }}>
@@ -426,7 +426,7 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 280px', gap: 20 }} className="zxm-detail-grid">
         <div>
-          <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #21262d', marginBottom: 16 }}>
+          <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: 16 }}>
             {([['details', 'Details'], ['changelog', 'Changelog'], ['resources', 'Resources']] as const).map(([key, label]) => (
               <button key={key}
                 onClick={() => (key === 'changelog' ? loadChangelog() : setTab(key))}
@@ -469,7 +469,7 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
           <div style={panel}>
             <h4 style={panelTitle}>More Info</h4>
             {[['Identifier', ext.id], ['Version', ext.version], ['Last updated', fmtDate(ext.lastUpdated)], ['Published', fmtDate(ext.publishedDate)], ['Installs', fmt(ext.installs)]].map(([k, v]) => (
-              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 12, padding: '5px 0', borderTop: '1px solid #21262d' }}>
+              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 12, padding: '5px 0', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                 <span style={{ color: '#8b949e' }}>{k}</span>
                 <span style={{ color: '#c9d1d9', textAlign: 'right', wordBreak: 'break-all' }}>{v}</span>
               </div>
@@ -575,7 +575,7 @@ export const ZyraxonMarketplace: React.FC<{ deepLinkId?: string | null }> = ({ d
           placeholder="Search extensions…"
           style={{
             flex: '1 1 260px', minWidth: 200, padding: '9px 12px', background: 'rgba(13,17,23,0.9)',
-            border: '1px solid #30363d', borderRadius: 10, color: '#c9d1d9', fontSize: 14,
+            border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, color: '#c9d1d9', fontSize: 14,
             fontFamily: 'inherit', outline: 'none', transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
           }}
           onFocus={(e) => { e.currentTarget.style.borderColor = '#8957e5'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(137,87,229,0.15)'; }}
@@ -594,7 +594,7 @@ export const ZyraxonMarketplace: React.FC<{ deepLinkId?: string | null }> = ({ d
       {loading ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 12 }}>
           {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} style={{ height: 108, borderRadius: 12, background: 'rgba(22,27,34,0.7)', border: '1px solid #21262d', opacity: 0.5, animation: `zxmPulse 1.4s ease-in-out ${i * 0.1}s infinite` }} />
+            <div key={i} style={{ height: 108, borderRadius: 12, background: 'rgba(22,27,34,0.7)', border: '1px solid rgba(255,255,255,0.08)', opacity: 0.5, animation: `zxmPulse 1.4s ease-in-out ${i * 0.1}s infinite` }} />
           ))}
         </div>
       ) : (
@@ -620,25 +620,25 @@ const Styles = () => (
     @keyframes zxmPulse { 0%,100% { opacity: .4 } 50% { opacity: .8 } }
     .zxm-markdown { color: #b1bac4; font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
     .zxm-markdown h1, .zxm-markdown h2, .zxm-markdown h3, .zxm-markdown h4 { color: #e6edf3; margin: 22px 0 10px; line-height: 1.3; }
-    .zxm-markdown h1 { font-size: 22px; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
-    .zxm-markdown h2 { font-size: 18px; border-bottom: 1px solid #21262d; padding-bottom: 6px; }
+    .zxm-markdown h1 { font-size: 22px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; }
+    .zxm-markdown h2 { font-size: 18px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; }
     .zxm-markdown h3 { font-size: 15px; }
     .zxm-markdown p { margin: 10px 0; }
     .zxm-markdown a { color: #58a6ff; text-decoration: none; }
     .zxm-markdown a:hover { text-decoration: underline; }
     .zxm-markdown img { max-width: 100%; border-radius: 6px; }
     .zxm-markdown code { background: #21262d; padding: 2px 5px; border-radius: 4px; font-size: 12.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-    .zxm-markdown pre { background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 12px; overflow-x: auto; }
+    .zxm-markdown pre { background: #0d1117; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px; overflow-x: auto; }
     .zxm-markdown pre code { background: none; padding: 0; }
     .zxm-markdown ul { padding-left: 20px; margin: 10px 0; }
     .zxm-markdown li { margin: 4px 0; }
-    .zxm-markdown hr { border: none; border-top: 1px solid #21262d; margin: 18px 0; }
+    .zxm-markdown hr { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 18px 0; }
     @media (max-width: 860px) { .zxm-detail-grid { grid-template-columns: minmax(0,1fr) !important; } }
   `}</style>
 );
 
 const selectStyle: React.CSSProperties = {
-  padding: '9px 10px', background: 'rgba(13,17,23,0.9)', border: '1px solid #30363d',
+  padding: '9px 10px', background: 'rgba(13,17,23,0.9)', border: '1px solid rgba(255,255,255,0.12)',
   borderRadius: 10, color: '#c9d1d9', fontSize: 13, fontFamily: 'inherit', outline: 'none', cursor: 'pointer',
 };
 const primaryBtn: React.CSSProperties = {
@@ -648,15 +648,15 @@ const primaryBtn: React.CSSProperties = {
   boxShadow: '0 4px 18px rgba(137,87,229,0.4)', transition: 'transform 0.12s ease, box-shadow 0.12s ease',
 };
 const ghostBtn: React.CSSProperties = {
-  padding: '8px 14px', background: 'rgba(22,27,34,0.8)', border: '1px solid #30363d', borderRadius: 10,
+  padding: '8px 14px', background: 'rgba(22,27,34,0.8)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10,
   color: '#c9d1d9', fontSize: 13, cursor: 'pointer', textDecoration: 'none', fontFamily: 'inherit', display: 'inline-block',
   transition: 'border-color 0.15s ease',
 };
 const linkBtn: React.CSSProperties = {
   background: 'none', border: 'none', color: '#58a6ff', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit', padding: 0,
 };
-const panel: React.CSSProperties = { background: 'rgba(22,27,34,0.85)', border: '1px solid #21262d', borderRadius: 14, padding: 14 };
+const panel: React.CSSProperties = { background: 'rgba(22,27,34,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: 14 };
 const panelTitle: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: '#8b949e', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: '0.5px' };
-const chip: React.CSSProperties = { fontSize: 11, color: '#8b949e', background: '#0d1117', border: '1px solid #21262d', borderRadius: 20, padding: '3px 9px' };
+const chip: React.CSSProperties = { fontSize: 11, color: '#8b949e', background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '3px 9px' };
 
 export default ZyraxonMarketplace;

@@ -149,8 +149,8 @@ export const LoginButton: React.FC<LoginButtonProps> = ({ onLogin, onLogout, onN
   }
 
   const modalStyle: React.CSSProperties = {
-    background: '#161b22',
-    border: '1px solid #30363d',
+    background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)',
+    border: '1px solid rgba(255,255,255,0.12)',
     borderRadius: '16px',
     width: '100%',
     maxWidth: '440px',
@@ -162,8 +162,8 @@ export const LoginButton: React.FC<LoginButtonProps> = ({ onLogin, onLogout, onN
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '10px 14px',
-    background: '#0d1117',
-    border: '1px solid #30363d',
+    background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
+    border: '1px solid rgba(255,255,255,0.12)',
     borderRadius: '8px',
     color: '#c9d1d9',
     fontSize: '14px',
@@ -191,7 +191,7 @@ export const LoginButton: React.FC<LoginButtonProps> = ({ onLogin, onLogout, onN
     width: '100%',
     padding: '10px 16px',
     background: 'transparent',
-    border: '1px solid #30363d',
+    border: '1px solid rgba(255,255,255,0.12)',
     borderRadius: '8px',
     color: '#c9d1d9',
     fontSize: '14px',
@@ -400,12 +400,12 @@ export const LoginButton: React.FC<LoginButtonProps> = ({ onLogin, onLogout, onN
                         </li>
                         <li style={{ marginBottom: '4px' }}>Click "Generate new token (classic)"</li>
                         <li style={{ marginBottom: '4px' }}>Select scopes: <code style={{
-                          background: '#21262d',
+                          background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
                           padding: '2px 6px',
                           borderRadius: '4px',
                           fontSize: '12px',
                         }}>repo</code>, <code style={{
-                          background: '#21262d',
+                          background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
                           padding: '2px 6px',
                           borderRadius: '4px',
                           fontSize: '12px',
@@ -486,7 +486,7 @@ export const LoginButton: React.FC<LoginButtonProps> = ({ onLogin, onLogout, onN
 
                   <div style={{
                     padding: '16px',
-                    background: '#0d1117',
+                    background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
                     border: '2px dashed #30363d',
                     borderRadius: '12px',
                     marginBottom: '20px',
@@ -512,8 +512,8 @@ export const LoginButton: React.FC<LoginButtonProps> = ({ onLogin, onLogout, onN
                       alignItems: 'center',
                       gap: '8px',
                       padding: '10px 20px',
-                      background: '#21262d',
-                      border: '1px solid #30363d',
+                      background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
+                      border: '1px solid rgba(255,255,255,0.12)',
                       borderRadius: '8px',
                       color: '#58a6ff',
                       fontSize: '14px',
@@ -591,7 +591,7 @@ export const LoginButton: React.FC<LoginButtonProps> = ({ onLogin, onLogout, onN
             height: '32px',
             borderRadius: '50%',
             overflow: 'hidden',
-            background: '#21262d',
+            background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)',
           }}>
             {user.avatarUrl ? (
               <img src={user.avatarUrl} alt={user.username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -641,8 +641,8 @@ export const LoginButton: React.FC<LoginButtonProps> = ({ onLogin, onLogout, onN
           right: 0,
           marginTop: '8px',
           width: '240px',
-          background: '#161b22',
-          border: '1px solid #30363d',
+          background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.12)',
           borderRadius: '12px',
           padding: '6px',
           zIndex: 50,
@@ -650,7 +650,7 @@ export const LoginButton: React.FC<LoginButtonProps> = ({ onLogin, onLogout, onN
         }}>
           <div style={{
             padding: '12px',
-            borderBottom: '1px solid #21262d',
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
             marginBottom: '4px',
           }}>
             <div style={{ fontSize: '14px', fontWeight: '600', color: '#c9d1d9' }}>
@@ -737,7 +737,7 @@ export const LoginButton: React.FC<LoginButtonProps> = ({ onLogin, onLogout, onN
             My Likes
           </button>
 
-          <div style={{ borderTop: '1px solid #21262d', margin: '4px 0' }} />
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', margin: '4px 0' }} />
 
           <button
             onClick={() => { onNavigate?.('ai-settings'); setDropdownOpen(false) }}
@@ -791,7 +791,7 @@ export const LoginButton: React.FC<LoginButtonProps> = ({ onLogin, onLogout, onN
             Settings
           </button>
 
-          <div style={{ borderTop: '1px solid #21262d', margin: '4px 0' }} />
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', margin: '4px 0' }} />
 
           <button
             onClick={handleLogout}

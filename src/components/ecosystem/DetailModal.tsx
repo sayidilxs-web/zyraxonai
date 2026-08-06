@@ -100,8 +100,8 @@ export const DetailModal: React.FC<DetailModalProps> = ({ item, onClose, onInsta
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: '#161b22',
-          border: '1px solid #21262d',
+          background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: '16px',
           width: '100%',
           maxWidth: '720px',
@@ -115,7 +115,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({ item, onClose, onInsta
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '16px 20px',
-          borderBottom: '1px solid #21262d',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
             <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#f0f6fc', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -136,7 +136,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({ item, onClose, onInsta
             onClick={onClose}
             style={{
               width: '32px', height: '32px', borderRadius: '8px',
-              background: 'transparent', border: '1px solid #21262d',
+              background: 'transparent', border: '1px solid rgba(255,255,255,0.08)',
               color: '#8b949e', cursor: 'pointer', display: 'flex',
               alignItems: 'center', justifyContent: 'center', fontSize: '18px',
               fontFamily: 'inherit', outline: 'none', flexShrink: 0,
@@ -153,7 +153,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({ item, onClose, onInsta
           {item.coverImage && (
             <div style={{
               borderRadius: '10px', overflow: 'hidden', marginBottom: '20px',
-              border: '1px solid #21262d',
+              border: '1px solid rgba(255,255,255,0.08)',
             }}>
               <img src={item.coverImage} alt={item.name} style={{ width: '100%', display: 'block' }} />
             </div>
@@ -163,7 +163,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({ item, onClose, onInsta
             {(item.icon || item.logo) && (
               <div style={{
                 width: '48px', height: '48px', borderRadius: '12px',
-                overflow: 'hidden', background: '#21262d', flexShrink: 0,
+                overflow: 'hidden', background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)', flexShrink: 0,
               }}>
                 <img src={item.icon || item.logo} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
@@ -179,7 +179,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({ item, onClose, onInsta
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
               {item.tags.map((tag) => (
                 <span key={tag} style={{
-                  padding: '4px 10px', background: '#21262d', borderRadius: '14px',
+                  padding: '4px 10px', background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)', borderRadius: '14px',
                   fontSize: '12px', color: '#8b949e',
                 }}>
                   {tag}
@@ -223,7 +223,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({ item, onClose, onInsta
                 onClick={() => window.open(item.githubRepo, '_blank')}
                 style={{
                   padding: '10px 20px', borderRadius: '8px',
-                  background: 'transparent', border: '1px solid #30363d',
+                  background: 'transparent', border: '1px solid rgba(255,255,255,0.12)',
                   color: '#c9d1d9', cursor: 'pointer', fontSize: '14px',
                   fontWeight: '500', fontFamily: 'inherit', outline: 'none',
                   display: 'flex', alignItems: 'center', gap: '8px',
@@ -249,8 +249,8 @@ export const DetailModal: React.FC<DetailModalProps> = ({ item, onClose, onInsta
               { label: 'Size', value: item.fileSize || 'N/A' },
             ].map((stat) => (
               <div key={stat.label} style={{
-                padding: '12px', background: '#0d1117', borderRadius: '8px',
-                border: '1px solid #21262d', textAlign: 'center',
+                padding: '12px', background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)', borderRadius: '8px',
+                border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center',
               }}>
                 <div style={{ fontSize: '16px', fontWeight: '600', color: '#f0f6fc' }}>{stat.value}</div>
                 <div style={{ fontSize: '11px', color: '#484f58', marginTop: '2px' }}>{stat.label}</div>
@@ -263,7 +263,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({ item, onClose, onInsta
             <ShareButton itemId={item.id} itemName={item.name} itemUrl={item.liveDemo || item.githubRepo} />
           </div>
 
-          <div style={{ borderTop: '1px solid #21262d', paddingTop: '20px' }}>
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px' }}>
             <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#f0f6fc', marginBottom: '16px' }}>
               Comments ({item.commentCount})
             </h3>

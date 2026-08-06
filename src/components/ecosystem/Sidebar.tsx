@@ -71,8 +71,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) =
       width: collapsed ? '56px' : '224px',
       minWidth: collapsed ? '56px' : '224px',
       height: '100vh',
-      background: '#0d1117',
-      borderRight: '1px solid #21262d',
+      background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)',
+      borderRight: '1px solid rgba(255,255,255,0.08)',
       display: 'flex',
       flexDirection: 'column',
       transition: 'width 0.2s ease, min-width 0.2s ease',
@@ -83,7 +83,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) =
         alignItems: 'center',
         justifyContent: collapsed ? 'center' : 'space-between',
         padding: collapsed ? '16px 8px' : '16px',
-        borderBottom: '1px solid #21262d',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
       }}>
         {!collapsed && (
           <span style={{
@@ -104,7 +104,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) =
             width: '32px',
             height: '32px',
             background: 'transparent',
-            border: '1px solid #21262d',
+            border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: '6px',
             color: '#8b949e',
             cursor: 'pointer',
@@ -148,7 +148,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) =
           ))}
         </div>
 
-        <div style={{ height: '1px', background: '#21262d', margin: '8px 12px' }} />
+        <div style={{ height: '1px', background: 'rgba(48,54,61,0.45)', backdropFilter: 'blur(14px)', margin: '8px 12px' }} />
 
         <div>
           {!collapsed && (
@@ -179,7 +179,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) =
 
       <div style={{
         padding: collapsed ? '8px' : '12px',
-        borderTop: '1px solid #21262d',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
       }}>
         <button
           onClick={() => onViewChange('settings')}
