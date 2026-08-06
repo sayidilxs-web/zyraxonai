@@ -3,6 +3,8 @@ import { CommentSection } from './CommentSection';
 import { RatingStars } from './RatingStars';
 import { LikeButton } from './LikeButton';
 import { ShareButton } from './ShareButton';
+import { InstallButton } from './InstallButton';
+import { SecurityBadge } from './SecurityBadge';
 
 /**
  * ZYRAXON AI Extension Marketplace
@@ -98,6 +100,23 @@ function launchZyraxon(id: string): void {
   } catch {
     // no-op — app not installed
   }
+}
+
+
+/** Map a gallery item onto the shared install / security shapes. */
+function installTarget(e: ZyraxonExtension) {
+  return {
+    id: e.id, displayName: e.displayName, version: e.version,
+    publisher: e.publisher.displayName, icon: e.icon, vsix: e.vsix,
+    source: 'extension' as const,
+  };
+}
+function securityInput(e: ZyraxonExtension) {
+  return {
+    id: e.id, verifiedPublisher: e.publisher.verified, repository: e.repository,
+    license: e.license, installs: e.installs, rating: e.rating, ratingCount: e.ratingCount,
+    lastUpdated: e.lastUpdated, preview: e.preview, categories: e.categories, tags: e.tags,
+  };
 }
 
 const Stars: React.FC<{ value: number; size?: number }> = ({ value, size = 12 }) => (
@@ -326,7 +345,13 @@ const Row: React.FC<{ ext: ZyraxonExtension; onOpen: () => void }> = ({ ext, onO
           )}
         </div>
       </div>
-      <ExtensionDotMenu ext={ext} onOpenDetail={onOpen} />
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <InstallButton target={installTarget(ext)} />
+          <ExtensionDotMenu ext={ext} onOpenDetail={onOpen} />
+        </div>
+        <SecurityBadge input={securityInput(ext)} />
+      </div>
     </div>
   );
 };
@@ -409,12 +434,8 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
           </div>
           <p style={{ margin: '0 0 14px', fontSize: 14, color: '#b1bac4', lineHeight: 1.5 }}>{ext.description}</p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            <button onClick={() => launchZyraxon(ext.id)} style={primaryBtn}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a.75.75 0 0 1 .75.75v5.5h5.5a.75.75 0 0 1 0 1.5h-5.5v5.5a.75.75 0 0 1-1.5 0v-5.5h-5.5a.75.75 0 0 1 0-1.5h5.5v-5.5A.75.75 0 0 1 8 1z"/></svg>
-                Install in ZYRAXON AI
-              </span>
-            </button>
+            <InstallButton target={installTarget(ext)} size="md" />
+            <button onClick={() => launchZyraxon(ext.id)} style={ghostBtn}>Open in ZYRAXON AI</button>
             <a href={ext.websiteUrl} target="_blank" rel="noopener noreferrer" style={ghostBtn}>View on Website</a>
             {ext.vsix && <a href={ext.vsix} style={ghostBtn} download>Download Package</a>}
             <button onClick={copyInstall} style={ghostBtn}>{copied ? 'Copied!' : 'Copy install command'}</button>
@@ -452,6 +473,10 @@ const Detail: React.FC<{ id: string; onBack: () => void }> = ({ id, onBack }) =>
         </div>
 
         <aside style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={panel}>
+            <h4 style={panelTitle}>Security Scan</h4>
+            <SecurityBadge input={securityInput(ext)} detailed />
+          </div>
           <div style={panel}>
             <h4 style={panelTitle}>Categories</h4>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
