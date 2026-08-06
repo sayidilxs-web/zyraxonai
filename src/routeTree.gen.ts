@@ -17,6 +17,7 @@ import { Route as ApiSharesIndexRouteImport } from './routes/api/shares/index'
 import { Route as EcosystemItemIdRouteImport } from './routes/ecosystem/item/$id'
 import { Route as ApiPublicVscodeMarketplaceRouteImport } from './routes/api/public/vscode-marketplace'
 import { Route as ApiPublicSttRouteImport } from './routes/api/public/stt'
+import { Route as ApiPublicMcpRegistryRouteImport } from './routes/api/public/mcp-registry'
 import { Route as ApiPublicGithubReleasesRouteImport } from './routes/api/public/github-releases'
 import { Route as ApiPublicGithubDeviceRouteImport } from './routes/api/public/github-device'
 import { Route as ApiPublicDownloadsRouteImport } from './routes/api/public/downloads'
@@ -71,6 +72,11 @@ const ApiPublicVscodeMarketplaceRoute =
 const ApiPublicSttRoute = ApiPublicSttRouteImport.update({
   id: '/api/public/stt',
   path: '/api/public/stt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicMcpRegistryRoute = ApiPublicMcpRegistryRouteImport.update({
+  id: '/api/public/mcp-registry',
+  path: '/api/public/mcp-registry',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicGithubReleasesRoute = ApiPublicGithubReleasesRouteImport.update({
@@ -156,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/api/public/downloads': typeof ApiPublicDownloadsRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/github-releases': typeof ApiPublicGithubReleasesRoute
+  '/api/public/mcp-registry': typeof ApiPublicMcpRegistryRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/public/vscode-marketplace': typeof ApiPublicVscodeMarketplaceRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/api/public/downloads': typeof ApiPublicDownloadsRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/github-releases': typeof ApiPublicGithubReleasesRoute
+  '/api/public/mcp-registry': typeof ApiPublicMcpRegistryRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/public/vscode-marketplace': typeof ApiPublicVscodeMarketplaceRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/api/public/downloads': typeof ApiPublicDownloadsRoute
   '/api/public/github-device': typeof ApiPublicGithubDeviceRoute
   '/api/public/github-releases': typeof ApiPublicGithubReleasesRoute
+  '/api/public/mcp-registry': typeof ApiPublicMcpRegistryRoute
   '/api/public/stt': typeof ApiPublicSttRoute
   '/api/public/vscode-marketplace': typeof ApiPublicVscodeMarketplaceRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/api/public/downloads'
     | '/api/public/github-device'
     | '/api/public/github-releases'
+    | '/api/public/mcp-registry'
     | '/api/public/stt'
     | '/api/public/vscode-marketplace'
     | '/ecosystem/item/$id'
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
     | '/api/public/downloads'
     | '/api/public/github-device'
     | '/api/public/github-releases'
+    | '/api/public/mcp-registry'
     | '/api/public/stt'
     | '/api/public/vscode-marketplace'
     | '/ecosystem/item/$id'
@@ -279,6 +290,7 @@ export interface FileRouteTypes {
     | '/api/public/downloads'
     | '/api/public/github-device'
     | '/api/public/github-releases'
+    | '/api/public/mcp-registry'
     | '/api/public/stt'
     | '/api/public/vscode-marketplace'
     | '/ecosystem/item/$id'
@@ -304,6 +316,7 @@ export interface RootRouteChildren {
   ApiPublicDownloadsRoute: typeof ApiPublicDownloadsRoute
   ApiPublicGithubDeviceRoute: typeof ApiPublicGithubDeviceRoute
   ApiPublicGithubReleasesRoute: typeof ApiPublicGithubReleasesRoute
+  ApiPublicMcpRegistryRoute: typeof ApiPublicMcpRegistryRoute
   ApiPublicSttRoute: typeof ApiPublicSttRoute
   ApiPublicVscodeMarketplaceRoute: typeof ApiPublicVscodeMarketplaceRoute
   EcosystemItemIdRoute: typeof EcosystemItemIdRoute
@@ -374,6 +387,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/stt'
       fullPath: '/api/public/stt'
       preLoaderRoute: typeof ApiPublicSttRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/mcp-registry': {
+      id: '/api/public/mcp-registry'
+      path: '/api/public/mcp-registry'
+      fullPath: '/api/public/mcp-registry'
+      preLoaderRoute: typeof ApiPublicMcpRegistryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/github-releases': {
@@ -488,6 +508,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicDownloadsRoute: ApiPublicDownloadsRoute,
   ApiPublicGithubDeviceRoute: ApiPublicGithubDeviceRoute,
   ApiPublicGithubReleasesRoute: ApiPublicGithubReleasesRoute,
+  ApiPublicMcpRegistryRoute: ApiPublicMcpRegistryRoute,
   ApiPublicSttRoute: ApiPublicSttRoute,
   ApiPublicVscodeMarketplaceRoute: ApiPublicVscodeMarketplaceRoute,
   EcosystemItemIdRoute: EcosystemItemIdRoute,
