@@ -175,10 +175,12 @@ export default function EcosystemPage() {
   const viewTitle = ({ 'top-rated': 'Top Rated', trending: 'Trending', new: 'New Arrivals', 'my-plugins': 'My Plugins', 'my-downloads': 'My Downloads', 'my-favorites': 'My Favorites', explore: 'Explore', home: 'Home' } as Record<string, string>)[view] || 'Explore'
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'rgba(13,17,23,0.55)', backdropFilter: 'blur(24px)', color: '#c9d1d9', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+    <div className="zx-glass-root" style={{ position: 'relative', display: 'flex', minHeight: '100vh', color: '#c9d1d9', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+      <div className="zx-aurora" aria-hidden="true" />
       <Sidebar currentView={view} onViewChange={navigateTo} />
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <header style={{ position: 'sticky', top: 0, zIndex: 50, display: 'flex', alignItems: 'center', gap: 16, padding: '12px 24px', background: 'rgba(13,17,23,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, position: 'relative', zIndex: 1 }}>
+        <header style={{ position: 'sticky', top: 0, zIndex: 50, display: 'flex', alignItems: 'center', gap: 16, padding: '12px 24px', background: 'rgba(13,17,23,0.5)', backdropFilter: 'blur(28px) saturate(160%)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+
           <div style={{ flex: 1, maxWidth: 560 }}><SearchBar onSearch={setSearchQuery} /></div>
           {view === 'product-detail' && <button onClick={() => { setSelectedItem(null); setView('home') }} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(28,34,46,0.55)', backdropFilter: 'blur(20px)', color: '#c9d1d9', cursor: 'pointer', fontSize: 13 }}>← Back</button>}
           <LoginButton onLogout={handleLogout} onNavigate={navigateTo} />
