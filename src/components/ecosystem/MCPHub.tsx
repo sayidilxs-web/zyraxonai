@@ -494,7 +494,7 @@ export const MCPHub: React.FC<MCPHubProps> = ({ onInstall }) => {
                 <SecurityBadge
                   input={{
                     id: ext.id,
-                    verifiedPublisher: stats.publisherVerified,
+                    verifiedPublisher: stats.publisherVerified ?? false,
                     repository: ext.repository,
                     installs: stats.installs,
                     rating: stats.rating,

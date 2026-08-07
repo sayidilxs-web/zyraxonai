@@ -689,17 +689,20 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
               <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                 <h4 style={{ fontSize: '12px', fontWeight: 600, color: '#8b949e', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Security</h4>
                 <SecurityBadge
-                  input={{
-                    downloads: item.downloads,
-                    rating: item.rating,
-                    verified: item.verified,
-                    openSource: item.openSource,
-                    installCommand: item.installCommand,
-                    name: item.name,
-                    author: typeof item.author === 'string' ? item.author : (item.author as any)?.name || '',
-                  }}
-                  detailed
-                />
+          input={{
+            id: item.id,
+            verifiedPublisher: item.verified,
+            repository: item.repository || item.githubRepo || null,
+            license: item.license || null,
+            installs: item.downloads,
+            rating: item.rating,
+            ratingCount: item.reviews,
+            lastUpdated: item.updatedAt,
+            categories: [item.category],
+            tags: item.tags,
+          }}
+          detailed
+        />
               </div>
 
               <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
@@ -708,7 +711,17 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
               </div>
 
               <div style={{ marginTop: '16px' }}>
-                <InstallButton item={item} />
+                <InstallButton
+                  target={{
+                    id: item.id,
+                    displayName: item.name,
+                    version: item.version || 'latest',
+                    publisher: typeof item.author === 'string' ? item.author : String((item.author as any)?.name ?? ''),
+                    icon: item.icon ?? item.logo ?? null,
+                    source: 'extension',
+                  }}
+                  size="md"
+                />
               </div>
 
               <div style={{ marginTop: '16px' }}>

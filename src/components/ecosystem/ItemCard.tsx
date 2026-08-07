@@ -334,13 +334,16 @@ export const ItemCard: React.FC<ItemCardProps> = ({
       <div style={{ marginBottom: '8px' }}>
         <SecurityBadge
           input={{
-            downloads: item.downloads,
+            id: item.id,
+            verifiedPublisher: item.verified,
+            repository: item.repository || item.githubRepo || null,
+            license: item.license || null,
+            installs: item.downloads,
             rating: item.rating,
-            verified: item.verified,
-            openSource: item.openSource,
-            installCommand: item.installCommand,
-            name: item.name,
-            author: typeof item.author === 'string' ? item.author : (item.author as any)?.name || '',
+            ratingCount: item.reviews,
+            lastUpdated: item.updatedAt,
+            categories: [item.category],
+            tags: item.tags,
           }}
         />
       </div>
