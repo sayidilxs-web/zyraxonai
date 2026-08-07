@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { EcosystemItem, getAllItems, getAuthState, getGitHubStorage } from '../../lib/ecosystem'
 import { ShareButton } from './ShareButton'
 import { ItemDotMenu } from './ItemDotMenu'
+import { MCPHub } from './MCPHub'
 
 interface MarketplaceProps {
   onSelectItem?: (item: EcosystemItem) => void
@@ -237,6 +238,8 @@ export const Marketplace: React.FC<MarketplaceProps> = ({ onSelectItem, onUserCl
             </button>
           ))}
         </div>
+
+        <MCPHub />
 
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 0' }}>

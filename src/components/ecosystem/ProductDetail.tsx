@@ -4,6 +4,8 @@ import { LikeButton } from './LikeButton'
 import { ShareButton } from './ShareButton'
 import { CommentSection } from './CommentSection'
 import { RatingStars } from './RatingStars'
+import { SecurityBadge } from './SecurityBadge'
+import { InstallButton } from './InstallButton'
 import { IconArrowLeft, IconExternalLink, IconCode, IconDownload, IconStar, IconCopy, IconCheck, IconChevronLeft, IconChevronRight, IconGlobe, IconMonitor, IconSmartphone, IconTerminal, IconCalendar, IconMaximize, IconX, IconLoader } from './Icons'
 
 interface ProductDetailProps {
@@ -685,8 +687,28 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ item, onClose, onI
               </div>
 
               <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                <h4 style={{ fontSize: '12px', fontWeight: 600, color: '#8b949e', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Security</h4>
+                <SecurityBadge
+                  input={{
+                    downloads: item.downloads,
+                    rating: item.rating,
+                    verified: item.verified,
+                    openSource: item.openSource,
+                    installCommand: item.installCommand,
+                    name: item.name,
+                    author: typeof item.author === 'string' ? item.author : (item.author as any)?.name || '',
+                  }}
+                  detailed
+                />
+              </div>
+
+              <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                 <h4 style={{ fontSize: '12px', fontWeight: 600, color: '#8b949e', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Rate this item</h4>
                 <RatingStars itemId={item.id} initialAverage={item.rating} />
+              </div>
+
+              <div style={{ marginTop: '16px' }}>
+                <InstallButton item={item} />
               </div>
 
               <div style={{ marginTop: '16px' }}>

@@ -25,6 +25,7 @@ export interface InstalledRecord {
   publisher: string;
   icon?: string | null;
   vsix?: string | null;
+  vsixUrl?: string | null;
   source: "extension" | "mcp" | "agent-mode" | "prompt-pack" | "theme";
   installedAt: string;
   enabled: boolean;
@@ -38,6 +39,7 @@ export interface InstallTarget {
   publisher: string;
   icon?: string | null;
   vsix?: string | null;
+  vsixUrl?: string | null;
   source?: InstalledRecord["source"];
 }
 
@@ -207,4 +209,76 @@ export async function syncWithApp(): Promise<void> {
     for (const r of list) if (r?.id) next[r.id] = r;
     write(next);
   } catch { /* app unavailable */ }
+}
+
+/* ------------------------------------------------------------------ */
+/* VSIX download from VS Code Marketplace                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Fetch the VSIX download URL for an extension from the VS Code Marketplace.
+ */
+export async function fetchVSIXUrl(extensionId: string): Promise<string | null> {
+  try {
+    const [publisher, name] = extensionId.split('.');
+    if (!publisher || !name) return null;
+
+    const response = await fetch('https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json;api-version=6.1-preview.1',
+      },
+      body: JSON.stringify({
+        filters: [{
+          criteria: [
+            { filterType: 7, value: extensionId },
+          ],
+        }],
+        flags: 0x200,
+      }),
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    const extension = data?.results?.[0]?.extensions?.[0];
+    if (!extension) return null;
+
+    const version = extension.versions?.[0];
+    if (!version) return null;
+
+    const asset = version.files?.find((f: any) => f.assetType === 'Microsoft.VisualStudio.Services.VSIXPackage');
+    return asset?.source || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Install an extension directly from the VS Code Marketplace.
+ * Fetches the VSIX and triggers install via bridge or deep-link.
+ */
+export async function installFromMarketplace(
+  extensionId: string,
+  displayName: string,
+  publisher: string,
+  icon?: string,
+): Promise<InstalledRecord> {
+  const vsixUrl = await fetchVSIXUrl(extensionId);
+  if (!vsixUrl) {
+    throw new Error(`Could not find VSIX for ${extensionId}`);
+  }
+
+  const target: InstallTarget = {
+    id: extensionId,
+    displayName,
+    version: 'latest',
+    publisher,
+    icon,
+    vsixUrl,
+    source: 'extension',
+  };
+
+  return install(target);
 }
