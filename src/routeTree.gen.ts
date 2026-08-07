@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EcosystemIndexRouteImport } from './routes/ecosystem/index'
 import { Route as ShareIdRouteImport } from './routes/share/$id'
+import { Route as ApiMarketplaceSearchRouteImport } from './routes/api/marketplace-search'
 import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as ApiSharesIndexRouteImport } from './routes/api/shares/index'
 import { Route as EcosystemItemIdRouteImport } from './routes/ecosystem/item/$id'
@@ -46,6 +47,11 @@ const EcosystemIndexRoute = EcosystemIndexRouteImport.update({
 const ShareIdRoute = ShareIdRouteImport.update({
   id: '/share/$id',
   path: '/share/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMarketplaceSearchRoute = ApiMarketplaceSearchRouteImport.update({
+  id: '/api/marketplace-search',
+  path: '/api/marketplace-search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSplatRoute = ApiSplatRouteImport.update({
@@ -154,6 +160,7 @@ const ApiPublicSharesIdDataRoute = ApiPublicSharesIdDataRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/$': typeof ApiSplatRoute
+  '/api/marketplace-search': typeof ApiMarketplaceSearchRoute
   '/share/$id': typeof ShareIdRoute
   '/ecosystem/': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
@@ -179,6 +186,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/$': typeof ApiSplatRoute
+  '/api/marketplace-search': typeof ApiMarketplaceSearchRoute
   '/share/$id': typeof ShareIdRoute
   '/ecosystem': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/$': typeof ApiSplatRoute
+  '/api/marketplace-search': typeof ApiMarketplaceSearchRoute
   '/share/$id': typeof ShareIdRoute
   '/ecosystem/': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/api/$'
+    | '/api/marketplace-search'
     | '/share/$id'
     | '/ecosystem/'
     | '/api/public/$'
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/api/$'
+    | '/api/marketplace-search'
     | '/share/$id'
     | '/ecosystem'
     | '/api/public/$'
@@ -282,6 +293,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/api/$'
+    | '/api/marketplace-search'
     | '/share/$id'
     | '/ecosystem/'
     | '/api/public/$'
@@ -308,6 +320,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiSplatRoute: typeof ApiSplatRoute
+  ApiMarketplaceSearchRoute: typeof ApiMarketplaceSearchRoute
   ShareIdRoute: typeof ShareIdRoute
   EcosystemIndexRoute: typeof EcosystemIndexRoute
   ApiPublicSplatRoute: typeof ApiPublicSplatRoute
@@ -352,6 +365,13 @@ declare module '@tanstack/react-router' {
       path: '/share/$id'
       fullPath: '/share/$id'
       preLoaderRoute: typeof ShareIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/marketplace-search': {
+      id: '/api/marketplace-search'
+      path: '/api/marketplace-search'
+      fullPath: '/api/marketplace-search'
+      preLoaderRoute: typeof ApiMarketplaceSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/$': {
@@ -500,6 +520,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiSplatRoute: ApiSplatRoute,
+  ApiMarketplaceSearchRoute: ApiMarketplaceSearchRoute,
   ShareIdRoute: ShareIdRoute,
   EcosystemIndexRoute: EcosystemIndexRoute,
   ApiPublicSplatRoute: ApiPublicSplatRoute,
@@ -525,3 +546,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
