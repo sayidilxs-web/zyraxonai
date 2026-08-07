@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import {
   IconHome, IconMarketplace, IconCommunity, IconSearch, IconCategories,
   IconStar, IconTrending, IconNew, IconPackage, IconDownload, IconHeart,
-  IconSettings, IconChevronLeft, IconChevronRight, IconUser,
+  IconSettings, IconChevronLeft, IconChevronRight, IconUser, IconMCP,
 } from './Icons'
 
 interface SidebarProps {
@@ -26,6 +26,7 @@ const mainNavItems: NavItem[] = [
   { id: 'top-rated', label: 'Top Rated', icon: IconStar },
   { id: 'trending', label: 'Trending', icon: IconTrending },
   { id: 'new', label: 'New Arrivals', icon: IconNew },
+  { id: 'mcp', label: 'MCP Tools', icon: IconMCP },
 ]
 
 const myStuffItems: NavItem[] = [

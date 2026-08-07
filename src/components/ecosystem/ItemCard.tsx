@@ -3,6 +3,7 @@ import { EcosystemItem, getAuthState, getGitHubStorage } from '../../lib/ecosyst
 import { IconStar, IconDownload, IconMessageSquare, IconHeart, IconHeartOutline, IconCheck, IconCopy, IconExternalLink, IconRocket } from './Icons'
 import { ShareButton } from './ShareButton'
 import { ItemDotMenu } from './ItemDotMenu'
+import { SecurityBadge } from './SecurityBadge'
 
 interface ItemCardProps {
   item: EcosystemItem
@@ -329,6 +330,20 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           )}
         </div>
       )}
+
+      <div style={{ marginBottom: '8px' }}>
+        <SecurityBadge
+          input={{
+            downloads: item.downloads,
+            rating: item.rating,
+            verified: item.verified,
+            openSource: item.openSource,
+            installCommand: item.installCommand,
+            name: item.name,
+            author: typeof item.author === 'string' ? item.author : (item.author as any)?.name || '',
+          }}
+        />
+      </div>
 
       <div style={{
         display: 'flex',

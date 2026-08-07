@@ -12,15 +12,19 @@ export const SecurityBadge: React.FC<{ input: SecurityInput; detailed?: boolean 
         onClick={() => setOpen((o) => !o)}
         title={`Security score ${r.score}/100`}
         style={{
-          display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 8px', borderRadius: 20,
+          display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 20,
           background: `${r.color}18`, border: `1px solid ${r.color}55`, color: r.color,
           fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+          transition: 'all 0.2s ease',
         }}
       >
         <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor">
           <path d="M8 0l6 2.5v5c0 3.6-2.5 6.9-6 8.5-3.5-1.6-6-4.9-6-8.5v-5L8 0z" />
         </svg>
         {r.label} · {r.score}
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.2s ease', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
       </button>
 
       {open && (
@@ -46,8 +50,9 @@ export const SecurityBadge: React.FC<{ input: SecurityInput; detailed?: boolean 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                 {r.permissions.map((p) => (
                   <span key={p} style={{
-                    fontSize: 10.5, color: '#c9d1d9', background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '2px 8px',
+                    fontSize: 10.5, color: '#c9d1d9', background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.12)', borderRadius: 20, padding: '2px 8px',
+                    transition: 'all 0.15s ease',
                   }}>{p}</span>
                 ))}
               </div>

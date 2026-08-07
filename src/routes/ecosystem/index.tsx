@@ -21,6 +21,7 @@ import { Marketplace } from '../../components/ecosystem/Marketplace'
 import { ZyraxonMarketplace } from '../../components/ecosystem/ZyraxonMarketplace'
 import GitHubReleases from '../../components/ecosystem/GitHubReleases'
 import { PublishModal } from '../../components/ecosystem/PublishModal'
+import { MCPToolsPage } from '../../components/ecosystem/MCPToolsPage'
 
 export const Route = createFileRoute('/ecosystem/')({
   head: () => ({
@@ -245,6 +246,10 @@ export default function EcosystemPage() {
               {/* ── GitHub Releases ── */}
               <div style={{ display: view === 'github' ? 'block' : 'none' }}>
                 <GitHubReleases />
+              </div>
+              {/* ── MCP Tools ── */}
+              <div style={{ display: view === 'mcp' ? 'block' : 'none' }}>
+                <MCPToolsPage />
               </div>
               {/* ── Profile ── */}
               {user && (

@@ -338,7 +338,19 @@ export const IconChevronLeft: React.FC<IconProps> = ({ className, size = 16 }) =
     <polyline points="15 18 9 12 15 6" />
   </svg>
 );
-
+export const IconMCP: React.FC<IconProps> = ({ className, size = 16, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <defs>
+      <linearGradient id="mcp-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#58a6ff" />
+        <stop offset="100%" stopColor="#8957e5" />
+      </linearGradient>
+    </defs>
+    <path d="M12 2L2 7l10 5 10-5-10-5z" fill="url(#mcp-grad)" opacity="0.8" />
+    <path d="M2 17l10 5 10-5" stroke="url(#mcp-grad)" strokeWidth="2" fill="none" />
+    <path d="M2 12l10 5 10-5" stroke="url(#mcp-grad)" strokeWidth="2" fill="none" />
+  </svg>
+);
 export const IconChevronRight: React.FC<IconProps> = ({ className, size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <polyline points="9 18 15 12 9 6" />
