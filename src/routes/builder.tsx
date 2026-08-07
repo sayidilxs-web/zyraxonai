@@ -52,7 +52,10 @@ function extractHtml(text: string): string | null {
 }
 
 function stripFences(text: string): string {
-  return text.replace(/```(?:html)?\s*\n[\s\S]*?(?:```|$)/gi, '\n_[code written to preview]_\n').trim()
+  return text
+    .replace(/```(?:html)?\s*\n[\s\S]*?(?:```|$)/gi, '\n→ code written to the live preview\n')
+    .replace(/<\/?think(?:ing)?>/gi, '')
+    .trim()
 }
 
 const glass: React.CSSProperties = {
@@ -295,7 +298,7 @@ function BuilderPage() {
             <button onClick={() => setTab('code')} style={btn(tab === 'code')}>Code</button>
             <div style={{ flex: 1 }} />
             {(['desktop', 'tablet', 'mobile'] as const).map((d) => (
-              <button key={d} onClick={() => setDevice(d)} style={btn(device === d)}>{d === 'desktop' ? '🖥' : d === 'tablet' ? '📱' : '📲'}</button>
+              <button key={d} onClick={() => setDevice(d)} style={btn(device === d)}>{d === 'desktop' ? 'Desktop' : d === 'tablet' ? 'Tablet' : 'Mobile'}</button>
             ))}
             <button
               onClick={() => {
