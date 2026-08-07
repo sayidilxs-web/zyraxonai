@@ -27,6 +27,7 @@ const mainNavItems: NavItem[] = [
   { id: 'trending', label: 'Trending', icon: IconTrending },
   { id: 'new', label: 'New Arrivals', icon: IconNew },
   { id: 'mcp', label: 'MCP Tools', icon: IconMCP },
+  { id: 'builder', label: 'Blueprint (AI Builder)', icon: IconNew },
 ]
 
 const myStuffItems: NavItem[] = [

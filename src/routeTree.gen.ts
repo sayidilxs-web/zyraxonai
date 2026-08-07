@@ -9,9 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EcosystemIndexRouteImport } from './routes/ecosystem/index'
 import { Route as ShareIdRouteImport } from './routes/share/$id'
+import { Route as ApiMarketplaceSearchRouteImport } from './routes/api/marketplace-search'
 import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as ApiSharesIndexRouteImport } from './routes/api/shares/index'
 import { Route as EcosystemItemIdRouteImport } from './routes/ecosystem/item/$id'
@@ -29,10 +31,17 @@ import { Route as ApiPublicSharesIndexRouteImport } from './routes/api/public/sh
 import { Route as ApiSharesIdSyncRouteImport } from './routes/api/shares/$id/sync'
 import { Route as ApiSharesIdDataRouteImport } from './routes/api/shares/$id/data'
 import { Route as ApiPublicDownloadPlatformRouteImport } from './routes/api/public/download/$platform'
+import { Route as ApiPublicBuilderPublishRouteImport } from './routes/api/public/builder/publish'
+import { Route as ApiPublicBuilderChatRouteImport } from './routes/api/public/builder/chat'
 import { Route as ApiPublicSharesIdIndexRouteImport } from './routes/api/public/shares/$id/index'
 import { Route as ApiPublicSharesIdSyncRouteImport } from './routes/api/public/shares/$id/sync'
 import { Route as ApiPublicSharesIdDataRouteImport } from './routes/api/public/shares/$id/data'
 
+const BuilderRoute = BuilderRouteImport.update({
+  id: '/builder',
+  path: '/builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -46,6 +55,11 @@ const EcosystemIndexRoute = EcosystemIndexRouteImport.update({
 const ShareIdRoute = ShareIdRouteImport.update({
   id: '/share/$id',
   path: '/share/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMarketplaceSearchRoute = ApiMarketplaceSearchRouteImport.update({
+  id: '/api/marketplace-search',
+  path: '/api/marketplace-search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSplatRoute = ApiSplatRouteImport.update({
@@ -135,6 +149,16 @@ const ApiPublicDownloadPlatformRoute =
     path: '/api/public/download/$platform',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicBuilderPublishRoute = ApiPublicBuilderPublishRouteImport.update({
+  id: '/api/public/builder/publish',
+  path: '/api/public/builder/publish',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBuilderChatRoute = ApiPublicBuilderChatRouteImport.update({
+  id: '/api/public/builder/chat',
+  path: '/api/public/builder/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSharesIdIndexRoute = ApiPublicSharesIdIndexRouteImport.update({
   id: '/api/public/shares/$id/',
   path: '/api/public/shares/$id/',
@@ -153,7 +177,9 @@ const ApiPublicSharesIdDataRoute = ApiPublicSharesIdDataRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/builder': typeof BuilderRoute
   '/api/$': typeof ApiSplatRoute
+  '/api/marketplace-search': typeof ApiMarketplaceSearchRoute
   '/share/$id': typeof ShareIdRoute
   '/ecosystem/': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
@@ -167,6 +193,8 @@ export interface FileRoutesByFullPath {
   '/api/public/vscode-marketplace': typeof ApiPublicVscodeMarketplaceRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
   '/api/shares/': typeof ApiSharesIndexRoute
+  '/api/public/builder/chat': typeof ApiPublicBuilderChatRoute
+  '/api/public/builder/publish': typeof ApiPublicBuilderPublishRoute
   '/api/public/download/$platform': typeof ApiPublicDownloadPlatformRoute
   '/api/shares/$id/data': typeof ApiSharesIdDataRoute
   '/api/shares/$id/sync': typeof ApiSharesIdSyncRoute
@@ -178,7 +206,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/builder': typeof BuilderRoute
   '/api/$': typeof ApiSplatRoute
+  '/api/marketplace-search': typeof ApiMarketplaceSearchRoute
   '/share/$id': typeof ShareIdRoute
   '/ecosystem': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
@@ -192,6 +222,8 @@ export interface FileRoutesByTo {
   '/api/public/vscode-marketplace': typeof ApiPublicVscodeMarketplaceRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
   '/api/shares': typeof ApiSharesIndexRoute
+  '/api/public/builder/chat': typeof ApiPublicBuilderChatRoute
+  '/api/public/builder/publish': typeof ApiPublicBuilderPublishRoute
   '/api/public/download/$platform': typeof ApiPublicDownloadPlatformRoute
   '/api/shares/$id/data': typeof ApiSharesIdDataRoute
   '/api/shares/$id/sync': typeof ApiSharesIdSyncRoute
@@ -204,7 +236,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/builder': typeof BuilderRoute
   '/api/$': typeof ApiSplatRoute
+  '/api/marketplace-search': typeof ApiMarketplaceSearchRoute
   '/share/$id': typeof ShareIdRoute
   '/ecosystem/': typeof EcosystemIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
@@ -218,6 +252,8 @@ export interface FileRoutesById {
   '/api/public/vscode-marketplace': typeof ApiPublicVscodeMarketplaceRoute
   '/ecosystem/item/$id': typeof EcosystemItemIdRoute
   '/api/shares/': typeof ApiSharesIndexRoute
+  '/api/public/builder/chat': typeof ApiPublicBuilderChatRoute
+  '/api/public/builder/publish': typeof ApiPublicBuilderPublishRoute
   '/api/public/download/$platform': typeof ApiPublicDownloadPlatformRoute
   '/api/shares/$id/data': typeof ApiSharesIdDataRoute
   '/api/shares/$id/sync': typeof ApiSharesIdSyncRoute
@@ -231,7 +267,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/builder'
     | '/api/$'
+    | '/api/marketplace-search'
     | '/share/$id'
     | '/ecosystem/'
     | '/api/public/$'
@@ -245,6 +283,8 @@ export interface FileRouteTypes {
     | '/api/public/vscode-marketplace'
     | '/ecosystem/item/$id'
     | '/api/shares/'
+    | '/api/public/builder/chat'
+    | '/api/public/builder/publish'
     | '/api/public/download/$platform'
     | '/api/shares/$id/data'
     | '/api/shares/$id/sync'
@@ -256,7 +296,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/builder'
     | '/api/$'
+    | '/api/marketplace-search'
     | '/share/$id'
     | '/ecosystem'
     | '/api/public/$'
@@ -270,6 +312,8 @@ export interface FileRouteTypes {
     | '/api/public/vscode-marketplace'
     | '/ecosystem/item/$id'
     | '/api/shares'
+    | '/api/public/builder/chat'
+    | '/api/public/builder/publish'
     | '/api/public/download/$platform'
     | '/api/shares/$id/data'
     | '/api/shares/$id/sync'
@@ -281,7 +325,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/builder'
     | '/api/$'
+    | '/api/marketplace-search'
     | '/share/$id'
     | '/ecosystem/'
     | '/api/public/$'
@@ -295,6 +341,8 @@ export interface FileRouteTypes {
     | '/api/public/vscode-marketplace'
     | '/ecosystem/item/$id'
     | '/api/shares/'
+    | '/api/public/builder/chat'
+    | '/api/public/builder/publish'
     | '/api/public/download/$platform'
     | '/api/shares/$id/data'
     | '/api/shares/$id/sync'
@@ -307,7 +355,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BuilderRoute: typeof BuilderRoute
   ApiSplatRoute: typeof ApiSplatRoute
+  ApiMarketplaceSearchRoute: typeof ApiMarketplaceSearchRoute
   ShareIdRoute: typeof ShareIdRoute
   EcosystemIndexRoute: typeof EcosystemIndexRoute
   ApiPublicSplatRoute: typeof ApiPublicSplatRoute
@@ -321,6 +371,8 @@ export interface RootRouteChildren {
   ApiPublicVscodeMarketplaceRoute: typeof ApiPublicVscodeMarketplaceRoute
   EcosystemItemIdRoute: typeof EcosystemItemIdRoute
   ApiSharesIndexRoute: typeof ApiSharesIndexRoute
+  ApiPublicBuilderChatRoute: typeof ApiPublicBuilderChatRoute
+  ApiPublicBuilderPublishRoute: typeof ApiPublicBuilderPublishRoute
   ApiPublicDownloadPlatformRoute: typeof ApiPublicDownloadPlatformRoute
   ApiSharesIdDataRoute: typeof ApiSharesIdDataRoute
   ApiSharesIdSyncRoute: typeof ApiSharesIdSyncRoute
@@ -333,6 +385,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/builder': {
+      id: '/builder'
+      path: '/builder'
+      fullPath: '/builder'
+      preLoaderRoute: typeof BuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -352,6 +411,13 @@ declare module '@tanstack/react-router' {
       path: '/share/$id'
       fullPath: '/share/$id'
       preLoaderRoute: typeof ShareIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/marketplace-search': {
+      id: '/api/marketplace-search'
+      path: '/api/marketplace-search'
+      fullPath: '/api/marketplace-search'
+      preLoaderRoute: typeof ApiMarketplaceSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/$': {
@@ -473,6 +539,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicDownloadPlatformRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/builder/publish': {
+      id: '/api/public/builder/publish'
+      path: '/api/public/builder/publish'
+      fullPath: '/api/public/builder/publish'
+      preLoaderRoute: typeof ApiPublicBuilderPublishRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/builder/chat': {
+      id: '/api/public/builder/chat'
+      path: '/api/public/builder/chat'
+      fullPath: '/api/public/builder/chat'
+      preLoaderRoute: typeof ApiPublicBuilderChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/shares/$id/': {
       id: '/api/public/shares/$id/'
       path: '/api/public/shares/$id'
@@ -499,7 +579,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BuilderRoute: BuilderRoute,
   ApiSplatRoute: ApiSplatRoute,
+  ApiMarketplaceSearchRoute: ApiMarketplaceSearchRoute,
   ShareIdRoute: ShareIdRoute,
   EcosystemIndexRoute: EcosystemIndexRoute,
   ApiPublicSplatRoute: ApiPublicSplatRoute,
@@ -513,6 +595,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicVscodeMarketplaceRoute: ApiPublicVscodeMarketplaceRoute,
   EcosystemItemIdRoute: EcosystemItemIdRoute,
   ApiSharesIndexRoute: ApiSharesIndexRoute,
+  ApiPublicBuilderChatRoute: ApiPublicBuilderChatRoute,
+  ApiPublicBuilderPublishRoute: ApiPublicBuilderPublishRoute,
   ApiPublicDownloadPlatformRoute: ApiPublicDownloadPlatformRoute,
   ApiSharesIdDataRoute: ApiSharesIdDataRoute,
   ApiSharesIdSyncRoute: ApiSharesIdSyncRoute,

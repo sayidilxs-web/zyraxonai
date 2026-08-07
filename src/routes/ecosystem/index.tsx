@@ -161,6 +161,7 @@ export default function EcosystemPage() {
 
   const handleLogout = () => { clearAuthState(); clearGitHubStorage(); setAuthState(getAuthState()) }
   const navigateTo = (v: string) => {
+    if (v === 'builder') { window.location.href = '/builder'; return }
     setView(v as ViewMode); setSelectedItem(null); setActiveCategory(null); setSearchQuery('')
   }
   const openItem = (item: EcosystemItem) => { setSelectedItem(item); setView('product-detail') }

@@ -10,7 +10,8 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/api/marketplace-search")({
   server: {
-    handler: async ({ request }) => {
+    handlers: {
+      GET: async ({ request }: { request: Request }) => {
       const url = new URL(request.url);
       const query = url.searchParams.get("query") || "";
       const category = url.searchParams.get("category") || "";
@@ -77,5 +78,6 @@ export const Route = createFileRoute("/api/marketplace-search")({
         return Response.json({ error: "Internal server error" }, { status: 500 });
       }
     },
+      },
   },
 });
