@@ -509,7 +509,7 @@ export function EventLogsTab() {
       doc.setFont('helvetica', 'bold');
       doc.text('Event Logs Report', margin, 35);
 
-      // Add subtitle with bolt.diy
+      // Add subtitle with Zyraxon AI Builder
       doc.setFontSize(12);
       doc.setFont('helvetica', 'normal');
       doc.text('Zyraxon AI Builder - AI Website Builder', margin, 45);
